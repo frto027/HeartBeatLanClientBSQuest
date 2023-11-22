@@ -52,6 +52,21 @@
         "id": "modloader",
         "versionRange": "=1.2.3",
         "additionalData": {}
+      },
+      {
+        "id": "questui",
+        "versionRange": "^0.17.12",
+        "additionalData": {}
+      },
+      {
+        "id": "custom-types",
+        "versionRange": "^0.15.24",
+        "additionalData": {}
+      },
+      {
+        "id": "codegen",
+        "versionRange": "^0.33.0",
+        "additionalData": {}
       }
     ]
   },
@@ -89,6 +104,52 @@
         }
       },
       "version": "3.14.0"
+    },
+    {
+      "dependency": {
+        "id": "codegen",
+        "versionRange": "=0.33.0",
+        "additionalData": {
+          "soLink": "https://github.com/sc2ad/BeatSaber-Quest-Codegen/releases/download/v0.33.0/libcodegen.so",
+          "overrideSoName": "libcodegen.so",
+          "modLink": "https://github.com/sc2ad/BeatSaber-Quest-Codegen/releases/download/v0.33.0/Codegen.qmod",
+          "branchName": "version-v0.33.0"
+        }
+      },
+      "version": "0.33.0"
+    },
+    {
+      "dependency": {
+        "id": "custom-types",
+        "versionRange": "=0.15.24",
+        "additionalData": {
+          "soLink": "https://github.com/sc2ad/Il2CppQuestTypePatching/releases/download/v0.15.24/libcustom-types.so",
+          "debugSoLink": "https://github.com/sc2ad/Il2CppQuestTypePatching/releases/download/v0.15.24/debug_libcustom-types.so",
+          "overrideSoName": "libcustom-types.so",
+          "modLink": "https://github.com/sc2ad/Il2CppQuestTypePatching/releases/download/v0.15.24/CustomTypes.qmod",
+          "branchName": "version-v0.15.24"
+        }
+      },
+      "version": "0.15.24"
+    },
+    {
+      "dependency": {
+        "id": "questui",
+        "versionRange": "=0.17.12",
+        "additionalData": {
+          "soLink": "https://github.com/darknight1050/QuestUI/releases/download/v0.17.12/libquestui.so",
+          "debugSoLink": "https://github.com/darknight1050/QuestUI/releases/download/v0.17.12/debug_libquestui.so",
+          "overrideSoName": "libquestui.so",
+          "modLink": "https://github.com/darknight1050/QuestUI/releases/download/v0.17.12/QuestUI.qmod",
+          "branchName": "version-v0.17.12",
+          "compileOptions": {
+            "systemIncludes": [
+              "shared/cppcodec"
+            ]
+          }
+        }
+      },
+      "version": "0.17.12"
     }
   ]
 }
