@@ -2,7 +2,7 @@
 
 namespace HeartBeat{
     DataSource* DataSource::getInstance(){
-        static RandomDataSource r;
+        static HeartBeatLanDataSource r;
         return &r;
     }
 

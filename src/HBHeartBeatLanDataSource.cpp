@@ -11,6 +11,8 @@
 #include <netinet/in.h>
 #include <netinet/ip.h>
 
+#include <pthread.h>
+
 #include <algorithm>
 
 #define PORT 9965
@@ -20,6 +22,14 @@
 #define CLIENT_MSG "HeartBeatRecHere" PROTOCOL_VER
 
 namespace HeartBeat{
+
+    void * HeartBeatLanDataSource::ServerThread(void * self){
+        while(1){
+            ((HeartBeatLanDataSource*)self)->SocketUpdate();
+            usleep(200);
+        }
+        return NULL;
+    }
 
     bool init_recv_sock(int socket){
         int buf;
@@ -62,6 +72,9 @@ failed:
         }
 
         StartPair();
+
+        pthread_t the_thread;
+        pthread_create(&the_thread, NULL, HeartBeatLanDataSource::ServerThread, this);
     }
 
     void HeartBeatLanDataSource::StartPair(){
@@ -98,8 +111,8 @@ failed:
     }
 
     
-
-    void HeartBeatLanDataSource::Update(){
+    // this function is executed in other thread
+    void HeartBeatLanDataSource::SocketUpdate(){
         sockaddr addr;
         socklen_t len;
         char buff[1024];
@@ -111,7 +124,7 @@ failed:
                 len = sizeof(addr), pkglen = recvfrom(pair_socket, buff,sizeof(buff), 0, &addr, &len), pkglen >= 0
             ))
         {
-            getLogger().info("received a broadcast.");
+            //getLogger().info("received a broadcast.");
             if(0 == strncmp(SERVER_MSG, buff, std::min(strlen(SERVER_MSG), (size_t)pkglen))){
                 bool already_exist = false;
                 for(auto it=paired_servers.begin(),end=paired_servers.end();it!=end;++it){
@@ -164,7 +177,7 @@ failed:
                 continue;
             }
 
-            getLogger().info("received a device packet.");
+            //getLogger().info("received a device packet.");
             int name_end = 0;
             for(int i=0;i<pkglen;i++){
                 if(buff[i] == 0){
@@ -205,7 +218,8 @@ failed:
                 if(!d.ignored){
                     d.last_data = heart;
                     d.last_data_time = time(NULL);
-                    latest_data_dev = &d;
+                    the_heart = heart;
+                    has_unread_heart_data = true;
                 }
             }
         }
@@ -223,9 +237,9 @@ failed:
         return PROTOCOL_VER;
     }
     bool HeartBeatLanDataSource::GetData(int& heartbeat){
-        if(latest_data_dev){
-            heartbeat = (int)latest_data_dev->last_data;
-            latest_data_dev = nullptr;
+        if(has_unread_heart_data){
+            has_unread_heart_data = false;
+            heartbeat = the_heart;
             return true;
         }
         return false;

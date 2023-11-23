@@ -4,12 +4,17 @@
 #include "codegen/include/TMPro/TextMeshPro.hpp"
 
 // parameters are (namespace, class name, parent class, contents)
+#define HEARTBEAT_STATUS_MAINMENU 1
+#define HEARTBEAT_STATUS_GAMECORE 2
+#define HEARTBEAT_STATUS_HIDE 3
 DECLARE_CLASS_CODEGEN(HeartBeat, HeartBeatObj, UnityEngine::MonoBehaviour,
     // DECLARE_INSTANCE_METHOD creates methods
     DECLARE_INSTANCE_METHOD(void, Start);
     DECLARE_INSTANCE_METHOD(void, Update);
 
+    DECLARE_INSTANCE_METHOD(void, SetStatus,int status);
     // DECLARE_INSTANCE_FIELD creates fields
     //DECLARE_INSTANCE_FIELD(int, counts);
     TMPro::TextMeshPro* text;
-)
+    int status;
+);

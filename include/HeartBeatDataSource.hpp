@@ -35,16 +35,19 @@ struct HeartBeatLanDevice{
 class HeartBeatLanDataSource:public DataSource{
 private:
     int pair_socket, recv_socket;
-    HeartBeatLanDevice * latest_data_dev = nullptr;
+    volatile int the_heart;
+    volatile bool has_unread_heart_data;
 public:
     HeartBeatLanDataSource();
     bool GetData(int& heartbeat);
     void StartPair();
-    void Update();
+    void SocketUpdate();
     void StopPair();
 
     const char * GetProtocolVersion();
     std::vector<HeartBeatLanDataSourceServer> paired_servers;
     std::map<std::string/*mac*/, HeartBeatLanDevice> avaliable_devices;
+
+    static void * ServerThread(void *self);
 };
 };//namespace HeartBeat

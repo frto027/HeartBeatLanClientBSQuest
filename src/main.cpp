@@ -5,7 +5,7 @@
 #include "codegen/include/UnityEngine/MonoBehaviour.hpp"
 #include "codegen/include/HMUI/HierarchyManager.hpp"
 #include "questui/shared/QuestUI.hpp"
-
+#include "codegen/include/UnityEngine/SceneManagement/SceneManager.hpp"
 
 #include "custom-types/shared/macros.hpp"
 
@@ -35,6 +35,8 @@ extern "C" void setup(ModInfo& info) {
     getLogger().info("Completed setup!");
 }
 
+HeartBeat::HeartBeatObj *heartbeatObj = nullptr;
+
 MAKE_HOOK_MATCH(HeartBeatUIInit, &HMUI::HierarchyManager::Start, void,HMUI::HierarchyManager * self){
     HeartBeatUIInit(self);
     
@@ -44,13 +46,30 @@ MAKE_HOOK_MATCH(HeartBeatUIInit, &HMUI::HierarchyManager::Start, void,HMUI::Hier
     if(init)
         return;
     init = true;
-   auto obj = UnityEngine::GameObject::New_ctor("the_heartbeat");
-   UnityEngine::GameObject::DontDestroyOnLoad(obj);
-   obj->AddComponent<HeartBeat::HeartBeatObj*>();
-
-   getLogger().info("Heart object created.");
-
+    auto obj = UnityEngine::GameObject::New_ctor("the_heartbeat");
+    UnityEngine::GameObject::DontDestroyOnLoad(obj);
+    heartbeatObj = obj->AddComponent<HeartBeat::HeartBeatObj*>();
+    getLogger().info("Heart object created.");
+   //heartbeatObj->Hide();
 }
+
+MAKE_HOOK_MATCH(HeartBeatSceneChange, &UnityEngine::SceneManagement::SceneManager::SetActiveScene, bool, UnityEngine::SceneManagement::Scene scene){
+    std::string name = scene.get_name();
+    getLogger().info("Load the scene -> %s", name.c_str());
+    if(name == "GameCore"){
+        if(heartbeatObj)
+            heartbeatObj->SetStatus(HEARTBEAT_STATUS_GAMECORE);
+    }else if(name == "MainMenu"){
+        if(heartbeatObj)
+            heartbeatObj->SetStatus(HEARTBEAT_STATUS_MAINMENU);
+    }else{
+        if(heartbeatObj)
+            heartbeatObj->SetStatus(HEARTBEAT_STATUS_HIDE);
+    }
+    return HeartBeatSceneChange(scene);
+}
+
+
 // Called later on in the game loading - a good time to install function hooks
 extern "C" void load() {
     il2cpp_functions::Init();
@@ -58,5 +77,6 @@ extern "C" void load() {
     
     getLogger().info("Installing hooks...");
     INSTALL_HOOK(getLogger(), HeartBeatUIInit);
+    INSTALL_HOOK(getLogger(), HeartBeatSceneChange)
     getLogger().info("Installed all hooks!");
 }
