@@ -1,4 +1,14 @@
 #include "main.hpp"
+#include "HeartBeat.hpp"
+
+#include "codegen/include/UnityEngine/GameObject.hpp"
+#include "codegen/include/UnityEngine/MonoBehaviour.hpp"
+#include "codegen/include/HMUI/HierarchyManager.hpp"
+#include "questui/shared/QuestUI.hpp"
+
+
+#include "custom-types/shared/macros.hpp"
+
 
 static ModInfo modInfo; // Stores the ID and version of our mod, and is sent to the modloader upon startup
 
@@ -25,41 +35,6 @@ extern "C" void setup(ModInfo& info) {
     getLogger().info("Completed setup!");
 }
 
-// parameters are (namespace, class name, parent class, contents)
-DECLARE_CLASS_CODEGEN(HeartBeatObject, HeartBeatObj, UnityEngine::MonoBehaviour,
-    // DECLARE_INSTANCE_METHOD creates methods
-    DECLARE_INSTANCE_METHOD(void, Start);
-    DECLARE_INSTANCE_METHOD(void, Update);
-
-    // DECLARE_INSTANCE_FIELD creates fields
-    //DECLARE_INSTANCE_FIELD(int, counts);
-    TMPro::TextMeshPro* text;
-)
-
-DEFINE_TYPE(HeartBeatObject, HeartBeatObj);
-
-namespace HeartBeatObject{
-    static int still_live = 0;
-
-    void HeartBeatObj::Start(){
-        text = this->get_gameObject()->AddComponent<TMPro::TextMeshPro*>();
-        if(text == nullptr){
-            getLogger().info("the text create failed.!");
-        }else{
-            auto rectTransform = text->get_rectTransform();
-            rectTransform->set_position({0,2.5,3.5});
-            text->set_alignment(TMPro::TextAlignmentOptions::Center);
-            text->set_fontSize(3);
-            text->set_text("heart heart heart");
-        }
-    }
-    void HeartBeatObj::Update(){
-        char buff[1024];
-        sprintf(buff, "heart % 3d", still_live++ % 200);
-        text->set_text(buff);
-    }
-};
-
 MAKE_HOOK_MATCH(HeartBeatUIInit, &HMUI::HierarchyManager::Start, void,HMUI::HierarchyManager * self){
     HeartBeatUIInit(self);
     
@@ -71,7 +46,7 @@ MAKE_HOOK_MATCH(HeartBeatUIInit, &HMUI::HierarchyManager::Start, void,HMUI::Hier
     init = true;
    auto obj = UnityEngine::GameObject::New_ctor("the_heartbeat");
    UnityEngine::GameObject::DontDestroyOnLoad(obj);
-   obj->AddComponent<HeartBeatObject::HeartBeatObj*>();
+   obj->AddComponent<HeartBeat::HeartBeatObj*>();
 
    getLogger().info("Heart object created.");
 

@@ -10,20 +10,6 @@
 #include "beatsaber-hook/shared/utils/il2cpp-functions.hpp"
 #include "beatsaber-hook/shared/utils/hooking.hpp"
 
-#include "questui/shared/QuestUI.hpp"
-
-
-#include "custom-types/shared/macros.hpp"
-
-#include "codegen/include/UnityEngine/GameObject.hpp"
-#include "codegen/include/UnityEngine/MonoBehaviour.hpp"
-#include "codegen/include/HMUI/HierarchyManager.hpp"
-#include "codegen/include/UnityEngine/Transform.hpp"
-#include "codegen/include/TMPro/TextMeshPro.hpp"
-#include "codegen/include/UnityEngine/RectTransform.hpp"
-
-#include "sys/socket.h"
-
 // Define these functions here so that we can easily read configuration and log information from other files
 Configuration& getConfig();
 Logger& getLogger();
