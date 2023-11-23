@@ -2,10 +2,20 @@
 
 view your heartbeat inside the quest game
 
+这是一个可以在quest上查看心率的节奏光剑模组，[下载apk](https://github.com/frto027/HeartbeatLanServer/releases/latest)后，可以显示手机上的蓝牙心率设备。
+
+已具备正常功能，但还缺少一些收尾工作，故暂未发布。
+
 Install [this](https://github.com/frto027/HeartbeatLanServer/releases/latest) apk on your android phone. And connect the same LAN 
+
+TODO:
+- Release this app.
+- Add a config UI to support device/server select and stop pairing.
+- Clean up thread resources when game close?
 
 Use `qpm-rust s build` to build
 Same goes for `qpm-rust s copy` and `qpm-rust s qmod`
+
 
 ## Credits
 
