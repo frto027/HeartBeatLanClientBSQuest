@@ -253,6 +253,123 @@ namespace ModUI{
             
             pair_stoppair_btn =  QuestUI::BeatSaberUI::CreateUIButton(container->get_transform(), "Waiting...", PairUnpairBtnClick);
             private_public_btn =  QuestUI::BeatSaberUI::CreateUIButton(container->get_transform(), "Waiting...", PrivateNotPrivateBtnClick);
+            
+            QuestUI::BeatSaberUI::CreateColorPicker(container->get_transform(), "Text Color", getModConfig().HeartTextColor.GetValue(),
+                [](UnityEngine::Color color){
+                    heartbeatObj->text->set_color(color);
+                },
+                [](){
+                    getModConfig().HeartTextColor.SetValue(heartbeatObj->text->get_color());
+                },
+                [](UnityEngine::Color color){
+                    heartbeatObj->text->set_color(getModConfig().HeartTextColor.GetValue());
+            });
+
+            static QuestUI::IncrementSetting *MenuPosX, *MenuPosY, *MenuPosZ, *GameCoreX, *GameCoreY, *GameCoreZ;
+
+            QuestUI::BeatSaberUI::CreateIncrementSetting(container->get_transform(), "Position Setthing Increment", 2, 0.01, 0.02, [](float v){
+                MenuPosX->Increment = v;
+                MenuPosY->Increment = v;
+                MenuPosZ->Increment = v;
+                GameCoreX->Increment = v;
+                GameCoreY->Increment = v;
+                GameCoreZ->Increment = v;
+            })->MinValue = 0.01;
+
+            //======================== Game Play Position ===============
+
+            GameCoreX = QuestUI::BeatSaberUI::CreateIncrementSetting(container->get_transform(),"Game Play X", 2, 0.02, 
+                getModConfig().HeartGameCorePos.GetValue().x, [](float v){
+                    auto & p = getModConfig().HeartGameCorePos;
+                    auto vec = p.GetValue();
+                    vec.x = v;
+                    p.SetValue(vec);
+                    heartbeatObj->GoToGameCorePos();
+            });
+
+            GameCoreY = QuestUI::BeatSaberUI::CreateIncrementSetting(container->get_transform(),"Game Play Y", 2, 0.02, 
+                getModConfig().HeartGameCorePos.GetValue().y, [](float v){
+                    auto & p = getModConfig().HeartGameCorePos;
+                    auto vec = p.GetValue();
+                    vec.y = v;
+                    p.SetValue(vec);
+                    heartbeatObj->GoToGameCorePos();
+            });
+
+            GameCoreZ = QuestUI::BeatSaberUI::CreateIncrementSetting(container->get_transform(),"Game Play Z", 2, 0.02, 
+                getModConfig().HeartGameCorePos.GetValue().z, [](float v){
+                    auto & p = getModConfig().HeartGameCorePos;
+                    auto vec = p.GetValue();
+                    vec.z = v;
+                    p.SetValue(vec);
+                    heartbeatObj->GoToGameCorePos();
+            });
+
+
+            QuestUI::BeatSaberUI::CreateUIButton(container->get_transform(), "Game Play Position: Reset Default", [](){
+                auto & conf = getModConfig();
+                auto d = conf.HeartGameCorePos.GetDefaultValue();
+                conf.HeartGameCorePos.SetValue(d);
+                GameCoreX->CurrentValue = d.x;
+                GameCoreY->CurrentValue = d.y;
+                GameCoreZ->CurrentValue = d.z;
+                GameCoreX->UpdateValue();
+                GameCoreY->UpdateValue();
+                GameCoreZ->UpdateValue();
+
+                heartbeatObj->GoToGameCorePos();
+            });
+
+            QuestUI::BeatSaberUI::CreateUIButton(container->get_transform(), "Game Play Position: Go To", [](){
+                heartbeatObj->GoToGameCorePos();
+            });
+
+            //======================== Main Menu Position ===============
+            
+            MenuPosX = QuestUI::BeatSaberUI::CreateIncrementSetting(container->get_transform(),"Main Menu X", 2, 0.02, 
+                getModConfig().HeartMainMenuPos.GetValue().x, [](float v){
+                    auto & p = getModConfig().HeartMainMenuPos;
+                    auto vec = p.GetValue();
+                    vec.x = v;
+                    p.SetValue(vec);
+                    heartbeatObj->GoToMainMenuPos();
+            });
+
+            MenuPosY = QuestUI::BeatSaberUI::CreateIncrementSetting(container->get_transform(),"Main Menu Y", 2, 0.02, 
+                getModConfig().HeartMainMenuPos.GetValue().y, [](float v){
+                    auto & p = getModConfig().HeartMainMenuPos;
+                    auto vec = p.GetValue();
+                    vec.y = v;
+                    p.SetValue(vec);
+                    heartbeatObj->GoToMainMenuPos();
+            });
+
+            MenuPosZ = QuestUI::BeatSaberUI::CreateIncrementSetting(container->get_transform(),"Main Menu Z", 2, 0.02, 
+                getModConfig().HeartMainMenuPos.GetValue().z, [](float v){
+                    auto & p = getModConfig().HeartMainMenuPos;
+                    auto vec = p.GetValue();
+                    vec.z = v;
+                    p.SetValue(vec);
+                    heartbeatObj->GoToMainMenuPos();
+            });
+
+            QuestUI::BeatSaberUI::CreateUIButton(container->get_transform(), "Main Menu Position: Reset Default", [](){
+                auto & conf = getModConfig();
+                auto d = conf.HeartMainMenuPos.GetDefaultValue();
+                conf.HeartMainMenuPos.SetValue(d);
+                MenuPosX->CurrentValue = d.x;
+                MenuPosY->CurrentValue = d.y;
+                MenuPosZ->CurrentValue = d.z;
+                MenuPosX->UpdateValue();
+                MenuPosY->UpdateValue();
+                MenuPosZ->UpdateValue();
+                heartbeatObj->GoToMainMenuPos();
+            });
+
+            QuestUI::BeatSaberUI::CreateUIButton(container->get_transform(), "Main Menu Position: GO TO", [](){
+                heartbeatObj->GoToMainMenuPos();
+            });
+
             UpdateSetthingsContent();
         }
     }

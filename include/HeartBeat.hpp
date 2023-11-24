@@ -17,6 +17,10 @@ DECLARE_CLASS_CODEGEN(HeartBeat, HeartBeatObj, UnityEngine::MonoBehaviour,
     DECLARE_INSTANCE_METHOD(void, SetStatus,int status);
     // DECLARE_INSTANCE_FIELD creates fields
     //DECLARE_INSTANCE_FIELD(int, counts);
+public:
     TMPro::TextMeshPro* text;
     int status;
+
+    void GoToGameCorePos();
+    void GoToMainMenuPos();
 );

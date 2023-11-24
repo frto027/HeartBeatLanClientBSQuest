@@ -10,7 +10,7 @@
 DEFINE_TYPE(HeartBeat, HeartBeatObj);
 
 namespace HeartBeat{
-    #define DEFAULT_HEART_TEXT "heart ???"
+    #define DEFAULT_HEART_TEXT "??? bpm"
     void HeartBeatObj::Start(){
         heartbeatObj = this;
         text = this->get_gameObject()->AddComponent<TMPro::TextMeshPro*>();
@@ -21,6 +21,7 @@ namespace HeartBeat{
             text->set_alignment(TMPro::TextAlignmentOptions::Center);
             text->set_text(DEFAULT_HEART_TEXT);
             text->set_lineSpacing(-35);
+            text->set_color(getModConfig().HeartTextColor.GetValue());
             this->SetStatus(HEARTBEAT_STATUS_MAINMENU);
         }
     }
@@ -41,9 +42,9 @@ namespace HeartBeat{
         if(HeartBeat::DataSource::getInstance()->GetData(data)){
             char buff[1024];
             if(status == HEARTBEAT_STATUS_GAMECORE){
-                sprintf(buff, "heart\n% 3d", data);
+                sprintf(buff, "%d\nbpm", data);
             }else{
-                sprintf(buff, "heart % 3d", data);
+                sprintf(buff, "% 3d bpm", data);
             }
             text->set_text(buff);
         }
@@ -54,14 +55,15 @@ namespace HeartBeat{
         switch (status)
         {
         case HEARTBEAT_STATUS_GAMECORE:
-            this->text->get_rectTransform()->set_position({3.1,0.2,6.8});
+            GoToGameCorePos();
+            //this->text->get_rectTransform()->set_position({3.1,0.2,6.8});
             text->set_fontSize(3);
             this->text->get_rectTransform()->set_rotation(UnityEngine::Quaternion::AngleAxis(0, UnityEngine::Vector3::get_up()));
             this->text->set_text(DEFAULT_HEART_TEXT);
             break;
         case HEARTBEAT_STATUS_MAINMENU:
-            // this->text->get_rectTransform()->set_position({0,3,4});
-            this->text->get_rectTransform()->set_position({-2.3,2.8,4});
+            GoToMainMenuPos();
+            //this->text->get_rectTransform()->set_position({-2.3,2.8,4});
             text->set_fontSize(2);
             this->text->get_rectTransform()->set_rotation(UnityEngine::Quaternion::AngleAxis(-30, UnityEngine::Vector3::get_up()));
             this->text->set_text(DEFAULT_HEART_TEXT);
@@ -70,5 +72,12 @@ namespace HeartBeat{
             this->text->set_text("");
             break;
         }
+    }
+
+    void HeartBeatObj::GoToGameCorePos(){
+        this->text->get_rectTransform()->set_position(getModConfig().HeartGameCorePos.GetValue());
+    }
+    void HeartBeatObj::GoToMainMenuPos(){
+        this->text->get_rectTransform()->set_position(getModConfig().HeartMainMenuPos.GetValue());
     }
 };
