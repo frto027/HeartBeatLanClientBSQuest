@@ -9,8 +9,10 @@
 
 DEFINE_TYPE(HeartBeat, HeartBeatObj);
 
+#define GAMECORE_DEFAULT_TEXT "???\nbpm"
+#define MAINMENU_DEFAULT_TEXT "??? bpm"
+
 namespace HeartBeat{
-    #define DEFAULT_HEART_TEXT "??? bpm"
     void HeartBeatObj::Start(){
         heartbeatObj = this;
         text = this->get_gameObject()->AddComponent<TMPro::TextMeshPro*>();
@@ -19,8 +21,8 @@ namespace HeartBeat{
         }else{
             auto rectTransform = text->get_rectTransform();
             text->set_alignment(TMPro::TextAlignmentOptions::Center);
-            text->set_text(DEFAULT_HEART_TEXT);
-            text->set_lineSpacing(-35);
+            text->set_text(MAINMENU_DEFAULT_TEXT);
+            text->set_lineSpacing(getModConfig().HeartLineSpaceDelta.GetValue());
             text->set_color(getModConfig().HeartTextColor.GetValue());
             this->SetStatus(HEARTBEAT_STATUS_MAINMENU);
         }
@@ -58,15 +60,15 @@ namespace HeartBeat{
             GoToGameCorePos();
             //this->text->get_rectTransform()->set_position({3.1,0.2,6.8});
             text->set_fontSize(3);
-            this->text->get_rectTransform()->set_rotation(UnityEngine::Quaternion::AngleAxis(0, UnityEngine::Vector3::get_up()));
-            this->text->set_text(DEFAULT_HEART_TEXT);
+            this->text->get_rectTransform()->set_rotation(UnityEngine::Quaternion::AngleAxis(getModConfig().HeartGameCoreRot.GetValue(), UnityEngine::Vector3::get_up()));
+            this->text->set_text(GAMECORE_DEFAULT_TEXT);
             break;
         case HEARTBEAT_STATUS_MAINMENU:
             GoToMainMenuPos();
             //this->text->get_rectTransform()->set_position({-2.3,2.8,4});
             text->set_fontSize(2);
-            this->text->get_rectTransform()->set_rotation(UnityEngine::Quaternion::AngleAxis(-30, UnityEngine::Vector3::get_up()));
-            this->text->set_text(DEFAULT_HEART_TEXT);
+            this->text->get_rectTransform()->set_rotation(UnityEngine::Quaternion::AngleAxis(getModConfig().HeartMainMenuRot.GetValue(), UnityEngine::Vector3::get_up()));
+            this->text->set_text(MAINMENU_DEFAULT_TEXT);
             break;
         case HEARTBEAT_STATUS_HIDE:
             this->text->set_text("");

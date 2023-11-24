@@ -3,11 +3,11 @@
   "dependenciesDir": "extern",
   "info": {
     "name": "HeartBeatLanClientQuest",
-    "id": "heartbeatlanclientquest",
+    "id": "HeartBeatLanClientQuest",
     "version": "0.1.0",
     "url": null,
     "additionalData": {
-      "overrideSoName": "libheartbeatlanclientquest.so",
+      "overrideSoName": "libHeartBeatLanClientQuest.so",
       "cmake": true
     }
   },

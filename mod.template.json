@@ -9,7 +9,7 @@
   "packageVersion": "1.22.0",
   "description": "view your heartbeat inside the quest game",
   "dependencies": [],
-  "modFiles": [],
+  "modFiles": ["libHeartBeatLanClientQuest.so"],
   "libraryFiles": [],
   "fileCopies": []
 }

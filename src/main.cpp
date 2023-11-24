@@ -251,21 +251,41 @@ namespace ModUI{
             // Create a container that has a scroll bar
             auto *container = QuestUI::BeatSaberUI::CreateScrollableSettingsContainer(self->get_transform());
             
+            QuestUI::BeatSaberUI::CreateText(container->get_transform(),std::string("Heart Rate Lan Protocol Ver ") + HeartBeat::HeartBeatLanDataSource::GetProtocolVersion());
+            QuestUI::BeatSaberUI::CreateText(container->get_transform(),"Mod version " VERSION);
+
             pair_stoppair_btn =  QuestUI::BeatSaberUI::CreateUIButton(container->get_transform(), "Waiting...", PairUnpairBtnClick);
             private_public_btn =  QuestUI::BeatSaberUI::CreateUIButton(container->get_transform(), "Waiting...", PrivateNotPrivateBtnClick);
             
             QuestUI::BeatSaberUI::CreateColorPicker(container->get_transform(), "Text Color", getModConfig().HeartTextColor.GetValue(),
                 [](UnityEngine::Color color){
-                    heartbeatObj->text->set_color(color);
+                    getModConfig().HeartTextColor.SetValue(heartbeatObj->text->get_color());
+
                 },
                 [](){
-                    getModConfig().HeartTextColor.SetValue(heartbeatObj->text->get_color());
+                    heartbeatObj->text->set_color(getModConfig().HeartTextColor.GetValue());
                 },
                 [](UnityEngine::Color color){
-                    heartbeatObj->text->set_color(getModConfig().HeartTextColor.GetValue());
+                    heartbeatObj->text->set_color(color);
             });
 
-            static QuestUI::IncrementSetting *MenuPosX, *MenuPosY, *MenuPosZ, *GameCoreX, *GameCoreY, *GameCoreZ;
+            static QuestUI::IncrementSetting *LineSpace;
+            LineSpace = QuestUI::BeatSaberUI::CreateIncrementSetting(container->get_transform(), "Line Space", 0, 1, getModConfig().HeartLineSpaceDelta.GetValue(), [](float v){
+                getModConfig().HeartLineSpaceDelta.SetValue(v);
+                heartbeatObj->text->set_lineSpacing(v);
+                heartbeatObj->SetStatus(HEARTBEAT_STATUS_GAMECORE);
+            });
+
+            QuestUI::BeatSaberUI::CreateUIButton(container->get_transform(), "Reset Default Line Space", [](){
+                auto v = getModConfig().HeartLineSpaceDelta.GetDefaultValue();
+                getModConfig().HeartLineSpaceDelta.SetValue(v);
+                heartbeatObj->text->set_lineSpacing(v);
+                LineSpace->CurrentValue = v;
+                LineSpace->UpdateValue();
+                heartbeatObj->SetStatus(HEARTBEAT_STATUS_GAMECORE);
+            });
+
+            static QuestUI::IncrementSetting *MenuPosX, *MenuPosY, *MenuPosZ, *MenuRotY, *GameCoreX, *GameCoreY, *GameCoreZ, *GameCoreRotY;
 
             QuestUI::BeatSaberUI::CreateIncrementSetting(container->get_transform(), "Position Setthing Increment", 2, 0.01, 0.02, [](float v){
                 MenuPosX->Increment = v;
@@ -274,9 +294,16 @@ namespace ModUI{
                 GameCoreX->Increment = v;
                 GameCoreY->Increment = v;
                 GameCoreZ->Increment = v;
+                MenuRotY->Increment = v * 100;
+                GameCoreRotY->Increment = v * 100;
             })->MinValue = 0.01;
 
             //======================== Game Play Position ===============
+
+            GameCoreRotY = QuestUI::BeatSaberUI::CreateIncrementSetting(container->get_transform(),"Game Play Rot Y", 0, 2, getModConfig().HeartGameCoreRot.GetValue(), [](float v){
+                getModConfig().HeartGameCoreRot.SetValue(v);
+                heartbeatObj->SetStatus(HEARTBEAT_STATUS_GAMECORE);
+            });
 
             GameCoreX = QuestUI::BeatSaberUI::CreateIncrementSetting(container->get_transform(),"Game Play X", 2, 0.02, 
                 getModConfig().HeartGameCorePos.GetValue().x, [](float v){
@@ -284,7 +311,7 @@ namespace ModUI{
                     auto vec = p.GetValue();
                     vec.x = v;
                     p.SetValue(vec);
-                    heartbeatObj->GoToGameCorePos();
+                    heartbeatObj->SetStatus(HEARTBEAT_STATUS_GAMECORE);
             });
 
             GameCoreY = QuestUI::BeatSaberUI::CreateIncrementSetting(container->get_transform(),"Game Play Y", 2, 0.02, 
@@ -293,7 +320,7 @@ namespace ModUI{
                     auto vec = p.GetValue();
                     vec.y = v;
                     p.SetValue(vec);
-                    heartbeatObj->GoToGameCorePos();
+                    heartbeatObj->SetStatus(HEARTBEAT_STATUS_GAMECORE);
             });
 
             GameCoreZ = QuestUI::BeatSaberUI::CreateIncrementSetting(container->get_transform(),"Game Play Z", 2, 0.02, 
@@ -302,7 +329,7 @@ namespace ModUI{
                     auto vec = p.GetValue();
                     vec.z = v;
                     p.SetValue(vec);
-                    heartbeatObj->GoToGameCorePos();
+                    heartbeatObj->SetStatus(HEARTBEAT_STATUS_GAMECORE);
             });
 
 
@@ -313,26 +340,32 @@ namespace ModUI{
                 GameCoreX->CurrentValue = d.x;
                 GameCoreY->CurrentValue = d.y;
                 GameCoreZ->CurrentValue = d.z;
+                conf.HeartGameCoreRot.SetValue((GameCoreRotY->CurrentValue = conf.HeartGameCoreRot.GetDefaultValue()));
                 GameCoreX->UpdateValue();
                 GameCoreY->UpdateValue();
                 GameCoreZ->UpdateValue();
-
-                heartbeatObj->GoToGameCorePos();
+                GameCoreRotY->UpdateValue();
+                heartbeatObj->SetStatus(HEARTBEAT_STATUS_GAMECORE);
             });
 
             QuestUI::BeatSaberUI::CreateUIButton(container->get_transform(), "Game Play Position: Go To", [](){
-                heartbeatObj->GoToGameCorePos();
+                heartbeatObj->SetStatus(HEARTBEAT_STATUS_GAMECORE);
             });
 
             //======================== Main Menu Position ===============
             
+            MenuRotY = QuestUI::BeatSaberUI::CreateIncrementSetting(container->get_transform(),"Main Menu Rot Y", 0, 2, getModConfig().HeartMainMenuRot.GetValue(), [](float v){
+                getModConfig().HeartMainMenuRot.SetValue(v);
+                heartbeatObj->SetStatus(HEARTBEAT_STATUS_MAINMENU);
+            });
+
             MenuPosX = QuestUI::BeatSaberUI::CreateIncrementSetting(container->get_transform(),"Main Menu X", 2, 0.02, 
                 getModConfig().HeartMainMenuPos.GetValue().x, [](float v){
                     auto & p = getModConfig().HeartMainMenuPos;
                     auto vec = p.GetValue();
                     vec.x = v;
                     p.SetValue(vec);
-                    heartbeatObj->GoToMainMenuPos();
+                    heartbeatObj->SetStatus(HEARTBEAT_STATUS_MAINMENU);
             });
 
             MenuPosY = QuestUI::BeatSaberUI::CreateIncrementSetting(container->get_transform(),"Main Menu Y", 2, 0.02, 
@@ -341,7 +374,7 @@ namespace ModUI{
                     auto vec = p.GetValue();
                     vec.y = v;
                     p.SetValue(vec);
-                    heartbeatObj->GoToMainMenuPos();
+                    heartbeatObj->SetStatus(HEARTBEAT_STATUS_MAINMENU);
             });
 
             MenuPosZ = QuestUI::BeatSaberUI::CreateIncrementSetting(container->get_transform(),"Main Menu Z", 2, 0.02, 
@@ -350,7 +383,7 @@ namespace ModUI{
                     auto vec = p.GetValue();
                     vec.z = v;
                     p.SetValue(vec);
-                    heartbeatObj->GoToMainMenuPos();
+                    heartbeatObj->SetStatus(HEARTBEAT_STATUS_MAINMENU);
             });
 
             QuestUI::BeatSaberUI::CreateUIButton(container->get_transform(), "Main Menu Position: Reset Default", [](){
@@ -360,14 +393,16 @@ namespace ModUI{
                 MenuPosX->CurrentValue = d.x;
                 MenuPosY->CurrentValue = d.y;
                 MenuPosZ->CurrentValue = d.z;
+                conf.HeartMainMenuRot.SetValue((MenuRotY->CurrentValue = conf.HeartMainMenuRot.GetDefaultValue()));
                 MenuPosX->UpdateValue();
                 MenuPosY->UpdateValue();
                 MenuPosZ->UpdateValue();
-                heartbeatObj->GoToMainMenuPos();
+                MenuRotY->UpdateValue();
+                heartbeatObj->SetStatus(HEARTBEAT_STATUS_MAINMENU);
             });
 
             QuestUI::BeatSaberUI::CreateUIButton(container->get_transform(), "Main Menu Position: GO TO", [](){
-                heartbeatObj->GoToMainMenuPos();
+                heartbeatObj->SetStatus(HEARTBEAT_STATUS_MAINMENU);
             });
 
             UpdateSetthingsContent();

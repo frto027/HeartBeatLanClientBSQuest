@@ -56,7 +56,7 @@ public:
     void StopPair();
     bool IsPairing() { return pair_socket >= 0; }
 
-    const char * GetProtocolVersion();
+    static const char * GetProtocolVersion();
 
     static void * ServerThread(void *self);
     std::mutex mutex;
