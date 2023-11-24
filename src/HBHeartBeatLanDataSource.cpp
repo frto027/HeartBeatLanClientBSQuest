@@ -23,6 +23,9 @@
 
 namespace HeartBeat{
 
+    DECLARE_DATA_SOURCE(HeartBeatLanDataSource)
+
+
     void * HeartBeatLanDataSource::ServerThread(void * self){
         while(1){
             ((HeartBeatLanDataSource*)self)->SocketUpdate();
@@ -70,6 +73,8 @@ failed:
         if(!init_recv_sock(recv_socket)){
             recv_socket = -1;
         }
+
+        selected_mac = getModConfig().SelectedBleMac.GetValue();
 
         StartPair();
 
@@ -126,6 +131,8 @@ failed:
         {
             //getLogger().info("received a broadcast.");
             if(0 == strncmp(SERVER_MSG, buff, std::min(strlen(SERVER_MSG), (size_t)pkglen))){
+                std::lock_guard<std::mutex> lock(this->mutex);
+
                 bool already_exist = false;
                 for(auto it=paired_servers.begin(),end=paired_servers.end();it!=end;++it){
                     if(0 == memcmp(&(it->addr), &addr, std::min((size_t)len, sizeof(addr)))){
@@ -145,6 +152,8 @@ failed:
 
         // handle hello send
         if(recv_socket >= 0){
+            std::lock_guard<std::mutex> lock(this->mutex);
+
             for(auto it = paired_servers.begin(), end = paired_servers.end(); it != end; ++it){
                 time_t now = time(NULL);
                 if(now - it->last_alive_time > 20){
@@ -161,6 +170,7 @@ failed:
                 len = sizeof(addr), pkglen = recvfrom(recv_socket, buff,sizeof(buff), 0, &addr, &len), pkglen >= 0
             ))
         {
+            std::lock_guard<std::mutex> lock(this->mutex);
             bool is_server_ignored = true;
 
             for(auto it=paired_servers.begin(), end = paired_servers.end();it!=end;++it){
@@ -218,8 +228,11 @@ failed:
                 if(!d.ignored){
                     d.last_data = heart;
                     d.last_data_time = time(NULL);
-                    the_heart = heart;
-                    has_unread_heart_data = true;
+
+                    if(selected_mac.length() == 0 || selected_mac == d.mac){
+                        the_heart = heart;
+                        has_unread_heart_data = true;
+                    }
                 }
             }
         }

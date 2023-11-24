@@ -2,8 +2,7 @@
 
 namespace HeartBeat{
     DataSource* DataSource::getInstance(){
-        static HeartBeatLanDataSource r;
-        return &r;
+        return getInstance<HeartBeatLanDataSource>();
     }
 
     bool DataSource::GetData(int&heartbeat){
@@ -13,3 +12,4 @@ namespace HeartBeat{
 
     }
 }
+

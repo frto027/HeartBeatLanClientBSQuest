@@ -1,3 +1,5 @@
+#pragma once
+
 #include "codegen/include/UnityEngine/MonoBehaviour.hpp"
 #include "beatsaber-hook/shared/utils/il2cpp-functions.hpp"
 #include "custom-types/shared/macros.hpp"

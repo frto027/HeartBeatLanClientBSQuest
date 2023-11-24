@@ -25,6 +25,13 @@ namespace HeartBeat{
         }
     }
     void HeartBeatObj::Update(){
+        {
+            static int slow_down = 0;
+            if(slow_down++ > 20){
+                slow_down = 0;
+            ModUI::UpdateSetthingsUI();
+            }
+        }
         if(this->status == HEARTBEAT_STATUS_HIDE)
             return;
         auto instance = HeartBeat::DataSource::getInstance();
