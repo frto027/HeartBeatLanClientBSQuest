@@ -257,6 +257,28 @@ namespace ModUI{
             pair_stoppair_btn =  QuestUI::BeatSaberUI::CreateUIButton(container->get_transform(), "Waiting...", PairUnpairBtnClick);
             private_public_btn =  QuestUI::BeatSaberUI::CreateUIButton(container->get_transform(), "Waiting...", PrivateNotPrivateBtnClick);
             
+            #define SPLIT(x) do{\
+                QuestUI::BeatSaberUI::CreateText(container->get_transform(), "----- " x " -----")->set_alignment(TMPro::TextAlignmentOptions::Bottom);\
+            }while(0)
+
+            SPLIT("Config Adjust Speed");
+            static QuestUI::IncrementSetting *MenuPosX, *MenuPosY, *MenuPosZ, *MenuRotY, *GameCoreX, *GameCoreY, *GameCoreZ, *GameCoreRotY;
+            static QuestUI::IncrementSetting *FlashDur;
+
+            QuestUI::BeatSaberUI::CreateIncrementSetting(container->get_transform(), "This Config Menu", 2, 0.01, 0.02, [](float v){
+                MenuPosX->Increment = v;
+                MenuPosY->Increment = v;
+                MenuPosZ->Increment = v;
+                GameCoreX->Increment = v;
+                GameCoreY->Increment = v;
+                GameCoreZ->Increment = v;
+                MenuRotY->Increment = v * 100;
+                GameCoreRotY->Increment = v * 100;
+                FlashDur->Increment = v * 10;
+            })->MinValue = 0.01;
+
+            SPLIT("Text Color");
+
             QuestUI::BeatSaberUI::CreateColorPicker(container->get_transform(), "Text Color", getModConfig().HeartTextColor.GetValue(),
                 [](UnityEngine::Color color){
                     getModConfig().HeartTextColor.SetValue(heartbeatObj->text->get_color());
@@ -268,6 +290,34 @@ namespace ModUI{
                 [](UnityEngine::Color color){
                     heartbeatObj->text->set_color(color);
             });
+
+            QuestUI::BeatSaberUI::CreateColorPicker(container->get_transform(), "Flash Text Color", getModConfig().HeartDataComeFlashColor.GetValue(),
+                [](UnityEngine::Color color){
+                    getModConfig().HeartDataComeFlashColor.SetValue(heartbeatObj->text->get_color());
+                    heartbeatObj->text->set_color(getModConfig().HeartTextColor.GetValue());
+                },
+                [](){
+                    heartbeatObj->text->set_color(getModConfig().HeartTextColor.GetValue());
+                },
+                [](UnityEngine::Color color){
+                    heartbeatObj->text->set_color(color);
+            });
+
+            FlashDur = QuestUI::BeatSaberUI::CreateIncrementSetting(container->get_transform(), "Flash duration when data come", 1, 0.2, getModConfig().HeartDataComeFlashDuration.GetValue(), [](float v){
+                if(v < 0){
+                    v = 0;
+                    FlashDur->CurrentValue = 0;
+                    FlashDur->UpdateValue();
+                }
+                getModConfig().HeartDataComeFlashDuration.SetValue(v);
+                heartbeatObj->FlashColor();
+            });
+
+            QuestUI::BeatSaberUI::CreateUIButton(container->get_transform(), "Flash Test", [](){
+                heartbeatObj->FlashColor();
+            });
+
+            SPLIT("Text");
 
             static QuestUI::IncrementSetting *LineSpace;
             LineSpace = QuestUI::BeatSaberUI::CreateIncrementSetting(container->get_transform(), "Line Space", 0, 1, getModConfig().HeartLineSpaceDelta.GetValue(), [](float v){
@@ -285,18 +335,9 @@ namespace ModUI{
                 heartbeatObj->SetStatus(HEARTBEAT_STATUS_GAMECORE);
             });
 
-            static QuestUI::IncrementSetting *MenuPosX, *MenuPosY, *MenuPosZ, *MenuRotY, *GameCoreX, *GameCoreY, *GameCoreZ, *GameCoreRotY;
 
-            QuestUI::BeatSaberUI::CreateIncrementSetting(container->get_transform(), "Position Setthing Increment", 2, 0.01, 0.02, [](float v){
-                MenuPosX->Increment = v;
-                MenuPosY->Increment = v;
-                MenuPosZ->Increment = v;
-                GameCoreX->Increment = v;
-                GameCoreY->Increment = v;
-                GameCoreZ->Increment = v;
-                MenuRotY->Increment = v * 100;
-                GameCoreRotY->Increment = v * 100;
-            })->MinValue = 0.01;
+            SPLIT("Game Play Position");
+
 
             //======================== Game Play Position ===============
 
@@ -353,7 +394,8 @@ namespace ModUI{
             });
 
             //======================== Main Menu Position ===============
-            
+            SPLIT("Main Menu Position");
+
             MenuRotY = QuestUI::BeatSaberUI::CreateIncrementSetting(container->get_transform(),"Main Menu Rot Y", 0, 2, getModConfig().HeartMainMenuRot.GetValue(), [](float v){
                 getModConfig().HeartMainMenuRot.SetValue(v);
                 heartbeatObj->SetStatus(HEARTBEAT_STATUS_MAINMENU);

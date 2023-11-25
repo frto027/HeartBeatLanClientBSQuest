@@ -4,6 +4,7 @@
 #include "codegen/include/UnityEngine/RectTransform.hpp"
 #include "codegen/include/UnityEngine/GameObject.hpp"
 #include "codegen/include/UnityEngine/MonoBehaviour.hpp"
+#include "codegen/include/UnityEngine/Time.hpp"
 
 #include "HeartBeatDataSource.hpp"
 
@@ -26,7 +27,10 @@ namespace HeartBeat{
             text->set_color(getModConfig().HeartTextColor.GetValue());
             this->SetStatus(HEARTBEAT_STATUS_MAINMENU);
         }
+
+        this->flash_remains = 0;
     }
+
     void HeartBeatObj::Update(){
         {
             static int slow_down = 0;
@@ -49,7 +53,32 @@ namespace HeartBeat{
                 sprintf(buff, "% 3d bpm", data);
             }
             text->set_text(buff);
+            FlashColor();
         }
+        
+        if(flash_remains > 0){
+            flash_remains -= UnityEngine::Time::get_deltaTime();
+            if(flash_remains < 0){
+                flash_remains = 0;
+            }
+            auto & conf = getModConfig();
+            float total_time = conf.HeartDataComeFlashDuration.GetValue();
+            float r = flash_remains / total_time;
+            if(total_time > 0){
+                text->set_color(UnityEngine::Color::Lerp(conf.HeartTextColor.GetValue(), conf.HeartDataComeFlashColor.GetValue(), 
+                    r));
+            }
+        }
+    }
+
+    void HeartBeatObj::FlashColor(){
+        auto & conf = getModConfig();
+        flash_remains = conf.HeartDataComeFlashDuration.GetValue();
+        if(flash_remains < 0.01){
+            flash_remains = 0;
+            return;
+        }
+        text->set_color(conf.HeartDataComeFlashColor.GetValue());
     }
 
     void HeartBeatObj::SetStatus(int status){

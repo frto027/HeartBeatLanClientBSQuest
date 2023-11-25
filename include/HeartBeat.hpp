@@ -21,6 +21,8 @@ public:
     TMPro::TextMeshPro* text;
     int status;
 
+    float flash_remains;
     void GoToGameCorePos();
     void GoToMainMenuPos();
+    void FlashColor();
 );

@@ -15,4 +15,8 @@ DECLARE_CONFIG(ModConfig,
     CONFIG_VALUE(HeartMainMenuPos, UnityEngine::Vector3, "Main menu position", UnityEngine::Vector3(-2.3,2.8,4));
     CONFIG_VALUE(HeartMainMenuRot, float, "Main menu rotate Y", -30);
     CONFIG_VALUE(HeartLineSpaceDelta, float, "Line Space Delta", -35);
+
+    CONFIG_VALUE(HeartDataComeFlashColor, UnityEngine::Color, "Text Color when Data Flash", UnityEngine::Color(1,0.2,0.2,1));
+    CONFIG_VALUE(HeartDataComeFlashDuration, float, "Speed when Data Flash", 0.4);
+
 );
