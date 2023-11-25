@@ -492,9 +492,9 @@ extern "C" void load() {
     
     getLogger().info("Installing quest ui...");
     //QuestUI::Register::RegisterMainMenuModSettingsViewController(modInfo, ModUI::DidActivate);
-    QuestUI::Register::RegisterMainMenuModSettingsViewController(modInfo, "HEART CONFIG", ModUI::DidSetthingsActivate);
-    QuestUI::Register::RegisterMainMenuModSettingsViewController(modInfo, "HEART DEVICES", ModUI::DidDevicesActivate);
-    QuestUI::Register::RegisterMainMenuModSettingsViewController(modInfo, "HEART Servers", ModUI::DidServersActivate);
+    QuestUI::Register::RegisterMainMenuModSettingsViewController(modInfo, "HEART Config", ModUI::DidSetthingsActivate);
+    QuestUI::Register::RegisterMainMenuModSettingsViewController(modInfo, "HEART Devices", ModUI::DidDevicesActivate);
+    QuestUI::Register::RegisterMainMenuModSettingsViewController(modInfo, "HEART Senders", ModUI::DidServersActivate);
     getLogger().info("Installing hooks...");
     INSTALL_HOOK(getLogger(), HeartBeatUIInit);
     INSTALL_HOOK(getLogger(), HeartBeatSceneChange)
