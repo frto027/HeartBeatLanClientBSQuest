@@ -17,11 +17,11 @@ graph TD;
     PHONE[phone. android apk]
     BEATSABER[beatsaber quest mod, <b>YOU ARE HERE</b>]
 
-    POLAR_H10--蓝牙-->PHONE;
-    SMART_WATCH--蓝牙-->PHONE;
-    BLE_DEV--蓝牙-->PHONE;
-    PHONE--局域网-->BEATSABER;
-    PHONE--局域网-->...;
+    POLAR_H10--bluetooth-->PHONE;
+    SMART_WATCH--bluetooth-->PHONE;
+    BLE_DEV--bluetooth-->PHONE;
+    PHONE--LAN-->BEATSABER;
+    PHONE--LAN-->...;
 ```
 
 # Dev.
