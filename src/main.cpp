@@ -261,11 +261,11 @@ namespace ModUI{
                 QuestUI::BeatSaberUI::CreateText(container->get_transform(), "----- " x " -----")->set_alignment(TMPro::TextAlignmentOptions::Bottom);\
             }while(0)
 
-            SPLIT("Config Adjust Speed");
+            SPLIT("This Config Menu");
             static QuestUI::IncrementSetting *MenuPosX, *MenuPosY, *MenuPosZ, *MenuRotY, *GameCoreX, *GameCoreY, *GameCoreZ, *GameCoreRotY;
             static QuestUI::IncrementSetting *FlashDur;
 
-            QuestUI::BeatSaberUI::CreateIncrementSetting(container->get_transform(), "This Config Menu", 2, 0.01, 0.02, [](float v){
+            QuestUI::BeatSaberUI::CreateIncrementSetting(container->get_transform(), "Config Adjust Speed", 2, 0.01, 0.02, [](float v){
                 MenuPosX->Increment = v;
                 MenuPosY->Increment = v;
                 MenuPosZ->Increment = v;
