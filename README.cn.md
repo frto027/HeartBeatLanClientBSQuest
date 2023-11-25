@@ -9,10 +9,10 @@
 ```mermaid
 graph TD;
     POLAR_H10[Polar H10心率带]
-    SMART_WATCH[智能手环/手表（心率广播）]
+    SMART_WATCH[智能手环/手表 心率广播]
     BLE_DEV[其它蓝牙心率设备]
-    PHONE[手机（安卓apk）]
-    BEATSABER[节奏光剑quest一体机mod（<b>你在这里</b>）]
+    PHONE[手机 安卓apk]
+    BEATSABER[节奏光剑quest一体机mod <b>你在这里</b> ]
 
     POLAR_H10--蓝牙-->PHONE;
     SMART_WATCH--蓝牙-->PHONE;
