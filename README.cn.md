@@ -4,7 +4,7 @@
 1. 在手机上安装[这个](https://github.com/frto027/HeartbeatLanServer/releases/latest)软件，事先配对好蓝牙心率设备。打开并选择需要发送数据的蓝牙设备。
 2. 在quest上安装[这个mod](https://github.com/frto027/HeartBeatLanClientBSQuest/releases/latest)（通过BMBF或者QuestPatcher软件）。
 3. 打开游戏，只要手机和quest在一个局域网内，左上角会显示心率。
-4. (可选)左侧有设置菜单可以配置。如果局域网内由多个人都在用这个软件，可以在游戏中过滤一下服务或者心率设备。
+4. (可选)左侧有设置菜单可以配置。如果局域网内由多个人都在用这个软件，可以在游戏中过滤一下发送端或者心率设备。
 
 ```mermaid
 graph TD;
