@@ -26,7 +26,8 @@ graph TD;
 
 # Dev.
 
-Install both this mod and apk to quest is an accident design. I don't think we should let two app communicat each other on the same device. I will try to get rid of the apk in the future.
+~~Install both this mod and apk to quest is an accident design. I don't think we should let two app communicat each other on the same device. I will try to get rid of the apk in the future.~~
+Can't let the Beatsaber game read bluetooth data directly because of android permission limit. It's fine to use the helper app.
 
 Use `qpm-rust s build` to build
 Same goes for `qpm-rust s copy` and `qpm-rust s qmod`
