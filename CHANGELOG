@@ -1,0 +1,10 @@
+v0.1.1
+
+Flash the UI when heart rate data come.
+
+
+v0.1.0
+
+Display heartrate inside the game.
+HeartBeatLan datasource is added.
+A config UI is added.
