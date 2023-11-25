@@ -7,11 +7,13 @@
 
 #include "sys/types.h"
 #include "sys/socket.h"
+#include <poll.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <netinet/ip.h>
 
 #include <pthread.h>
+#include <unistd.h>
 
 #include <algorithm>
 
@@ -29,7 +31,6 @@ namespace HeartBeat{
     void * HeartBeatLanDataSource::ServerThread(void * self){
         while(1){
             ((HeartBeatLanDataSource*)self)->SocketUpdate();
-            usleep(200);
         }
         return NULL;
     }
@@ -52,10 +53,6 @@ namespace HeartBeat{
             goto failed;
         }
 
-        // if(-1 == listen(socket, 5)){
-        //     getLogger().error("recv socket listen failed. %d", errno);
-        //     goto failed;
-        // }
         return true;
 failed:
         close(socket);
@@ -76,7 +73,13 @@ failed:
 
         selected_mac = getModConfig().SelectedBleMac.GetValue();
 
+
         StartPair();
+        if(-1 == pipe2(flush_pipe, O_CLOEXEC|O_DIRECT)){
+            getLogger().error("cannot create pipe(%d)", errno);
+            flush_pipe[0] = flush_pipe[1] = -1;
+        }
+
 
         pthread_t the_thread;
         pthread_create(&the_thread, NULL, HeartBeatLanDataSource::ServerThread, this);
@@ -104,10 +107,10 @@ failed:
             getLogger().error("pair socket bind failed.");
             goto failed;
         }
-        // if(-1 == listen(pair_socket, 5)){
-        //     getLogger().error("pair socket listen failed. %d", errno);
-        //     goto failed;
-        // }
+
+        if(flush_pipe[1] != -1){
+            write(flush_pipe[1], "\0",1);
+        }
         return;
 
 failed:
@@ -121,35 +124,7 @@ failed:
         sockaddr addr;
         socklen_t len;
         char buff[1024];
-
-        // handle broadcasts
-        int pkglen;
-        while(
-            pair_socket != -1 && (
-                len = sizeof(addr), pkglen = recvfrom(pair_socket, buff,sizeof(buff), 0, &addr, &len), pkglen >= 0
-            ))
-        {
-            //getLogger().info("received a broadcast.");
-            if(0 == strncmp(SERVER_MSG, buff, std::min(strlen(SERVER_MSG), (size_t)pkglen))){
-                std::lock_guard<std::mutex> lock(this->mutex);
-
-                bool already_exist = false;
-                for(auto it=paired_servers.begin(),end=paired_servers.end();it!=end;++it){
-                    if(0 == memcmp(&(it->addr), &addr, std::min((size_t)len, sizeof(addr)))){
-                        already_exist = true;
-                        break;
-                    }
-                }
-                if(!already_exist){
-                    paired_servers.push_back({addr, 0, false});
-                    getLogger().info("a server has been installed");
-                }
-            }
-        }
-        if(errno != EWOULDBLOCK){
-            getLogger().info("pair sock recv error");
-        }
-
+        // getLogger().info("I will update!");
         // handle hello send
         if(recv_socket >= 0){
             std::lock_guard<std::mutex> lock(this->mutex);
@@ -164,74 +139,145 @@ failed:
             }
         }
 
-        // recv device packages
-        while(
-            recv_socket != -1 && (
-                len = sizeof(addr), pkglen = recvfrom(recv_socket, buff,sizeof(buff), 0, &addr, &len), pkglen >= 0
-            ))
-        {
-            std::lock_guard<std::mutex> lock(this->mutex);
-            bool is_server_ignored = true;
 
-            for(auto it=paired_servers.begin(), end = paired_servers.end();it!=end;++it){
-                if(0 == memcmp(&(it->addr), &addr, std::min((size_t)len, sizeof(addr)))){
-                    if(!it->ignored){
-                        is_server_ignored = false;
+        int poll_fd_count = 0;
+        pollfd fds[5];
+        {
+            int f = pair_socket;
+            if(f != -1){
+                fds[poll_fd_count].fd = f;
+                fds[poll_fd_count].events = POLLIN,
+                fds[poll_fd_count].revents = 0;
+                poll_fd_count++;
+            }
+        }
+        {
+            int f = recv_socket;
+            if(f != -1){
+                fds[poll_fd_count].fd = f;
+                fds[poll_fd_count].events = POLLIN,
+                fds[poll_fd_count].revents = 0;
+                poll_fd_count++;
+            }
+        }
+        {
+            int f = flush_pipe[0];
+            if(f != -1){
+                fds[poll_fd_count].fd = f;
+                fds[poll_fd_count].events = POLLIN,
+                fds[poll_fd_count].revents = 0;
+                poll_fd_count++;
+            }
+        }
+        
+        int r = poll(fds, poll_fd_count, 10*1000);
+        
+        if(r < 0){
+            getLogger().warning("poll failed(%d)", errno);
+            return;
+        }
+        if(r == 0){
+            return;
+        }
+
+        // handle broadcasts
+        for(int i=0;i<poll_fd_count;i++){
+            if(0 == (fds[i].revents & POLLIN))
+                continue;
+            
+            if(fds[i].fd == flush_pipe[0]){
+                read(flush_pipe[0], buff, 1);
+            }
+
+            int pkglen;
+            if(fds[i].fd == pair_socket
+             && (len = sizeof(addr), pkglen = recvfrom(pair_socket, buff,sizeof(buff), 0, &addr, &len), pkglen >= 0)){
+                // getLogger().info("received a broadcast.");
+                if(0 == strncmp(SERVER_MSG, buff, std::min(strlen(SERVER_MSG), (size_t)pkglen))){
+                    std::lock_guard<std::mutex> lock(this->mutex);
+
+                    bool already_exist = false;
+                    for(auto it=paired_servers.begin(),end=paired_servers.end();it!=end;++it){
+                        if(0 == memcmp(&(it->addr), &addr, std::min((size_t)len, sizeof(addr)))){
+                            already_exist = true;
+                            break;
+                        }
+                    }
+                    if(!already_exist){
+                        paired_servers.push_back({addr, 0, false});
+                        getLogger().info("a server has been installed");
+                    }
+                }
+            }else{
+                getLogger().info("pair sock recv error");
+            }
+
+            // recv device packages
+            if(fds[i].fd == recv_socket
+                && (len = sizeof(addr), pkglen = recvfrom(recv_socket, buff,sizeof(buff), 0, &addr, &len), pkglen >= 0)){
+                std::lock_guard<std::mutex> lock(this->mutex);
+                bool is_server_ignored = true;
+
+                for(auto it=paired_servers.begin(), end = paired_servers.end();it!=end;++it){
+                    if(0 == memcmp(&(it->addr), &addr, std::min((size_t)len, sizeof(addr)))){
+                        if(!it->ignored){
+                            is_server_ignored = false;
+                            break;
+                        }
+                    }
+                }
+
+                if(is_server_ignored){
+                    getLogger().info("a package has been ignored.");
+                    return;
+                }
+
+                // getLogger().info("received a device packet.");
+                int name_end = 0;
+                for(int i=0;i<pkglen;i++){
+                    if(buff[i] == 0){
+                        name_end = i;
                         break;
                     }
                 }
-            }
-
-            if(is_server_ignored){
-                getLogger().info("a package has been ignored.");
-                continue;
-            }
-
-            //getLogger().info("received a device packet.");
-            int name_end = 0;
-            for(int i=0;i<pkglen;i++){
-                if(buff[i] == 0){
-                    name_end = i;
-                    break;
+                int mac_end = name_end;
+                for(int i=name_end + 1; i < pkglen;i++){
+                    if(buff[i] == 0){
+                        mac_end = i;
+                        break;
+                    }
                 }
-            }
-            int mac_end = name_end;
-            for(int i=name_end + 1; i < pkglen;i++){
-                if(buff[i] == 0){
-                    mac_end = i;
-                    break;
+                if(buff[name_end] || buff[mac_end] || name_end == mac_end || mac_end + 4 >= pkglen){
+                    getLogger().warning("a invalid lan heartbeat lan package detected.(%d %d %d %d %d)", buff[name_end], buff[mac_end], name_end, mac_end, pkglen);
+                    continue;
                 }
-            }
-            if(buff[name_end] || buff[mac_end] || name_end == mac_end || mac_end + 4 >= pkglen){
-                getLogger().warning("a invalid lan heartbeat lan package detected.(%d %d %d %d %d)", buff[name_end], buff[mac_end], name_end, mac_end, pkglen);
-                continue;
-            }
-            char *name = buff;
-            char *mac = buff + name_end + 1;
-            
-            uint8_t * hearts = (uint8_t*)&buff[mac_end+1];
-            uint32_t heart = 0;
-            for(int i=0;i<4;i++){
-                heart = (heart << 8) | hearts[i];
-            }
+                char *name = buff;
+                char *mac = buff + name_end + 1;
+                
+                uint8_t * hearts = (uint8_t*)&buff[mac_end+1];
+                uint32_t heart = 0;
+                for(int i=0;i<4;i++){
+                    heart = (heart << 8) | hearts[i];
+                }
 
-            auto it = avaliable_devices.find(mac);
-            if(it == avaliable_devices.end()){
-                avaliable_devices.insert(std::pair(std::string(mac),HeartBeatLanDevice{
-                    .name = name,
-                    .mac = mac,
-                    .last_data = heart,
-                    .last_data_time = time(NULL)
-                }));
-            }else{
-                auto & d = it->second;
-                if(!d.ignored){
-                    d.last_data = heart;
-                    d.last_data_time = time(NULL);
+                auto it = avaliable_devices.find(mac);
+                if(it == avaliable_devices.end()){
+                    avaliable_devices.insert(std::pair(std::string(mac),HeartBeatLanDevice{
+                        .name = name,
+                        .mac = mac,
+                        .last_data = heart,
+                        .last_data_time = time(NULL)
+                    }));
+                }else{
+                    auto & d = it->second;
+                    if(!d.ignored){
+                        d.last_data = heart;
+                        d.last_data_time = time(NULL);
 
-                    if(selected_mac.length() == 0 || selected_mac == d.mac){
-                        the_heart = heart;
-                        has_unread_heart_data = true;
+                        if(selected_mac.length() == 0 || selected_mac == d.mac){
+                            the_heart = heart;
+                            has_unread_heart_data = true;
+                        }
                     }
                 }
             }

@@ -47,6 +47,7 @@ private:
     volatile int the_heart;
     volatile bool has_unread_heart_data = false;
 
+    int flush_pipe[2];
     std::string selected_mac;
 public:
     HeartBeatLanDataSource();
