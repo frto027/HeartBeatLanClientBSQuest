@@ -14,7 +14,7 @@ graph TD;
     POLAR_H10[Polar H10]
     SMART_WATCH[Shart watch, broadcast heartrate]
     BLE_DEV[other BLE heartrate devs]
-    PHONE[<a href="https://github.com/frto027/HeartbeatLanServer">sender, phone. android apk</a>]
+    PHONE[sender, phone. android apk]
     BEATSABER[receiver, beatsaber quest mod, <b>YOU ARE HERE</b>]
 
     POLAR_H10--bluetooth-->PHONE;
