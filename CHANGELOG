@@ -1,7 +1,7 @@
 v0.1.1
 
 Flash the UI when heart rate data come.
-
+Use `poll` to handle messages, and eliminates data read latency.
 
 v0.1.0
 
