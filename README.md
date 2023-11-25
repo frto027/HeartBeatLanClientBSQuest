@@ -4,7 +4,7 @@
 
 view your heartbeat inside the quest game
 
-1. Install [this](https://github.com/frto027/HeartbeatLanServer/releases/latest) apk on your android phone. Open and select the Bluetooth heartrate devs.
+1. Install [this](https://github.com/frto027/HeartbeatLanServer/releases/latest) apk on your android phone. Open and select the Bluetooth heartrate devs. If you don't have android device, just install this apk to your quest device.
 2. Install [this](https://github.com/frto027/HeartBeatLanClientBSQuest/releases/latest) mod on your quest(via BMBF or QuestPatcher).
 3. Open the beatsaber game. If your quest and phone in the same network, the heartrate will display.
 4. (Optional) configure the devices via the config menu inside the game at left side. If there is more than one phones using the app, you can filter out the sender or devices that you want to use.
@@ -14,7 +14,7 @@ graph TD;
     POLAR_H10[Polar H10]
     SMART_WATCH[Shart watch, broadcast heartrate]
     BLE_DEV[other BLE heartrate devs]
-    PHONE[sender, phone. android apk]
+    PHONE[sender, phone, quest. android apk]
     BEATSABER[receiver, beatsaber quest mod, <b>YOU ARE HERE</b>]
 
     POLAR_H10--bluetooth-->PHONE;
@@ -25,6 +25,8 @@ graph TD;
 ```
 
 # Dev.
+
+Install both this mod and apk to quest is an accident design. I don't think we should let two app communicat each other on the same device. I will try to get rid of the apk in the future.
 
 Use `qpm-rust s build` to build
 Same goes for `qpm-rust s copy` and `qpm-rust s qmod`
