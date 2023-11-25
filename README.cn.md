@@ -1,4 +1,4 @@
-# 心率局域网接收软件 - Quest（BeatSaber模组）
+# 心率LAN接收端 - Quest一体机（BeatSaber模组）
 这是一个可以在quest上查看心率的节奏光剑模组，[下载apk](https://github.com/frto027/HeartbeatLanServer/releases/latest)后，可以显示手机上的蓝牙心率设备。
 
 1. 在手机上安装[这个](https://github.com/frto027/HeartbeatLanServer/releases/latest)软件，事先配对好蓝牙心率设备。打开并选择需要发送数据的蓝牙设备。
@@ -11,8 +11,8 @@ graph TD;
     POLAR_H10[Polar H10心率带]
     SMART_WATCH[智能手环/手表 心率广播]
     BLE_DEV[其它蓝牙心率设备]
-    PHONE[手机 安卓apk]
-    BEATSABER[节奏光剑quest一体机mod <b>你在这里</b> ]
+    PHONE[<a href="https://github.com/frto027/HeartbeatLanServer">发送端 手机 安卓apk</a>]
+    BEATSABER[接收端 节奏光剑quest一体机mod <b>你在这里</b> ]
 
     POLAR_H10--蓝牙-->PHONE;
     SMART_WATCH--蓝牙-->PHONE;

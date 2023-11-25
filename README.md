@@ -1,4 +1,4 @@
-# HeartBeatLanClient - Quest (BeatSaber mod)
+# HeartBeatLanReceiver - Quest (BeatSaber mod)
 
 [中文说明](README.cn.md)
 
@@ -14,8 +14,8 @@ graph TD;
     POLAR_H10[Polar H10]
     SMART_WATCH[Shart watch, broadcast heartrate]
     BLE_DEV[other BLE heartrate devs]
-    PHONE[phone. android apk]
-    BEATSABER[beatsaber quest mod, <b>YOU ARE HERE</b>]
+    PHONE[<a href="https://github.com/frto027/HeartbeatLanServer">sender, phone. android apk</a>]
+    BEATSABER[receiver, beatsaber quest mod, <b>YOU ARE HERE</b>]
 
     POLAR_H10--bluetooth-->PHONE;
     SMART_WATCH--bluetooth-->PHONE;
