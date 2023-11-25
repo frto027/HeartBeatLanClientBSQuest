@@ -4,7 +4,7 @@
   "info": {
     "name": "HeartBeatLanClientQuest",
     "id": "HeartBeatLanClientQuest",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "url": null,
     "additionalData": {
       "overrideSoName": "libHeartBeatLanClientQuest.so",
