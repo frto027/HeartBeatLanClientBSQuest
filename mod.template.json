@@ -7,7 +7,7 @@
   "version": "0.1.1",
   "packageId": "com.beatgames.beatsaber",
   "packageVersion": "1.28.0_4124311467",
-  "description": "view your heartbeat inside the quest game",
+  "description": "Receive and display heart rate data from an external apk. The apk can be installed in quest headset itself or an android device via local network. ",
   "dependencies": [],
   "modFiles": ["libHeartBeatLanClientQuest.so"],
   "libraryFiles": [],
