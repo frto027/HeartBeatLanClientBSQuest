@@ -4,10 +4,10 @@
 
 view your heartbeat inside the quest game
 
-1. Install [this](https://github.com/frto027/HeartbeatLanServer/releases/latest) apk on your quest device. Open and select the Bluetooth heartrate devs. Don't close the app while playing the game. Or you can also install it to your android phone, and keep the phone and quest headset in the same LAN.
+1. Install [this](https://github.com/frto027/HeartbeatLanServer/releases/latest) apk on your quest device. Open and select the Bluetooth heartrate devs. Keep this app open while playing the game. Or you can also install it to your android phone, and keep the phone and quest headset in the same network.
 2. Install [this](https://github.com/frto027/HeartBeatLanClientBSQuest/releases/latest) mod on your quest(via BMBF or QuestPatcher).
 3. Open the beatsaber game. If you install the app in quest, or your quest and android phone in the same network, the heartrate will display.
-4. (Optional) configure the devices via the config menu inside the game at left side. If there is more than one phones using the app, you can filter out the sender or devices that you want to use. Select the bluetooth device instead of `any` to prevent other possible users from LAN.
+4. (Optional)Inside the game,you can configure the mod via the config menu at your left side. If there is more than one phones using the app, you can filter out the sender or devices that you want to use. Select the bluetooth device instead of `any` to prevent other possible senders from LAN.
 
 ```mermaid
 graph TD;
