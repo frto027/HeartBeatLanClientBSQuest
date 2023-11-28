@@ -3,8 +3,8 @@
     "sharedDir": "shared",
     "dependenciesDir": "extern",
     "info": {
-      "name": "HeartBeatLanClientQuest",
-      "id": "HeartBeatLanClientQuest",
+      "name": "HeartBeatLanReceiver",
+      "id": "HeartBeatLanReceiver",
       "version": "0.1.1",
       "url": null,
       "additionalData": {
