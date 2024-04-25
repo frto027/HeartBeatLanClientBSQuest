@@ -5,6 +5,7 @@
 #include "UnityEngine/GameObject.hpp"
 #include "UnityEngine/MonoBehaviour.hpp"
 #include "UnityEngine/Time.hpp"
+#include "UnityEngine/Quaternion.hpp"
 
 #include "paper/shared/logger.hpp"
 
