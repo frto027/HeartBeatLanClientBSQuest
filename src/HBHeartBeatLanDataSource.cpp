@@ -1,6 +1,8 @@
 #include "main.hpp"
 #include "HeartBeatDataSource.hpp"
 
+#include "paper/shared/logger.hpp"
+
 #include <unistd.h>
 #include <netinet/in.h>
 #include <string.h>
@@ -38,18 +40,18 @@ namespace HeartBeat{
     bool init_recv_sock(int socket){
         int buf;
         if(-1 == fcntl(socket, F_SETFL, O_NONBLOCK)){
-            getLogger().error("recv socket fcntl failed!");
+            Paper::Logger::fmtLog<Paper::LogLevel::ERR>("recv socket fcntl failed!");
             goto failed;
         }
         buf = 1024;
         if(-1 == setsockopt(socket, SOL_SOCKET, SO_SNDBUF, &buf, sizeof(buf))){
-            getLogger().warning("recv socket send buff length set failed!");
+            Paper::Logger::fmtLog<Paper::LogLevel::WRN>("recv socket send buff length set failed!");
         }
         sockaddr_in addr;
         memset(&addr, 0, sizeof(addr));
         addr.sin_family = AF_INET;
         if(-1 == bind(socket, (sockaddr*)&addr, sizeof(addr))){
-            getLogger().error("recv socket bind failed.");
+            Paper::Logger::fmtLog<Paper::LogLevel::ERR>("recv socket bind failed.");
             goto failed;
         }
 
@@ -65,7 +67,7 @@ failed:
 
         recv_socket = socket(AF_INET, SOCK_DGRAM, 0);
         if(recv_socket == -1){
-            getLogger().error("can't create recv socket");
+            Paper::Logger::fmtLog<Paper::LogLevel::ERR>("can't create recv socket");
         }
         if(!init_recv_sock(recv_socket)){
             recv_socket = -1;
@@ -76,7 +78,7 @@ failed:
 
         StartPair();
         if(-1 == pipe2(flush_pipe, O_CLOEXEC|O_DIRECT)){
-            getLogger().error("cannot create pipe(%d)", errno);
+            Paper::Logger::fmtLog<Paper::LogLevel::ERR>("cannot create pipe({})", errno);
             flush_pipe[0] = flush_pipe[1] = -1;
         }
 
@@ -90,12 +92,12 @@ failed:
             return;
         pair_socket = socket(AF_INET, SOCK_DGRAM, 0);
         if(pair_socket == -1){
-            getLogger().warning("Can't create pair socket!");
+            Paper::Logger::fmtLog<Paper::LogLevel::WRN>("Can't create pair socket!");
             return;
         }
-        getLogger().info("pair socket created.");
+        Paper::Logger::fmtLog<Paper::LogLevel::INF>("pair socket created.");
         if(-1 == fcntl(pair_socket, F_SETFL, O_NONBLOCK)){
-            getLogger().error("pair socket fcntl failed!");
+            Paper::Logger::fmtLog<Paper::LogLevel::ERR>("pair socket fcntl failed!");
             goto failed;
         }
         sockaddr_in addr;
@@ -104,7 +106,7 @@ failed:
         addr.sin_port = htons(PORT);
         addr.sin_addr.s_addr = htonl(INADDR_ANY);
         if(-1 == bind(pair_socket, (sockaddr*)&addr, sizeof(addr))){
-            getLogger().error("pair socket bind failed.");
+            Paper::Logger::fmtLog<Paper::LogLevel::ERR>("pair socket bind failed.");
             goto failed;
         }
 
@@ -124,7 +126,7 @@ failed:
         sockaddr addr;
         socklen_t len;
         char buff[1024];
-        // getLogger().info("I will update!");
+        // Paper::Logger::fmtLog<Paper::LogLevel::INF>("I will update!");
         // handle hello send
         if(recv_socket >= 0){
             std::lock_guard<std::mutex> lock(this->mutex);
@@ -134,7 +136,7 @@ failed:
                 if(now - it->last_alive_time > 20){
                     it->last_alive_time = now;
                     sendto(recv_socket, CLIENT_MSG, strlen(CLIENT_MSG), 0, &(it->addr), sizeof(it->addr));
-                    getLogger().info("say hello to the server %p", &*it);
+                    Paper::Logger::fmtLog<Paper::LogLevel::INF>("say hello to the server {}", (void*)&*it);
                 }
             }
         }
@@ -173,7 +175,7 @@ failed:
         int r = poll(fds, poll_fd_count, 10*1000);
         
         if(r < 0){
-            getLogger().warning("poll failed(%d)", errno);
+            Paper::Logger::fmtLog<Paper::LogLevel::WRN>("poll failed({})", errno);
             return;
         }
         if(r == 0){
@@ -192,7 +194,7 @@ failed:
             int pkglen;
             if(fds[i].fd == pair_socket
              && (len = sizeof(addr), pkglen = recvfrom(pair_socket, buff,sizeof(buff), 0, &addr, &len), pkglen >= 0)){
-                // getLogger().info("received a broadcast.");
+                // Paper::Logger::fmtLog<Paper::LogLevel::INF>("received a broadcast.");
                 if(0 == strncmp(SERVER_MSG, buff, std::min(strlen(SERVER_MSG), (size_t)pkglen))){
                     std::lock_guard<std::mutex> lock(this->mutex);
 
@@ -205,11 +207,11 @@ failed:
                     }
                     if(!already_exist){
                         paired_servers.push_back({addr, 0, false});
-                        getLogger().info("a server has been installed");
+                        Paper::Logger::fmtLog<Paper::LogLevel::INF>("a server has been installed");
                     }
                 }
             }else{
-                getLogger().info("pair sock recv error");
+                Paper::Logger::fmtLog<Paper::LogLevel::INF>("pair sock recv error");
             }
 
             // recv device packages
@@ -228,11 +230,11 @@ failed:
                 }
 
                 if(is_server_ignored){
-                    getLogger().info("a package has been ignored.");
+                    Paper::Logger::fmtLog<Paper::LogLevel::INF>("a package has been ignored.");
                     return;
                 }
 
-                // getLogger().info("received a device packet.");
+                // Paper::Logger::fmtLog<Paper::LogLevel::INF>("received a device packet.");
                 int name_end = 0;
                 for(int i=0;i<pkglen;i++){
                     if(buff[i] == 0){
@@ -248,7 +250,7 @@ failed:
                     }
                 }
                 if(buff[name_end] || buff[mac_end] || name_end == mac_end || mac_end + 4 >= pkglen){
-                    getLogger().warning("a invalid lan heartbeat lan package detected.(%d %d %d %d %d)", buff[name_end], buff[mac_end], name_end, mac_end, pkglen);
+                    Paper::Logger::fmtLog<Paper::LogLevel::WRN>("a invalid lan heartbeat lan package detected.({} {} {} {} {})", buff[name_end], buff[mac_end], name_end, mac_end, pkglen);
                     continue;
                 }
                 char *name = buff;
@@ -288,7 +290,7 @@ failed:
         if(pair_socket != -1){
             close(pair_socket);
             pair_socket = -1;
-            getLogger().info("pair socket closed.");
+            Paper::Logger::fmtLog<Paper::LogLevel::INF>("pair socket closed.");
         }
     }
 

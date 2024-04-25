@@ -1,10 +1,12 @@
 #include "main.hpp"
 #include "HeartBeat.hpp"
-#include "codegen/include/UnityEngine/Transform.hpp"
-#include "codegen/include/UnityEngine/RectTransform.hpp"
-#include "codegen/include/UnityEngine/GameObject.hpp"
-#include "codegen/include/UnityEngine/MonoBehaviour.hpp"
-#include "codegen/include/UnityEngine/Time.hpp"
+#include "UnityEngine/Transform.hpp"
+#include "UnityEngine/RectTransform.hpp"
+#include "UnityEngine/GameObject.hpp"
+#include "UnityEngine/MonoBehaviour.hpp"
+#include "UnityEngine/Time.hpp"
+
+#include "paper/shared/logger.hpp"
 
 #include "HeartBeatDataSource.hpp"
 
@@ -18,7 +20,7 @@ namespace HeartBeat{
         heartbeatObj = this;
         text = this->get_gameObject()->AddComponent<TMPro::TextMeshPro*>();
         if(text == nullptr){
-            getLogger().info("the text create failed.!");
+            Paper::Logger::fmtLog<Paper::LogLevel::INF>("the text create failed.!");
         }else{
             auto rectTransform = text->get_rectTransform();
             text->set_alignment(TMPro::TextAlignmentOptions::Center);

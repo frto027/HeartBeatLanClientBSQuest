@@ -1,9 +1,9 @@
 #pragma once
 
-#include "codegen/include/UnityEngine/MonoBehaviour.hpp"
+#include "UnityEngine/MonoBehaviour.hpp"
 #include "beatsaber-hook/shared/utils/il2cpp-functions.hpp"
 #include "custom-types/shared/macros.hpp"
-#include "codegen/include/TMPro/TextMeshPro.hpp"
+#include "TMPro/TextMeshPro.hpp"
 
 // parameters are (namespace, class name, parent class, contents)
 #define HEARTBEAT_STATUS_MAINMENU 1
