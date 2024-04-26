@@ -3,6 +3,7 @@
 #include "config-utils/shared/config-utils.hpp"
 #include "UnityEngine/Color.hpp"
 #include "UnityEngine/Vector3.hpp"
+#include <string>
 
 // Declare the mod config as "ModConfiguration" and declare all its values and functions.
 DECLARE_CONFIG(ModConfig,
@@ -19,4 +20,5 @@ DECLARE_CONFIG(ModConfig,
     CONFIG_VALUE(HeartDataComeFlashColor, UnityEngine::Color, "Text Color when Data Flash", UnityEngine::Color(0,1,0.6,1));
     CONFIG_VALUE(HeartDataComeFlashDuration, float, "Speed when Data Flash", 1);
 
+    CONFIG_VALUE(ModLang, std::string, "Mod Language", "auto");
 );

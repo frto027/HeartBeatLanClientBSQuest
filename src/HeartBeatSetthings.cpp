@@ -1,3 +1,8 @@
+#include "ModConfig.hpp"
+#include "beatsaber-hook/shared/utils/typedefs-string.hpp"
+#include "bsml/shared/BSML-Lite/Creation/Settings.hpp"
+#include "bsml/shared/BSML/Components/Settings/DropdownListSetting.hpp"
+#include "i18n.hpp"
 #include "main.hpp"
 #include "HeartBeatSetthings.hpp"
 #include "HeartBeat.hpp"
@@ -10,6 +15,9 @@
 #include "sys/socket.h"
 #include <netinet/in.h>
 #include <netinet/ip.h>
+#include <string>
+#include <string_view>
+#include <vector>
 
 
 namespace SetthingUI{
@@ -24,11 +32,11 @@ namespace SetthingUI{
 
     void UpdateSetthingsContent(){
             if((ui_is_pairing = HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatLanDataSource>()->IsPairing())){
-                BSML::Lite::SetButtonText(pair_stoppair_btn, "Pairing.. click to stop.");
+                BSML::Lite::SetButtonText(pair_stoppair_btn, LANG->pairing);
             }else{
-                BSML::Lite::SetButtonText(pair_stoppair_btn, "Not pairing.. click to start.");
+                BSML::Lite::SetButtonText(pair_stoppair_btn, LANG->not_pairing);
             }
-            BSML::Lite::SetButtonText(private_public_btn, private_ui ? "hiding mac address, click to show.": "showing mac address, click to hide");
+            BSML::Lite::SetButtonText(private_public_btn, private_ui ? LANG->hiding_mac_addr: LANG->showing_mac_addr);
     }
     void PairUnpairBtnClick(){
         auto * instance = HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatLanDataSource>();
@@ -82,7 +90,7 @@ namespace SetthingUI{
                              (private_ui ? "XX-XX-XX-XX-XX-XX" : ble_mac[j])
                              + ")";
                     }else{
-                        name = std::string(selected ? ">>" : "  ") + ("Unknown(") + ble_mac[j] + ")";
+                        name = std::string(selected ? ">>" : "  ") + (LANG->unknown_left_quote) + ble_mac[j] + ")";
                     }
                 }
                 if(ble_list->data[j]->text != name){
@@ -129,9 +137,9 @@ namespace SetthingUI{
                 unsigned short p = ntohs(iaddr->sin_port);
                 server_list_vec[i] = std::pair(a,p);
                 // sprintf(buff, server.ignored? "a ign server" : "a server");;
-                sprintf(buff, "%s %d.%d.%d.%d:%d", server.ignored ? "skip ":"     ", (int)((a>>24) &0xFF), (int)((a>>16)&0xFF), (int)((a>>8)&0xFF), (int)(a&0xFF), p);
+                sprintf(buff, "%s %d.%d.%d.%d:%d", server.ignored ? LANG->server_skip:"     ", (int)((a>>24) &0xFF), (int)((a>>16)&0xFF), (int)((a>>8)&0xFF), (int)(a&0xFF), p);
             }else{
-                sprintf(buff, "%s unknown addr.", server.ignored ? "skip ": "     ");
+                sprintf(buff, LANG->unknown_addr_server_fmt, server.ignored ? LANG->server_skip: "     ");
             }
             if(server_list->data[i]->text != buff){
                 server_list->data[i]->text = buff;
@@ -188,21 +196,32 @@ namespace SetthingUI{
             // Create a container that has a scroll bar
             auto *container = BSML::Lite::CreateScrollableSettingsContainer(self->get_transform());
             
-            BSML::Lite::CreateText(container->get_transform(),std::string("Heart Rate Lan Protocol Ver ") + HeartBeat::HeartBeatLanDataSource::GetProtocolVersion());
-            BSML::Lite::CreateText(container->get_transform(),"Mod version " VERSION);
+            BSML::Lite::CreateText(container->get_transform(),std::string(LANG->heart_rate_lan_protocol_ver) + HeartBeat::HeartBeatLanDataSource::GetProtocolVersion());
+            BSML::Lite::CreateText(container->get_transform(),LANG->mod_version);
 
-            pair_stoppair_btn =  BSML::Lite::CreateUIButton(container->get_transform(), "Waiting...", PairUnpairBtnClick);
-            private_public_btn =  BSML::Lite::CreateUIButton(container->get_transform(), "Waiting...", PrivateNotPrivateBtnClick);
+            pair_stoppair_btn =  BSML::Lite::CreateUIButton(container->get_transform(), LANG->waiting, PairUnpairBtnClick);
+            private_public_btn =  BSML::Lite::CreateUIButton(container->get_transform(), LANG->waiting, PrivateNotPrivateBtnClick);
             
             #define SPLIT(x) do{\
                 BSML::Lite::CreateText(container->get_transform(), "----- " x " -----")->set_alignment(TMPro::TextAlignmentOptions::Bottom);\
             }while(0)
 
             SPLIT("This Config Menu");
+
+            BSML::DropdownListSetting * languageSelect;
+            std::vector<std::string_view> languages = {
+                "auto",
+                "english",
+                "chinese"};
+            languageSelect = BSML::Lite::CreateDropdown(container->get_transform(),
+                "Language",getModConfig().ModLang.GetValue(),languages,[](StringW v){
+                    getModConfig().ModLang.SetValue(v);
+                } );
+
             static BSML::IncrementSetting *MenuPosX, *MenuPosY, *MenuPosZ, *MenuRotY, *GameCoreX, *GameCoreY, *GameCoreZ, *GameCoreRotY;
             static BSML::IncrementSetting *FlashDur;
 
-            BSML::Lite::CreateIncrementSetting(container->get_transform(), "Config Adjust Speed", 2, 0.01, 0.02, [](float v){
+            BSML::Lite::CreateIncrementSetting(container->get_transform(), LANG->config_adjust_speed, 2, 0.01, 0.02, [](float v){
                 MenuPosX->increments = v;
                 MenuPosY->increments = v;
                 MenuPosZ->increments = v;
@@ -216,7 +235,7 @@ namespace SetthingUI{
 
             SPLIT("Text Color");
 
-            BSML::Lite::CreateColorPicker(container->get_transform(), "Text Color", getModConfig().HeartTextColor.GetValue(),
+            BSML::Lite::CreateColorPicker(container->get_transform(), LANG->text_color, getModConfig().HeartTextColor.GetValue(),
                 [](UnityEngine::Color color){
                     getModConfig().HeartTextColor.SetValue(heartbeatObj->text->get_color());
 
@@ -228,7 +247,7 @@ namespace SetthingUI{
                     heartbeatObj->text->set_color(color);
             });
 
-            BSML::Lite::CreateColorPicker(container->get_transform(), "Flash Text Color", getModConfig().HeartDataComeFlashColor.GetValue(),
+            BSML::Lite::CreateColorPicker(container->get_transform(), LANG->flash_text_color, getModConfig().HeartDataComeFlashColor.GetValue(),
                 [](UnityEngine::Color color){
                     getModConfig().HeartDataComeFlashColor.SetValue(heartbeatObj->text->get_color());
                     heartbeatObj->text->set_color(getModConfig().HeartTextColor.GetValue());
@@ -240,7 +259,7 @@ namespace SetthingUI{
                     heartbeatObj->text->set_color(color);
             });
 
-            FlashDur = BSML::Lite::CreateIncrementSetting(container->get_transform(), "Flash duration when data come", 1, 0.2, getModConfig().HeartDataComeFlashDuration.GetValue(), [](float v){
+            FlashDur = BSML::Lite::CreateIncrementSetting(container->get_transform(), LANG->flash_duration_when_text_come, 1, 0.2, getModConfig().HeartDataComeFlashDuration.GetValue(), [](float v){
                 if(v < 0){
                     v = 0;
                     FlashDur->__set_currentValue(0);
@@ -250,20 +269,20 @@ namespace SetthingUI{
                 heartbeatObj->FlashColor();
             });
 
-            BSML::Lite::CreateUIButton(container->get_transform(), "Flash Test", [](){
+            BSML::Lite::CreateUIButton(container->get_transform(), LANG->flash_test, [](){
                 heartbeatObj->FlashColor();
             });
 
             SPLIT("Text");
 
             static BSML::IncrementSetting *LineSpace;
-            LineSpace = BSML::Lite::CreateIncrementSetting(container->get_transform(), "Line Space", 0, 1, getModConfig().HeartLineSpaceDelta.GetValue(), [](float v){
+            LineSpace = BSML::Lite::CreateIncrementSetting(container->get_transform(), LANG->line_space, 0, 1, getModConfig().HeartLineSpaceDelta.GetValue(), [](float v){
                 getModConfig().HeartLineSpaceDelta.SetValue(v);
                 heartbeatObj->text->set_lineSpacing(v);
                 heartbeatObj->SetStatus(HEARTBEAT_STATUS_GAMECORE);
             });
 
-            BSML::Lite::CreateUIButton(container->get_transform(), "Reset Default Line Space", [](){
+            BSML::Lite::CreateUIButton(container->get_transform(), LANG->reset_default_line_space, [](){
                 auto v = getModConfig().HeartLineSpaceDelta.GetDefaultValue();
                 getModConfig().HeartLineSpaceDelta.SetValue(v);
                 heartbeatObj->text->set_lineSpacing(v);

@@ -20,6 +20,7 @@
 
 #include "ModConfig.hpp"
 
+#include "i18n.hpp"
 
 static modloader::ModInfo modInfo = {MOD_ID, VERSION, 0}; // Stores the ID and version of our mod, and is sent to the modloader upon startup
 
@@ -73,6 +74,8 @@ MAKE_HOOK_MATCH(HeartBeatSceneChange, &UnityEngine::SceneManagement::SceneManage
 
 // Called later on in the game loading - a good time to install function hooks
 extern "C" void load() {
+    I18N::Setup();
+
     il2cpp_functions::Init();
 
     BSML::Init();
