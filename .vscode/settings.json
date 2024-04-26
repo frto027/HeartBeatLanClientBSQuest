@@ -117,5 +117,6 @@
         "ranges": "cpp",
         "stop_token": "cpp",
         "__verbose_abort": "cpp"
-    }
+    },
+    "cmake.configureOnOpen": false
 }

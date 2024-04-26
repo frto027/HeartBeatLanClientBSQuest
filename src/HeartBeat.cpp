@@ -1,5 +1,7 @@
 #include "main.hpp"
 #include "HeartBeat.hpp"
+#include "HeartBeatSetthings.hpp"
+
 #include "UnityEngine/Transform.hpp"
 #include "UnityEngine/RectTransform.hpp"
 #include "UnityEngine/GameObject.hpp"
@@ -39,7 +41,7 @@ namespace HeartBeat{
             static int slow_down = 0;
             if(slow_down++ > 20){
                 slow_down = 0;
-            ModUI::UpdateSetthingsUI();
+            SetthingUI::UpdateSetthingsUI();
             }
         }
         if(this->status == HEARTBEAT_STATUS_HIDE)

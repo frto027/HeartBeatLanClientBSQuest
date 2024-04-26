@@ -14,6 +14,3 @@ class HeartBeatObj;
 }
 extern HeartBeat::HeartBeatObj *heartbeatObj;
 
-namespace ModUI{
-    void UpdateSetthingsUI();
-}

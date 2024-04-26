@@ -65,3 +65,5 @@ extern.cmake
 
 # QMOD Schema
 mod.json.schema
+
+.cache
