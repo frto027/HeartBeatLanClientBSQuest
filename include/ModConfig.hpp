@@ -9,6 +9,9 @@
 DECLARE_CONFIG(ModConfig,
     // Declare "VariableA"
     //CONFIG_VALUE(VariableA, std::string, "Variable Name", "Variable Value");
+
+    CONFIG_VALUE(Enabled, bool, "Enabled", true);
+
     CONFIG_VALUE(SelectedBleMac, std::string, "Selected BLE Device Mac", "");
     CONFIG_VALUE(HeartTextColor, UnityEngine::Color, "The Text Color", UnityEngine::Color(0.08,0.33,0.94,1));
     CONFIG_VALUE(HeartGameCorePos, UnityEngine::Vector3, "Game playing position", UnityEngine::Vector3(3.1,0.2,6.8));

@@ -21,6 +21,7 @@
 #include "ModConfig.hpp"
 
 #include "i18n.hpp"
+#include <cstddef>
 
 static modloader::ModInfo modInfo = {MOD_ID, VERSION, 0}; // Stores the ID and version of our mod, and is sent to the modloader upon startup
 
@@ -31,7 +32,7 @@ extern "C" void setup(CModInfo& info) {
     modInfo.assign(info);
 	
     getModConfig().Init(modInfo);
-    Paper::Logger::fmtLog<Paper::LogLevel::INF>("Completed setup!");
+    getLogger().info("Completed setup!");
 }
 
 HeartBeat::HeartBeatObj *heartbeatObj = nullptr;
@@ -39,7 +40,7 @@ HeartBeat::HeartBeatObj *heartbeatObj = nullptr;
 MAKE_HOOK_MATCH(HeartBeatUIInit, &HMUI::HierarchyManager::Start, void,HMUI::HierarchyManager * self){
     HeartBeatUIInit(self);
     
-    Paper::Logger::fmtLog<Paper::LogLevel::INF>("The hook point start!");
+    getLogger().info("The hook point start!");
 
     static bool init = false;
     if(init)
@@ -48,13 +49,13 @@ MAKE_HOOK_MATCH(HeartBeatUIInit, &HMUI::HierarchyManager::Start, void,HMUI::Hier
     auto obj = UnityEngine::GameObject::New_ctor("the_heartbeat");
     UnityEngine::GameObject::DontDestroyOnLoad(obj);
     heartbeatObj = obj->AddComponent<HeartBeat::HeartBeatObj*>();
-    Paper::Logger::fmtLog<Paper::LogLevel::INF>("Heart object created.");
+    getLogger().info("Heart object created.");
    //heartbeatObj->Hide();
 }
 
 MAKE_HOOK_MATCH(HeartBeatSceneChange, &UnityEngine::SceneManagement::SceneManager::SetActiveScene, bool, UnityEngine::SceneManagement::Scene scene){
     std::string name = scene.get_name();
-    Paper::Logger::fmtLog<Paper::LogLevel::INF>("Load the scene -> {}", name.c_str());
+    getLogger().info("Load the scene -> {}", name.c_str());
     if(name == "GameCore"){
         if(heartbeatObj)
             heartbeatObj->SetStatus(HEARTBEAT_STATUS_GAMECORE);
@@ -68,26 +69,35 @@ MAKE_HOOK_MATCH(HeartBeatSceneChange, &UnityEngine::SceneManagement::SceneManage
     return HeartBeatSceneChange(scene);
 }
 
-
-
+Paper::ConstLoggerContext<21> & getLogger(){
+    static Paper::ConstLoggerContext<21> logger = Paper::ConstLoggerContext("HeartBeatLanReceiver");
+    return logger;
+}
 
 
 // Called later on in the game loading - a good time to install function hooks
-extern "C" void load() {
-    I18N::Setup();
+extern "C" void late_load() {
+    getLogger().info("Loading HeartbeatLan");
 
     il2cpp_functions::Init();
 
+    getLogger().info("init BSML");
     BSML::Init();
 
-    Paper::Logger::fmtLog<Paper::LogLevel::INF>("Installing ui...");
+    getLogger().info("init i18n");
+    I18N::Setup();
+
+    getLogger().info("Installing ui...");
     SetthingUI::Setup();
 
-    auto logger = Paper::ConstLoggerContext("HeartBeatLanClientQuestHooks");
+    if(getModConfig().Enabled.GetValue() == false){
+        getLogger().info("The mod is not enabled");
+        return;
+    }
 
-    Paper::Logger::fmtLog<Paper::LogLevel::INF>("Installing hooks...");
-    INSTALL_HOOK(logger, HeartBeatUIInit);
-    INSTALL_HOOK(logger, HeartBeatSceneChange)
+    getLogger().info("Installing hooks...");
+    INSTALL_HOOK(getLogger(), HeartBeatUIInit);
+    INSTALL_HOOK(getLogger(), HeartBeatSceneChange)
     
-    Paper::Logger::fmtLog<Paper::LogLevel::INF>("Installed all hooks!");
+    getLogger().info("Installed all hooks!");
 }

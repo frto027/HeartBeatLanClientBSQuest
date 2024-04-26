@@ -40,18 +40,18 @@ namespace HeartBeat{
     bool init_recv_sock(int socket){
         int buf;
         if(-1 == fcntl(socket, F_SETFL, O_NONBLOCK)){
-            Paper::Logger::fmtLog<Paper::LogLevel::ERR>("recv socket fcntl failed!");
+            getLogger().error("recv socket fcntl failed!");
             goto failed;
         }
         buf = 1024;
         if(-1 == setsockopt(socket, SOL_SOCKET, SO_SNDBUF, &buf, sizeof(buf))){
-            Paper::Logger::fmtLog<Paper::LogLevel::WRN>("recv socket send buff length set failed!");
+            getLogger().warn("recv socket send buff length set failed!");
         }
         sockaddr_in addr;
         memset(&addr, 0, sizeof(addr));
         addr.sin_family = AF_INET;
         if(-1 == bind(socket, (sockaddr*)&addr, sizeof(addr))){
-            Paper::Logger::fmtLog<Paper::LogLevel::ERR>("recv socket bind failed.");
+            getLogger().error("recv socket bind failed.");
             goto failed;
         }
 
@@ -67,7 +67,7 @@ failed:
 
         recv_socket = socket(AF_INET, SOCK_DGRAM, 0);
         if(recv_socket == -1){
-            Paper::Logger::fmtLog<Paper::LogLevel::ERR>("can't create recv socket");
+            getLogger().error("can't create recv socket");
         }
         if(!init_recv_sock(recv_socket)){
             recv_socket = -1;
@@ -78,7 +78,7 @@ failed:
 
         StartPair();
         if(-1 == pipe2(flush_pipe, O_CLOEXEC|O_DIRECT)){
-            Paper::Logger::fmtLog<Paper::LogLevel::ERR>("cannot create pipe({})", errno);
+            getLogger().error("cannot create pipe({})", errno);
             flush_pipe[0] = flush_pipe[1] = -1;
         }
 
@@ -92,12 +92,12 @@ failed:
             return;
         pair_socket = socket(AF_INET, SOCK_DGRAM, 0);
         if(pair_socket == -1){
-            Paper::Logger::fmtLog<Paper::LogLevel::WRN>("Can't create pair socket!");
+            getLogger().warn("Can't create pair socket!");
             return;
         }
-        Paper::Logger::fmtLog<Paper::LogLevel::INF>("pair socket created.");
+        getLogger().info("pair socket created.");
         if(-1 == fcntl(pair_socket, F_SETFL, O_NONBLOCK)){
-            Paper::Logger::fmtLog<Paper::LogLevel::ERR>("pair socket fcntl failed!");
+            getLogger().error("pair socket fcntl failed!");
             goto failed;
         }
         sockaddr_in addr;
@@ -106,7 +106,7 @@ failed:
         addr.sin_port = htons(PORT);
         addr.sin_addr.s_addr = htonl(INADDR_ANY);
         if(-1 == bind(pair_socket, (sockaddr*)&addr, sizeof(addr))){
-            Paper::Logger::fmtLog<Paper::LogLevel::ERR>("pair socket bind failed.");
+            getLogger().error("pair socket bind failed.");
             goto failed;
         }
 
@@ -126,7 +126,7 @@ failed:
         sockaddr addr;
         socklen_t len;
         char buff[1024];
-        // Paper::Logger::fmtLog<Paper::LogLevel::INF>("I will update!");
+        // getLogger().info("I will update!");
         // handle hello send
         if(recv_socket >= 0){
             std::lock_guard<std::mutex> lock(this->mutex);
@@ -136,7 +136,7 @@ failed:
                 if(now - it->last_alive_time > 20){
                     it->last_alive_time = now;
                     sendto(recv_socket, CLIENT_MSG, strlen(CLIENT_MSG), 0, &(it->addr), sizeof(it->addr));
-                    Paper::Logger::fmtLog<Paper::LogLevel::INF>("say hello to the server {}", (void*)&*it);
+                    getLogger().info("say hello to the server {}", (void*)&*it);
                 }
             }
         }
@@ -175,7 +175,7 @@ failed:
         int r = poll(fds, poll_fd_count, 10*1000);
         
         if(r < 0){
-            Paper::Logger::fmtLog<Paper::LogLevel::WRN>("poll failed({})", errno);
+            getLogger().warn("poll failed({})", errno);
             return;
         }
         if(r == 0){
@@ -194,7 +194,7 @@ failed:
             int pkglen;
             if(fds[i].fd == pair_socket
              && (len = sizeof(addr), pkglen = recvfrom(pair_socket, buff,sizeof(buff), 0, &addr, &len), pkglen >= 0)){
-                // Paper::Logger::fmtLog<Paper::LogLevel::INF>("received a broadcast.");
+                // getLogger().info("received a broadcast.");
                 if(0 == strncmp(SERVER_MSG, buff, std::min(strlen(SERVER_MSG), (size_t)pkglen))){
                     std::lock_guard<std::mutex> lock(this->mutex);
 
@@ -207,11 +207,11 @@ failed:
                     }
                     if(!already_exist){
                         paired_servers.push_back({addr, 0, false});
-                        Paper::Logger::fmtLog<Paper::LogLevel::INF>("a server has been installed");
+                        getLogger().info("a server has been installed");
                     }
                 }
             }else{
-                Paper::Logger::fmtLog<Paper::LogLevel::INF>("pair sock recv error");
+                getLogger().info("pair sock recv error");
             }
 
             // recv device packages
@@ -230,11 +230,11 @@ failed:
                 }
 
                 if(is_server_ignored){
-                    Paper::Logger::fmtLog<Paper::LogLevel::INF>("a package has been ignored.");
+                    getLogger().info("a package has been ignored.");
                     return;
                 }
 
-                // Paper::Logger::fmtLog<Paper::LogLevel::INF>("received a device packet.");
+                // getLogger().info("received a device packet.");
                 int name_end = 0;
                 for(int i=0;i<pkglen;i++){
                     if(buff[i] == 0){
@@ -250,7 +250,7 @@ failed:
                     }
                 }
                 if(buff[name_end] || buff[mac_end] || name_end == mac_end || mac_end + 4 >= pkglen){
-                    Paper::Logger::fmtLog<Paper::LogLevel::WRN>("a invalid lan heartbeat lan package detected.({} {} {} {} {})", buff[name_end], buff[mac_end], name_end, mac_end, pkglen);
+                    getLogger().warn("a invalid lan heartbeat lan package detected.({} {} {} {} {})", buff[name_end], buff[mac_end], name_end, mac_end, pkglen);
                     continue;
                 }
                 char *name = buff;
@@ -290,7 +290,7 @@ failed:
         if(pair_socket != -1){
             close(pair_socket);
             pair_socket = -1;
-            Paper::Logger::fmtLog<Paper::LogLevel::INF>("pair socket closed.");
+            getLogger().info("pair socket closed.");
         }
     }
 

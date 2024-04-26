@@ -23,7 +23,7 @@ namespace HeartBeat{
         heartbeatObj = this;
         text = this->get_gameObject()->AddComponent<TMPro::TextMeshPro*>();
         if(text == nullptr){
-            Paper::Logger::fmtLog<Paper::LogLevel::INF>("the text create failed.!");
+            getLogger().info("the text create failed.!");
         }else{
             auto rectTransform = text->get_rectTransform();
             text->set_alignment(TMPro::TextAlignmentOptions::Center);

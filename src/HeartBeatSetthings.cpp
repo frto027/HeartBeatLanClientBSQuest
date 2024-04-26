@@ -1,6 +1,9 @@
 #include "ModConfig.hpp"
+#include "UnityEngine/zzzz__Vector2_def.hpp"
+#include "beatsaber-hook/shared/utils/il2cpp-utils-methods.hpp"
 #include "beatsaber-hook/shared/utils/typedefs-string.hpp"
 #include "bsml/shared/BSML-Lite/Creation/Settings.hpp"
+#include "bsml/shared/BSML/Components/CustomListTableData.hpp"
 #include "bsml/shared/BSML/Components/Settings/DropdownListSetting.hpp"
 #include "i18n.hpp"
 #include "main.hpp"
@@ -13,6 +16,7 @@
 
 #include "bsml/shared/BSML.hpp"
 #include "sys/socket.h"
+#include <cstddef>
 #include <netinet/in.h>
 #include <netinet/ip.h>
 #include <string>
@@ -62,7 +66,6 @@ namespace SetthingUI{
         {
             std::lock_guard<std::mutex> lock(i->mutex);
             std::set<std::string> already_in(ble_mac.begin(), ble_mac.end());
-
             auto& devs = i->avaliable_devices;
 
             for(auto it = devs.begin(), end = devs.end(); it != end; ++it){
@@ -72,11 +75,15 @@ namespace SetthingUI{
                 already_in.insert(it->first);
             }
 
-            if(ble_list->data.size() != ble_mac.size()){
-                ble_list->data->EnsureCapacity(ble_mac.size());
+            while(ble_list->data.size() > ble_mac.size()){
+                ble_list->data->RemoveAt(ble_list->data.size() - 1);
                 any_data_changed = true;
             }
-            
+            while(ble_list->data.size() < ble_mac.size()){
+                ble_list->data->Add(BSML::CustomCellInfo::construct(""));
+                any_data_changed = true;
+            }
+
             for(int j=0;j<ble_mac.size();j++){
                 bool selected = (ble_mac[j] == i->GetSelectedBleMac());
                 std::string name;
@@ -120,10 +127,14 @@ namespace SetthingUI{
 
         bool any_data_changed = false;
 
-        if(server_list->data.size() != servers.size())
+        while(server_list->data.size() < servers.size()){
+            server_list->data->Add(BSML::CustomCellInfo::construct(""));
             any_data_changed = true;
-
-        server_list->data->EnsureCapacity((int)(servers.size()));
+        }
+        while(server_list->data.size() > servers.size()){
+            server_list->data->RemoveAt(server_list->data.size()-1);
+            any_data_changed = true;
+        }
         server_list_vec.resize(servers.size());
 
         
@@ -152,7 +163,7 @@ namespace SetthingUI{
     }
 
     void SwitchServerIgnore(int idx){
-        Paper::Logger::fmtLog<Paper::LogLevel::INF>("toggle server {}", idx);
+        getLogger().info("toggle server {}", idx);
         auto* instance = HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatLanDataSource>();
 
         auto & servers = instance->paired_servers;
@@ -170,7 +181,7 @@ namespace SetthingUI{
                     server.ignored = !server.ignored;
                 }
             }else{
-                Paper::Logger::fmtLog<Paper::LogLevel::INF>("unknown IP addr {}", addr->sa_family);
+                getLogger().info("unknown IP addr {}", addr->sa_family);
             }
         }
 
@@ -196,27 +207,30 @@ namespace SetthingUI{
             // Create a container that has a scroll bar
             auto *container = BSML::Lite::CreateScrollableSettingsContainer(self->get_transform());
             
-            BSML::Lite::CreateText(container->get_transform(),std::string(LANG->heart_rate_lan_protocol_ver) + HeartBeat::HeartBeatLanDataSource::GetProtocolVersion());
-            BSML::Lite::CreateText(container->get_transform(),LANG->mod_version);
+            BSML::Lite::CreateText(container->get_transform(),std::string(LANG->heart_rate_lan_protocol_ver) + HeartBeat::HeartBeatLanDataSource::GetProtocolVersion(), 4, UnityEngine::Vector2{}, UnityEngine::Vector2{100, 4});
+            BSML::Lite::CreateText(container->get_transform(),LANG->mod_version, 4, UnityEngine::Vector2{}, UnityEngine::Vector2{100, 4});
 
-            pair_stoppair_btn =  BSML::Lite::CreateUIButton(container->get_transform(), LANG->waiting, PairUnpairBtnClick);
-            private_public_btn =  BSML::Lite::CreateUIButton(container->get_transform(), LANG->waiting, PrivateNotPrivateBtnClick);
+            pair_stoppair_btn =  BSML::Lite::CreateUIButton(container->get_transform(), LANG->waiting, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4}, PairUnpairBtnClick);
+            private_public_btn =  BSML::Lite::CreateUIButton(container->get_transform(), LANG->waiting, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4}, PrivateNotPrivateBtnClick);
             
             #define SPLIT(x) do{\
-                BSML::Lite::CreateText(container->get_transform(), "----- " x " -----")->set_alignment(TMPro::TextAlignmentOptions::Bottom);\
+                BSML::Lite::CreateText(container->get_transform(), "----- " x " -----", 6, UnityEngine::Vector2{}, UnityEngine::Vector2{100, 8})->set_alignment(TMPro::TextAlignmentOptions::Bottom);\
             }while(0)
 
             SPLIT("This Config Menu");
 
-            BSML::DropdownListSetting * languageSelect;
-            std::vector<std::string_view> languages = {
-                "auto",
-                "english",
-                "chinese"};
-            languageSelect = BSML::Lite::CreateDropdown(container->get_transform(),
-                "Language",getModConfig().ModLang.GetValue(),languages,[](StringW v){
-                    getModConfig().ModLang.SetValue(v);
-                } );
+            // std::vector<std::string_view> languages = {
+            //     "auto",
+            //     "english",
+            //     "chinese"};
+            // BSML::Lite::CreateDropdown(container->get_transform(),
+            //     "Language(need restart)",getModConfig().ModLang.GetValue(),languages,[](StringW v){
+            //         getModConfig().ModLang.SetValue(v);
+            //     } );
+
+            BSML::Lite::CreateToggle(container->get_transform(), LANG->enabled, getModConfig().Enabled.GetValue(), [](bool v){
+                getModConfig().Enabled.SetValue(v);
+            });
 
             static BSML::IncrementSetting *MenuPosX, *MenuPosY, *MenuPosZ, *MenuRotY, *GameCoreX, *GameCoreY, *GameCoreZ, *GameCoreRotY;
             static BSML::IncrementSetting *FlashDur;
@@ -269,7 +283,7 @@ namespace SetthingUI{
                 heartbeatObj->FlashColor();
             });
 
-            BSML::Lite::CreateUIButton(container->get_transform(), LANG->flash_test, [](){
+            BSML::Lite::CreateUIButton(container->get_transform(), LANG->flash_test, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4}, [](){
                 heartbeatObj->FlashColor();
             });
 
@@ -282,7 +296,7 @@ namespace SetthingUI{
                 heartbeatObj->SetStatus(HEARTBEAT_STATUS_GAMECORE);
             });
 
-            BSML::Lite::CreateUIButton(container->get_transform(), LANG->reset_default_line_space, [](){
+            BSML::Lite::CreateUIButton(container->get_transform(), LANG->reset_default_line_space, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4}, [](){
                 auto v = getModConfig().HeartLineSpaceDelta.GetDefaultValue();
                 getModConfig().HeartLineSpaceDelta.SetValue(v);
                 heartbeatObj->text->set_lineSpacing(v);
@@ -330,7 +344,7 @@ namespace SetthingUI{
             });
 
 
-            BSML::Lite::CreateUIButton(container->get_transform(), "Game Play Position: Reset Default", [](){
+            BSML::Lite::CreateUIButton(container->get_transform(), "Game Play Position: Reset Default", UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4}, [](){
                 auto & conf = getModConfig();
                 auto d = conf.HeartGameCorePos.GetDefaultValue();
                 conf.HeartGameCorePos.SetValue(d);
@@ -347,7 +361,7 @@ namespace SetthingUI{
                 heartbeatObj->SetStatus(HEARTBEAT_STATUS_GAMECORE);
             });
 
-            BSML::Lite::CreateUIButton(container->get_transform(), "Game Play Position: Go To", [](){
+            BSML::Lite::CreateUIButton(container->get_transform(), "Game Play Position: Go To", UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4}, [](){
                 heartbeatObj->SetStatus(HEARTBEAT_STATUS_GAMECORE);
             });
 
@@ -386,7 +400,7 @@ namespace SetthingUI{
                     heartbeatObj->SetStatus(HEARTBEAT_STATUS_MAINMENU);
             });
 
-            BSML::Lite::CreateUIButton(container->get_transform(), "Main Menu Position: Reset Default", [](){
+            BSML::Lite::CreateUIButton(container->get_transform(), "Main Menu Position: Reset Default", UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4}, [](){
                 auto & conf = getModConfig();
                 auto d = conf.HeartMainMenuPos.GetDefaultValue();
                 conf.HeartMainMenuPos.SetValue(d);
@@ -403,7 +417,7 @@ namespace SetthingUI{
                 heartbeatObj->SetStatus(HEARTBEAT_STATUS_MAINMENU);
             });
 
-            BSML::Lite::CreateUIButton(container->get_transform(), "Main Menu Position: GO TO", [](){
+            BSML::Lite::CreateUIButton(container->get_transform(), "Main Menu Position: GO TO", UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4}, [](){
                 heartbeatObj->SetStatus(HEARTBEAT_STATUS_MAINMENU);
             });
 
@@ -442,6 +456,8 @@ namespace SetthingUI{
 
     void Setup(){
         BSML::Register::RegisterMainMenuViewControllerMethod("HeartBeatLan", "HEART Config", "<3", SetthingUI::DidSetthingsActivate);
+        if(getModConfig().Enabled.GetValue() == false)
+            return;
         BSML::Register::RegisterMainMenuViewControllerMethod("HeartBeatLan", "HEART Devices","<3", SetthingUI::DidDevicesActivate);
         BSML::Register::RegisterMainMenuViewControllerMethod("HeartBeatLan", "HEART Senders", "<3",SetthingUI::DidServersActivate);
     }
