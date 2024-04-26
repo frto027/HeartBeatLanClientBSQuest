@@ -41,7 +41,7 @@ namespace HeartBeat{
             static int slow_down = 0;
             if(slow_down++ > 20){
                 slow_down = 0;
-            SetthingUI::UpdateSetthingsUI();
+                SetthingUI::UpdateSetthingsUI();
             }
         }
         if(this->status == HEARTBEAT_STATUS_HIDE)

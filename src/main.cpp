@@ -3,6 +3,7 @@
 #include "HeartBeatDataSource.hpp"
 #include "HeartBeatSetthings.hpp"
 
+#include "bsml/shared/BSML.hpp"
 #include "paper/shared/logger.hpp"
 
 #include "HMUI/HierarchyManager.hpp"
@@ -73,6 +74,11 @@ MAKE_HOOK_MATCH(HeartBeatSceneChange, &UnityEngine::SceneManagement::SceneManage
 // Called later on in the game loading - a good time to install function hooks
 extern "C" void load() {
     il2cpp_functions::Init();
+
+    BSML::Init();
+
+    Paper::Logger::fmtLog<Paper::LogLevel::INF>("Installing ui...");
+    SetthingUI::Setup();
 
     auto logger = Paper::ConstLoggerContext("HeartBeatLanClientQuestHooks");
 

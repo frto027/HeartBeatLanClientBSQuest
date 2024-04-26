@@ -1,3 +1,4 @@
+#include "main.hpp"
 #include "HeartBeatSetthings.hpp"
 #include "HeartBeat.hpp"
 #include "HeartBeatDataSource.hpp"
@@ -21,6 +22,14 @@ namespace SetthingUI{
     bool ui_is_pairing = false;
     bool private_ui = true;
 
+    void UpdateSetthingsContent(){
+            if((ui_is_pairing = HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatLanDataSource>()->IsPairing())){
+                BSML::Lite::SetButtonText(pair_stoppair_btn, "Pairing.. click to stop.");
+            }else{
+                BSML::Lite::SetButtonText(pair_stoppair_btn, "Not pairing.. click to start.");
+            }
+            BSML::Lite::SetButtonText(private_public_btn, private_ui ? "hiding mac address, click to show.": "showing mac address, click to hide");
+    }
     void PairUnpairBtnClick(){
         auto * instance = HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatLanDataSource>();
         if(ui_is_pairing){
@@ -28,14 +37,14 @@ namespace SetthingUI{
         }else{
             instance->StartPair();
         }
-        // UpdateSetthingsContent();
+        UpdateSetthingsContent();
     }
     void PrivateNotPrivateBtnClick(){
         private_ui = !private_ui;
-        // UpdateSetthingsContent();
+        UpdateSetthingsContent();
     }
 
-    // QuestUI::CustomListTableData *ble_list;
+    BSML::CustomListTableData *ble_list;
     std::vector<std::string> ble_mac;
 
     void UpdateSelectedBLEScrollList(){
@@ -55,10 +64,10 @@ namespace SetthingUI{
                 already_in.insert(it->first);
             }
 
-            // if(ble_list->data.size() != ble_mac.size()){
-            //     ble_list->data.resize(ble_mac.size());
-            //     any_data_changed = true;
-            // }
+            if(ble_list->data.size() != ble_mac.size()){
+                ble_list->data->EnsureCapacity(ble_mac.size());
+                any_data_changed = true;
+            }
             
             for(int j=0;j<ble_mac.size();j++){
                 bool selected = (ble_mac[j] == i->GetSelectedBleMac());
@@ -76,24 +85,24 @@ namespace SetthingUI{
                         name = std::string(selected ? ">>" : "  ") + ("Unknown(") + ble_mac[j] + ")";
                     }
                 }
-                // if(ble_list->data[j].text != name){
-                //     ble_list->data[j].text = name;
-                //     any_data_changed = true;
-                // }
+                if(ble_list->data[j]->text != name){
+                    ble_list->data[j]->text = name;
+                    any_data_changed = true;
+                }
                 if(selected){
                     the_selected = j;
                 }
             }
         }
-        // if(any_data_changed)
-        //     ble_list->tableView->ReloadData();
-        // if(the_selected >= 0){
-        //     ble_list->tableView->SelectCellWithIdx(the_selected, false);
-        // }
+        if(any_data_changed)
+            ble_list->tableView->ReloadData();
+        if(the_selected >= 0){
+            ble_list->tableView->SelectCellWithIdx(the_selected, false);
+        }
     }
 
     // server lists
-    // QuestUI::CustomListTableData *server_list;
+    BSML::CustomListTableData *server_list;
     std::vector<std::pair<unsigned int, unsigned short>> server_list_vec;
     void UpdateServerList(){
         auto* instance = HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatLanDataSource>();
@@ -103,10 +112,10 @@ namespace SetthingUI{
 
         bool any_data_changed = false;
 
-        // if(server_list->data.size() != servers.size())
-        //     any_data_changed = true;
+        if(server_list->data.size() != servers.size())
+            any_data_changed = true;
 
-        // server_list->data.resize(servers.size());
+        server_list->data->EnsureCapacity((int)(servers.size()));
         server_list_vec.resize(servers.size());
 
         
@@ -124,14 +133,14 @@ namespace SetthingUI{
             }else{
                 sprintf(buff, "%s unknown addr.", server.ignored ? "skip ": "     ");
             }
-            // if(server_list->data[i].text != buff){
-            //     server_list->data[i].text = buff;
-            //     any_data_changed = true;
-            // }
+            if(server_list->data[i]->text != buff){
+                server_list->data[i]->text = buff;
+                any_data_changed = true;
+            }
         }
-        // if(any_data_changed){
-        //     server_list->tableView->ReloadData();
-        // }
+        if(any_data_changed){
+            server_list->tableView->ReloadData();
+        }
     }
 
     void SwitchServerIgnore(int idx){
@@ -157,7 +166,7 @@ namespace SetthingUI{
             }
         }
 
-        // server_list->tableView->ClearSelection();
+        server_list->tableView->ClearSelection();
         UpdateServerList();
     }
 
@@ -173,4 +182,248 @@ namespace SetthingUI{
         UpdateSelectedBLEScrollList();
     }
 
+    void DidSetthingsActivate(HMUI::ViewController* self, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
+        if(firstActivation) {
+            setthings_controller = self;
+            // Create a container that has a scroll bar
+            auto *container = BSML::Lite::CreateScrollableSettingsContainer(self->get_transform());
+            
+            BSML::Lite::CreateText(container->get_transform(),std::string("Heart Rate Lan Protocol Ver ") + HeartBeat::HeartBeatLanDataSource::GetProtocolVersion());
+            BSML::Lite::CreateText(container->get_transform(),"Mod version " VERSION);
+
+            pair_stoppair_btn =  BSML::Lite::CreateUIButton(container->get_transform(), "Waiting...", PairUnpairBtnClick);
+            private_public_btn =  BSML::Lite::CreateUIButton(container->get_transform(), "Waiting...", PrivateNotPrivateBtnClick);
+            
+            #define SPLIT(x) do{\
+                BSML::Lite::CreateText(container->get_transform(), "----- " x " -----")->set_alignment(TMPro::TextAlignmentOptions::Bottom);\
+            }while(0)
+
+            SPLIT("This Config Menu");
+            static BSML::IncrementSetting *MenuPosX, *MenuPosY, *MenuPosZ, *MenuRotY, *GameCoreX, *GameCoreY, *GameCoreZ, *GameCoreRotY;
+            static BSML::IncrementSetting *FlashDur;
+
+            BSML::Lite::CreateIncrementSetting(container->get_transform(), "Config Adjust Speed", 2, 0.01, 0.02, [](float v){
+                MenuPosX->increments = v;
+                MenuPosY->increments = v;
+                MenuPosZ->increments = v;
+                GameCoreX->increments = v;
+                GameCoreY->increments = v;
+                GameCoreZ->increments = v;
+                MenuRotY->increments = v * 100;
+                GameCoreRotY->increments = v * 100;
+                FlashDur->increments = v * 10;
+            })->minValue = 0.01;
+
+            SPLIT("Text Color");
+
+            BSML::Lite::CreateColorPicker(container->get_transform(), "Text Color", getModConfig().HeartTextColor.GetValue(),
+                [](UnityEngine::Color color){
+                    getModConfig().HeartTextColor.SetValue(heartbeatObj->text->get_color());
+
+                },
+                [](){
+                    heartbeatObj->text->set_color(getModConfig().HeartTextColor.GetValue());
+                },
+                [](UnityEngine::Color color){
+                    heartbeatObj->text->set_color(color);
+            });
+
+            BSML::Lite::CreateColorPicker(container->get_transform(), "Flash Text Color", getModConfig().HeartDataComeFlashColor.GetValue(),
+                [](UnityEngine::Color color){
+                    getModConfig().HeartDataComeFlashColor.SetValue(heartbeatObj->text->get_color());
+                    heartbeatObj->text->set_color(getModConfig().HeartTextColor.GetValue());
+                },
+                [](){
+                    heartbeatObj->text->set_color(getModConfig().HeartTextColor.GetValue());
+                },
+                [](UnityEngine::Color color){
+                    heartbeatObj->text->set_color(color);
+            });
+
+            FlashDur = BSML::Lite::CreateIncrementSetting(container->get_transform(), "Flash duration when data come", 1, 0.2, getModConfig().HeartDataComeFlashDuration.GetValue(), [](float v){
+                if(v < 0){
+                    v = 0;
+                    FlashDur->__set_currentValue(0);
+                    FlashDur->UpdateState();
+                }
+                getModConfig().HeartDataComeFlashDuration.SetValue(v);
+                heartbeatObj->FlashColor();
+            });
+
+            BSML::Lite::CreateUIButton(container->get_transform(), "Flash Test", [](){
+                heartbeatObj->FlashColor();
+            });
+
+            SPLIT("Text");
+
+            static BSML::IncrementSetting *LineSpace;
+            LineSpace = BSML::Lite::CreateIncrementSetting(container->get_transform(), "Line Space", 0, 1, getModConfig().HeartLineSpaceDelta.GetValue(), [](float v){
+                getModConfig().HeartLineSpaceDelta.SetValue(v);
+                heartbeatObj->text->set_lineSpacing(v);
+                heartbeatObj->SetStatus(HEARTBEAT_STATUS_GAMECORE);
+            });
+
+            BSML::Lite::CreateUIButton(container->get_transform(), "Reset Default Line Space", [](){
+                auto v = getModConfig().HeartLineSpaceDelta.GetDefaultValue();
+                getModConfig().HeartLineSpaceDelta.SetValue(v);
+                heartbeatObj->text->set_lineSpacing(v);
+                LineSpace->__set_currentValue(v);
+                LineSpace->UpdateState();
+                heartbeatObj->SetStatus(HEARTBEAT_STATUS_GAMECORE);
+            });
+
+
+            SPLIT("Game Play Position");
+
+
+            //======================== Game Play Position ===============
+
+            GameCoreRotY = BSML::Lite::CreateIncrementSetting(container->get_transform(),"Game Play Rot Y", 0, 2, getModConfig().HeartGameCoreRot.GetValue(), [](float v){
+                getModConfig().HeartGameCoreRot.SetValue(v);
+                heartbeatObj->SetStatus(HEARTBEAT_STATUS_GAMECORE);
+            });
+
+            GameCoreX = BSML::Lite::CreateIncrementSetting(container->get_transform(),"Game Play X", 2, 0.02, 
+                getModConfig().HeartGameCorePos.GetValue().x, [](float v){
+                    auto & p = getModConfig().HeartGameCorePos;
+                    auto vec = p.GetValue();
+                    vec.x = v;
+                    p.SetValue(vec);
+                    heartbeatObj->SetStatus(HEARTBEAT_STATUS_GAMECORE);
+            });
+
+            GameCoreY = BSML::Lite::CreateIncrementSetting(container->get_transform(),"Game Play Y", 2, 0.02, 
+                getModConfig().HeartGameCorePos.GetValue().y, [](float v){
+                    auto & p = getModConfig().HeartGameCorePos;
+                    auto vec = p.GetValue();
+                    vec.y = v;
+                    p.SetValue(vec);
+                    heartbeatObj->SetStatus(HEARTBEAT_STATUS_GAMECORE);
+            });
+
+            GameCoreZ = BSML::Lite::CreateIncrementSetting(container->get_transform(),"Game Play Z", 2, 0.02, 
+                getModConfig().HeartGameCorePos.GetValue().z, [](float v){
+                    auto & p = getModConfig().HeartGameCorePos;
+                    auto vec = p.GetValue();
+                    vec.z = v;
+                    p.SetValue(vec);
+                    heartbeatObj->SetStatus(HEARTBEAT_STATUS_GAMECORE);
+            });
+
+
+            BSML::Lite::CreateUIButton(container->get_transform(), "Game Play Position: Reset Default", [](){
+                auto & conf = getModConfig();
+                auto d = conf.HeartGameCorePos.GetDefaultValue();
+                conf.HeartGameCorePos.SetValue(d);
+                GameCoreX->__set_currentValue(d.x);
+                GameCoreY->__set_currentValue(d.y);
+                GameCoreZ->__set_currentValue(d.z);
+                auto defaultRot = conf.HeartGameCoreRot.GetDefaultValue();
+                GameCoreRotY->__set_currentValue(defaultRot);
+                conf.HeartGameCoreRot.SetValue(defaultRot);
+                GameCoreX->UpdateState();
+                GameCoreY->UpdateState();
+                GameCoreZ->UpdateState();
+                GameCoreRotY->UpdateState();
+                heartbeatObj->SetStatus(HEARTBEAT_STATUS_GAMECORE);
+            });
+
+            BSML::Lite::CreateUIButton(container->get_transform(), "Game Play Position: Go To", [](){
+                heartbeatObj->SetStatus(HEARTBEAT_STATUS_GAMECORE);
+            });
+
+            //======================== Main Menu Position ===============
+            SPLIT("Main Menu Position");
+
+            MenuRotY = BSML::Lite::CreateIncrementSetting(container->get_transform(),"Main Menu Rot Y", 0, 2, getModConfig().HeartMainMenuRot.GetValue(), [](float v){
+                getModConfig().HeartMainMenuRot.SetValue(v);
+                heartbeatObj->SetStatus(HEARTBEAT_STATUS_MAINMENU);
+            });
+
+            MenuPosX = BSML::Lite::CreateIncrementSetting(container->get_transform(),"Main Menu X", 2, 0.02, 
+                getModConfig().HeartMainMenuPos.GetValue().x, [](float v){
+                    auto & p = getModConfig().HeartMainMenuPos;
+                    auto vec = p.GetValue();
+                    vec.x = v;
+                    p.SetValue(vec);
+                    heartbeatObj->SetStatus(HEARTBEAT_STATUS_MAINMENU);
+            });
+
+            MenuPosY = BSML::Lite::CreateIncrementSetting(container->get_transform(),"Main Menu Y", 2, 0.02, 
+                getModConfig().HeartMainMenuPos.GetValue().y, [](float v){
+                    auto & p = getModConfig().HeartMainMenuPos;
+                    auto vec = p.GetValue();
+                    vec.y = v;
+                    p.SetValue(vec);
+                    heartbeatObj->SetStatus(HEARTBEAT_STATUS_MAINMENU);
+            });
+
+            MenuPosZ = BSML::Lite::CreateIncrementSetting(container->get_transform(),"Main Menu Z", 2, 0.02, 
+                getModConfig().HeartMainMenuPos.GetValue().z, [](float v){
+                    auto & p = getModConfig().HeartMainMenuPos;
+                    auto vec = p.GetValue();
+                    vec.z = v;
+                    p.SetValue(vec);
+                    heartbeatObj->SetStatus(HEARTBEAT_STATUS_MAINMENU);
+            });
+
+            BSML::Lite::CreateUIButton(container->get_transform(), "Main Menu Position: Reset Default", [](){
+                auto & conf = getModConfig();
+                auto d = conf.HeartMainMenuPos.GetDefaultValue();
+                conf.HeartMainMenuPos.SetValue(d);
+                MenuPosX->__set_currentValue(d.x);
+                MenuPosY->__set_currentValue(d.y);
+                MenuPosZ->__set_currentValue(d.z);
+                auto defaultRot = conf.HeartMainMenuRot.GetDefaultValue();
+                MenuRotY->__set_currentValue(defaultRot);
+                conf.HeartMainMenuRot.SetValue(defaultRot);
+                MenuPosX->UpdateState();
+                MenuPosY->UpdateState();
+                MenuPosZ->UpdateState();
+                MenuRotY->UpdateState();
+                heartbeatObj->SetStatus(HEARTBEAT_STATUS_MAINMENU);
+            });
+
+            BSML::Lite::CreateUIButton(container->get_transform(), "Main Menu Position: GO TO", [](){
+                heartbeatObj->SetStatus(HEARTBEAT_STATUS_MAINMENU);
+            });
+
+            UpdateSetthingsContent();
+        }
+    }
+
+
+    void DidServersActivate(HMUI::ViewController* self, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
+        // Create our UI elements only when shown for the first time.
+        if(firstActivation) {
+            servers_controller = self;
+            // Create a container that has a scroll bar
+            auto *container = BSML::Lite::CreateScrollableSettingsContainer(self->get_transform());
+
+            server_list = BSML::Lite::CreateScrollableList(container->get_transform(), {70, 60}, SwitchServerIgnore);
+            server_list->set_listStyle(BSML::CustomListTableData::ListStyle::Simple);
+            server_list->tableView->set_selectionType(HMUI::TableViewSelectionType::Single);
+            UpdateServerList();
+        }
+    }
+    void DidDevicesActivate(HMUI::ViewController* self, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
+        // Create our UI elements only when shown for the first time.
+        if(firstActivation) {
+            devices_controller = self;
+            // Create a container that has a scroll bar
+            auto *container = BSML::Lite::CreateScrollableSettingsContainer(self->get_transform());
+
+            ble_list = BSML::Lite::CreateScrollableList(container->get_transform(), {70,60}, UpdateSelectedBLEValue);
+            ble_list->set_listStyle(BSML::CustomListTableData::ListStyle::Simple);
+            ble_list->tableView->set_selectionType(HMUI::TableViewSelectionType::Single);
+            ble_mac.push_back("");
+            UpdateSelectedBLEScrollList();
+        }
+    }
+
+    void Setup(){
+        BSML::Register::RegisterMainMenuViewControllerMethod("HeartBeatLan", "HEART Config", "<3", SetthingUI::DidSetthingsActivate);
+        BSML::Register::RegisterMainMenuViewControllerMethod("HeartBeatLan", "HEART Devices","<3", SetthingUI::DidDevicesActivate);
+        BSML::Register::RegisterMainMenuViewControllerMethod("HeartBeatLan", "HEART Senders", "<3",SetthingUI::DidServersActivate);
+    }
 }
