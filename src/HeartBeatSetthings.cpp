@@ -241,7 +241,12 @@ HeartBeat::HeartBeatObj * previewObj;
     }
 
     void DidSetthingsActivate(HMUI::ViewController* self, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
-        if(getModConfig().Enabled.GetValue())
+        static std::optional<bool> ModEnabled;
+
+        if(!ModEnabled.has_value())
+            ModEnabled = getModConfig().Enabled.GetValue();
+
+        if(ModEnabled.value())
             EnsurePreviewObject();
         
         if(firstActivation) {
@@ -260,6 +265,9 @@ HeartBeat::HeartBeatObj * previewObj;
             BSML::Lite::CreateToggle(container->get_transform(), LANG->enabled, getModConfig().Enabled.GetValue(), [](bool v){
                 getModConfig().Enabled.SetValue(v);
             });
+
+            if(getModConfig().Enabled.GetValue() == false)
+                return;
 
             std::vector<std::string_view> languages = {
                 "auto",
