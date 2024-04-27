@@ -241,18 +241,11 @@ HeartBeat::HeartBeatObj * previewObj;
     }
 
     void DidSetthingsActivate(HMUI::ViewController* self, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
-        static std::optional<bool> ModEnabled;
-
-        if(!ModEnabled.has_value())
-            ModEnabled = getModConfig().Enabled.GetValue();
-
-        if(ModEnabled.value())
+        if(ModEnabled)
             EnsurePreviewObject();
         
         if(firstActivation) {
-            self->add_didDeactivateEvent(custom_types::MakeDelegate<HMUI::ViewController::DidDeactivateDelegate*>(std::function([](bool removedFromHierarchy, bool screenSystemDisabling){
-                MainMenuPreviewObject->set_active(false);
-            })));
+
             setthings_controller = self;
             // Create a container that has a scroll bar
             auto *container = BSML::Lite::CreateScrollableSettingsContainer(self->get_transform());
@@ -266,9 +259,12 @@ HeartBeat::HeartBeatObj * previewObj;
                 getModConfig().Enabled.SetValue(v);
             });
 
-            if(getModConfig().Enabled.GetValue() == false)
+            if(ModEnabled == false)
                 return;
-
+            
+            self->add_didDeactivateEvent(custom_types::MakeDelegate<HMUI::ViewController::DidDeactivateDelegate*>(std::function([](bool removedFromHierarchy, bool screenSystemDisabling){
+                MainMenuPreviewObject->set_active(false);
+            })));
             std::vector<std::string_view> languages = {
                 "auto",
                 "english",
@@ -372,7 +368,7 @@ HeartBeat::HeartBeatObj * previewObj;
 
     void Setup(){
         BSML::Register::RegisterMainMenuViewControllerMethod("HeartBeatLan", LANG->heart_config, "<3", SetthingUI::DidSetthingsActivate);
-        if(getModConfig().Enabled.GetValue() == false)
+        if(ModEnabled == false)
             return;
         BSML::Register::RegisterMainMenuViewControllerMethod("HeartBeatLan", LANG->heart_devices,"<3", SetthingUI::DidDevicesActivate);
         BSML::Register::RegisterMainMenuViewControllerMethod("HeartBeatLan", LANG->heart_senders, "<3",SetthingUI::DidServersActivate);

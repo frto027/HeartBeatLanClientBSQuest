@@ -60,12 +60,14 @@ MAKE_HOOK_MATCH(GameplayCoreHook, &GlobalNamespace::CoreGameHUDController::Initi
     text->set_alignment(TMPro::TextAlignmentOptions::MidlineLeft);
     text->get_gameObject()->AddComponent<HeartBeat::HeartBeatObj*>();
 }
-
+bool ModEnabled;
 // Called later on in the game loading - a good time to install function hooks
 extern "C" void late_load() {
     getLogger().info("Loading HeartbeatLan");
 
     il2cpp_functions::Init();
+
+    ModEnabled = getModConfig().Enabled.GetValue();
 
     getLogger().info("init BSML");
     BSML::Init();
@@ -76,7 +78,7 @@ extern "C" void late_load() {
     getLogger().info("Installing ui...");
     SetthingUI::Setup();
 
-    if(getModConfig().Enabled.GetValue() == false){
+    if(ModEnabled == false){
         getLogger().info("The mod is not enabled");
         return;
     }
