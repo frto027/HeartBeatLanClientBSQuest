@@ -241,7 +241,8 @@ HeartBeat::HeartBeatObj * previewObj;
     }
 
     void DidSetthingsActivate(HMUI::ViewController* self, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
-        EnsurePreviewObject();
+        if(getModConfig().Enabled.GetValue())
+            EnsurePreviewObject();
         
         if(firstActivation) {
             self->add_didDeactivateEvent(custom_types::MakeDelegate<HMUI::ViewController::DidDeactivateDelegate*>(std::function([](bool removedFromHierarchy, bool screenSystemDisabling){
@@ -312,6 +313,15 @@ HeartBeat::HeartBeatObj * previewObj;
             BSML::Lite::CreateUIButton(container->get_transform(), LANG->flash_test, UnityEngine::Vector2{}, UnityEngine::Vector2{150, 8}, [](){
                 previewObj->FlashColor();
             });
+            BSML::Lite::CreateUIButton(container->get_transform(), LANG->reset_to_default, UnityEngine::Vector2{}, UnityEngine::Vector2{150, 8}, [](){
+                getModConfig().HeartTextColor.SetValue(getModConfig().HeartTextColor.GetDefaultValue());
+                previewObj->text->color = getModConfig().HeartTextColor.GetDefaultValue();
+
+                getModConfig().HeartDataComeFlashColor.SetValue(getModConfig().HeartDataComeFlashColor.GetDefaultValue());
+                
+                getModConfig().HeartDataComeFlashDuration.SetValue(getModConfig().HeartDataComeFlashDuration.GetDefaultValue());
+                FlashDur->currentValue = getModConfig().HeartDataComeFlashDuration.GetDefaultValue();
+            });
 
             UpdateSetthingsContent();
         }
@@ -353,10 +363,10 @@ HeartBeat::HeartBeatObj * previewObj;
     }
 
     void Setup(){
-        BSML::Register::RegisterMainMenuViewControllerMethod("HeartBeatLan", "HEART Config", "<3", SetthingUI::DidSetthingsActivate);
+        BSML::Register::RegisterMainMenuViewControllerMethod("HeartBeatLan", LANG->heart_config, "<3", SetthingUI::DidSetthingsActivate);
         if(getModConfig().Enabled.GetValue() == false)
             return;
-        BSML::Register::RegisterMainMenuViewControllerMethod("HeartBeatLan", "HEART Devices","<3", SetthingUI::DidDevicesActivate);
-        BSML::Register::RegisterMainMenuViewControllerMethod("HeartBeatLan", "HEART Senders", "<3",SetthingUI::DidServersActivate);
+        BSML::Register::RegisterMainMenuViewControllerMethod("HeartBeatLan", LANG->heart_devices,"<3", SetthingUI::DidDevicesActivate);
+        BSML::Register::RegisterMainMenuViewControllerMethod("HeartBeatLan", LANG->heart_senders, "<3",SetthingUI::DidServersActivate);
     }
 }

@@ -3,6 +3,10 @@
 #endif
 V(enabled, "enabled(need restart)")
 
+V(heart_config, "HEART Config")
+V(heart_devices, "HEART Devices")
+V(heart_senders, "HEART Senders")
+
 V(pairing, "Pairing.. click to stop.")
 V(not_pairing, "Not pairing.. click to start.")
 V(hiding_mac_addr, "hiding mac address, click to show.")
@@ -23,3 +27,5 @@ V(flash_test, "Flash Test")
 
 V(line_space, "Line Space")
 V(reset_default_line_space, "Reset Default Line Space")
+
+V(reset_to_default, "Reset to default")
