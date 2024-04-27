@@ -49,16 +49,16 @@ MAKE_HOOK_MATCH(GameplayCoreHook, &GlobalNamespace::CoreGameHUDController::Initi
         MainMenuPreviewObject->set_active(false);
 
     UnityEngine::GameObject * EnergyGo = self->get_energyPanelGo();
-    auto text = BSML::Lite::CreateText(EnergyGo->get_transform(), "???");
+    auto text = BSML::Lite::CreateText(EnergyGo->get_transform(), "");
     auto rect = text->get_rectTransform();
     rect->SetParent(EnergyGo->transform, false);
-    text->get_gameObject()->AddComponent<HeartBeat::HeartBeatObj*>();
     rect->anchoredPosition = {0.5, 0.5};
     rect->sizeDelta = {180, 20};
 
     text->color = getModConfig().HeartTextColor.GetValue();
     text->fontSize = 10;
     text->set_alignment(TMPro::TextAlignmentOptions::MidlineLeft);
+    text->get_gameObject()->AddComponent<HeartBeat::HeartBeatObj*>();
 }
 
 // Called later on in the game loading - a good time to install function hooks

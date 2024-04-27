@@ -53,11 +53,7 @@ namespace HeartBeat{
         int data;
         if(HeartBeat::DataSource::getInstance()->GetData(data)){
             char buff[1024];
-            if(status == HEARTBEAT_STATUS_GAMECORE){
-                sprintf(buff, "%d\nbpm", data);
-            }else{
-                sprintf(buff, "% 3d bpm", data);
-            }
+            sprintf(buff, "% 3d bpm", data);
             text->set_text(buff);
             FlashColor();
         }
