@@ -4,18 +4,18 @@
 
 view your heartbeat inside the quest game
 
-1. Install [this](https://github.com/frto027/HeartbeatLanServer/releases/latest) apk on your quest device. Open and select the Bluetooth heartrate devs. Keep this app open while playing the game. Or you can also install it to your android phone, and keep the phone and quest headset in the same network.
-2. Install [this](https://github.com/frto027/HeartBeatLanClientBSQuest/releases/latest) mod on your quest(via BMBF or QuestPatcher).
-3. Open the beatsaber game. If you install the app in quest, or your quest and android phone in the same network, the heartrate will display.
-4. (Optional)Inside the game,you can configure the mod via the config menu at your left side. If there is more than one phones using the app, you can filter out the sender or devices that you want to use. Select the bluetooth device instead of `any` to prevent other possible senders from LAN.
+1. Install [the apk](https://github.com/frto027/HeartbeatLanServer/releases/latest) on your quest device. Open and select the Bluetooth heartrate device. Keep this app open while playing the game. Or you can also install it to your android phone, and keep the phone and quest headset in the same network.
+2. Install [this](https://github.com/frto027/HeartBeatLanClientBSQuest/releases/latest) mod on your quest.
+3. Open the beatsaber game. If you install the apk in quest, or your quest and android phone in the same network, the heartrate will display.
+4. (Optional)Inside the game,you can configure the mod via the mod menu at your left side. If there is more than one smartphones using the app, you can filter out the sender or devices that you want to use. Select the bluetooth device instead of `any` to prevent other possible senders from LAN.
 
 ```mermaid
 graph TD;
     POLAR_H10[Polar H10]
-    SMART_WATCH[Shart watch, broadcast heartrate]
-    BLE_DEV[other BLE heartrate devs]
-    PHONE[sender, phone, quest. android apk]
-    BEATSABER[receiver, beatsaber quest mod, <b>YOU ARE HERE</b>]
+    SMART_WATCH[smart watch, broadcast heartrate]
+    BLE_DEV[other BLE heartrate devices]
+    PHONE[sender, a smart phone or quest, which is an android apk]
+    BEATSABER[receiver, beatsaber quest mod, <span style="color:red">YOU ARE HERE</span>]
 
     POLAR_H10--bluetooth-->PHONE;
     SMART_WATCH--bluetooth-->PHONE;
