@@ -1,8 +1,10 @@
 #include "main.hpp"
+#include "GlobalNamespace/CoreGameHUDController.hpp"
 #include "HeartBeat.hpp"
 #include "HeartBeatDataSource.hpp"
 #include "HeartBeatSetthings.hpp"
-
+#include "GlobalNamespace/CoreGameHUDController.hpp"
+#include "UnityEngine/GameObject.hpp"
 #include "bsml/shared/BSML.hpp"
 #include "paper/shared/logger.hpp"
 
@@ -35,45 +37,25 @@ extern "C" void setup(CModInfo& info) {
     getLogger().info("Completed setup!");
 }
 
-HeartBeat::HeartBeatObj *heartbeatObj = nullptr;
-
-MAKE_HOOK_MATCH(HeartBeatUIInit, &HMUI::HierarchyManager::Start, void,HMUI::HierarchyManager * self){
-    HeartBeatUIInit(self);
-    
-    getLogger().info("The hook point start!");
-
-    static bool init = false;
-    if(init)
-        return;
-    init = true;
-    auto obj = UnityEngine::GameObject::New_ctor("the_heartbeat");
-    UnityEngine::GameObject::DontDestroyOnLoad(obj);
-    heartbeatObj = obj->AddComponent<HeartBeat::HeartBeatObj*>();
-    getLogger().info("Heart object created.");
-   //heartbeatObj->Hide();
-}
-
-MAKE_HOOK_MATCH(HeartBeatSceneChange, &UnityEngine::SceneManagement::SceneManager::SetActiveScene, bool, UnityEngine::SceneManagement::Scene scene){
-    std::string name = scene.get_name();
-    getLogger().info("Load the scene -> {}", name.c_str());
-    if(name == "GameCore"){
-        if(heartbeatObj)
-            heartbeatObj->SetStatus(HEARTBEAT_STATUS_GAMECORE);
-    }else if(name == "MainMenu"){
-        if(heartbeatObj)
-            heartbeatObj->SetStatus(HEARTBEAT_STATUS_MAINMENU);
-    }else{
-        if(heartbeatObj)
-            heartbeatObj->SetStatus(HEARTBEAT_STATUS_HIDE);
-    }
-    return HeartBeatSceneChange(scene);
-}
-
 Paper::ConstLoggerContext<21> & getLogger(){
     static Paper::ConstLoggerContext<21> logger = Paper::ConstLoggerContext("HeartBeatLanReceiver");
     return logger;
 }
 
+MAKE_HOOK_MATCH(GameplayCoreHook, &GlobalNamespace::CoreGameHUDController::Initialize, void, GlobalNamespace::CoreGameHUDController * self, GlobalNamespace::CoreGameHUDController::InitData * data){
+    GameplayCoreHook(self, data);
+
+    UnityEngine::GameObject * EnergyGo = self->get_energyPanelGo();
+    auto text = BSML::Lite::CreateText(EnergyGo->get_transform(), "???");
+    auto rect = text->get_rectTransform();
+    rect->SetParent(EnergyGo->transform, false);
+    text->get_gameObject()->AddComponent<HeartBeat::HeartBeatObj*>();
+    rect->anchoredPosition = {0.5, 0.5};
+    rect->sizeDelta = {300, 20};
+
+    text->fontSize = 8;
+    text->set_alignment(TMPro::TextAlignmentOptions::MidlineRight);
+}
 
 // Called later on in the game loading - a good time to install function hooks
 extern "C" void late_load() {
@@ -96,8 +78,7 @@ extern "C" void late_load() {
     }
 
     getLogger().info("Installing hooks...");
-    INSTALL_HOOK(getLogger(), HeartBeatUIInit);
-    INSTALL_HOOK(getLogger(), HeartBeatSceneChange)
-    
+    INSTALL_HOOK(getLogger(), GameplayCoreHook);
+
     getLogger().info("Installed all hooks!");
 }

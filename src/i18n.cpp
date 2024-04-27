@@ -1,6 +1,6 @@
 #include "i18n.hpp"
-#include "BGLib/Polyglot/zzzz__Language_def.hpp"
-#include "BGLib/Polyglot/zzzz__Localization_def.hpp"
+#include "BGLib/Polyglot/Language.hpp"
+#include "BGLib/Polyglot/Localization.hpp"
 #include "ModConfig.hpp"
 #include "BGLib/Polyglot/Localization.hpp"
 #include "BGLib/Polyglot/LocalizationModel.hpp"

@@ -1,8 +1,10 @@
 #include "ModConfig.hpp"
-#include "UnityEngine/zzzz__Vector2_def.hpp"
+#include "UnityEngine/Color.hpp"
+#include "UnityEngine/Vector2.hpp"
 #include "beatsaber-hook/shared/utils/il2cpp-utils-methods.hpp"
 #include "beatsaber-hook/shared/utils/typedefs-string.hpp"
 #include "bsml/shared/BSML-Lite/Creation/Settings.hpp"
+#include "bsml/shared/BSML-Lite/Creation/Text.hpp"
 #include "bsml/shared/BSML/Components/CustomListTableData.hpp"
 #include "bsml/shared/BSML/Components/Settings/DropdownListSetting.hpp"
 #include "i18n.hpp"
@@ -248,29 +250,29 @@ namespace SetthingUI{
             })->minValue = 0.01;
 
             SPLIT("Text Color");
-
+            static UnityEngine::Color TextColor = getModConfig().HeartTextColor.GetValue();
             BSML::Lite::CreateColorPicker(container->get_transform(), LANG->text_color, getModConfig().HeartTextColor.GetValue(),
                 [](UnityEngine::Color color){
-                    getModConfig().HeartTextColor.SetValue(heartbeatObj->text->get_color());
+                    getModConfig().HeartTextColor.SetValue(TextColor);
 
                 },
                 [](){
-                    heartbeatObj->text->set_color(getModConfig().HeartTextColor.GetValue());
+                    TextColor = getModConfig().HeartTextColor.GetValue();
                 },
                 [](UnityEngine::Color color){
-                    heartbeatObj->text->set_color(color);
+                    TextColor = color;
             });
-
+            static UnityEngine::Color FlashTextColor = getModConfig().HeartDataComeFlashColor.GetValue();
             BSML::Lite::CreateColorPicker(container->get_transform(), LANG->flash_text_color, getModConfig().HeartDataComeFlashColor.GetValue(),
                 [](UnityEngine::Color color){
-                    getModConfig().HeartDataComeFlashColor.SetValue(heartbeatObj->text->get_color());
-                    heartbeatObj->text->set_color(getModConfig().HeartTextColor.GetValue());
+                    getModConfig().HeartDataComeFlashColor.SetValue(FlashTextColor);
+                    FlashTextColor = getModConfig().HeartTextColor.GetValue();
                 },
                 [](){
-                    heartbeatObj->text->set_color(getModConfig().HeartTextColor.GetValue());
+                    FlashTextColor = getModConfig().HeartTextColor.GetValue();
                 },
                 [](UnityEngine::Color color){
-                    heartbeatObj->text->set_color(color);
+                    FlashTextColor = color;
             });
 
             FlashDur = BSML::Lite::CreateIncrementSetting(container->get_transform(), LANG->flash_duration_when_text_come, 1, 0.2, getModConfig().HeartDataComeFlashDuration.GetValue(), [](float v){
@@ -280,11 +282,6 @@ namespace SetthingUI{
                     FlashDur->UpdateState();
                 }
                 getModConfig().HeartDataComeFlashDuration.SetValue(v);
-                heartbeatObj->FlashColor();
-            });
-
-            BSML::Lite::CreateUIButton(container->get_transform(), LANG->flash_test, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4}, [](){
-                heartbeatObj->FlashColor();
             });
 
             SPLIT("Text");
@@ -292,133 +289,13 @@ namespace SetthingUI{
             static BSML::IncrementSetting *LineSpace;
             LineSpace = BSML::Lite::CreateIncrementSetting(container->get_transform(), LANG->line_space, 0, 1, getModConfig().HeartLineSpaceDelta.GetValue(), [](float v){
                 getModConfig().HeartLineSpaceDelta.SetValue(v);
-                heartbeatObj->text->set_lineSpacing(v);
-                heartbeatObj->SetStatus(HEARTBEAT_STATUS_GAMECORE);
             });
 
             BSML::Lite::CreateUIButton(container->get_transform(), LANG->reset_default_line_space, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4}, [](){
                 auto v = getModConfig().HeartLineSpaceDelta.GetDefaultValue();
                 getModConfig().HeartLineSpaceDelta.SetValue(v);
-                heartbeatObj->text->set_lineSpacing(v);
                 LineSpace->__set_currentValue(v);
                 LineSpace->UpdateState();
-                heartbeatObj->SetStatus(HEARTBEAT_STATUS_GAMECORE);
-            });
-
-
-            SPLIT("Game Play Position");
-
-
-            //======================== Game Play Position ===============
-
-            GameCoreRotY = BSML::Lite::CreateIncrementSetting(container->get_transform(),"Game Play Rot Y", 0, 2, getModConfig().HeartGameCoreRot.GetValue(), [](float v){
-                getModConfig().HeartGameCoreRot.SetValue(v);
-                heartbeatObj->SetStatus(HEARTBEAT_STATUS_GAMECORE);
-            });
-
-            GameCoreX = BSML::Lite::CreateIncrementSetting(container->get_transform(),"Game Play X", 2, 0.02, 
-                getModConfig().HeartGameCorePos.GetValue().x, [](float v){
-                    auto & p = getModConfig().HeartGameCorePos;
-                    auto vec = p.GetValue();
-                    vec.x = v;
-                    p.SetValue(vec);
-                    heartbeatObj->SetStatus(HEARTBEAT_STATUS_GAMECORE);
-            });
-
-            GameCoreY = BSML::Lite::CreateIncrementSetting(container->get_transform(),"Game Play Y", 2, 0.02, 
-                getModConfig().HeartGameCorePos.GetValue().y, [](float v){
-                    auto & p = getModConfig().HeartGameCorePos;
-                    auto vec = p.GetValue();
-                    vec.y = v;
-                    p.SetValue(vec);
-                    heartbeatObj->SetStatus(HEARTBEAT_STATUS_GAMECORE);
-            });
-
-            GameCoreZ = BSML::Lite::CreateIncrementSetting(container->get_transform(),"Game Play Z", 2, 0.02, 
-                getModConfig().HeartGameCorePos.GetValue().z, [](float v){
-                    auto & p = getModConfig().HeartGameCorePos;
-                    auto vec = p.GetValue();
-                    vec.z = v;
-                    p.SetValue(vec);
-                    heartbeatObj->SetStatus(HEARTBEAT_STATUS_GAMECORE);
-            });
-
-
-            BSML::Lite::CreateUIButton(container->get_transform(), "Game Play Position: Reset Default", UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4}, [](){
-                auto & conf = getModConfig();
-                auto d = conf.HeartGameCorePos.GetDefaultValue();
-                conf.HeartGameCorePos.SetValue(d);
-                GameCoreX->__set_currentValue(d.x);
-                GameCoreY->__set_currentValue(d.y);
-                GameCoreZ->__set_currentValue(d.z);
-                auto defaultRot = conf.HeartGameCoreRot.GetDefaultValue();
-                GameCoreRotY->__set_currentValue(defaultRot);
-                conf.HeartGameCoreRot.SetValue(defaultRot);
-                GameCoreX->UpdateState();
-                GameCoreY->UpdateState();
-                GameCoreZ->UpdateState();
-                GameCoreRotY->UpdateState();
-                heartbeatObj->SetStatus(HEARTBEAT_STATUS_GAMECORE);
-            });
-
-            BSML::Lite::CreateUIButton(container->get_transform(), "Game Play Position: Go To", UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4}, [](){
-                heartbeatObj->SetStatus(HEARTBEAT_STATUS_GAMECORE);
-            });
-
-            //======================== Main Menu Position ===============
-            SPLIT("Main Menu Position");
-
-            MenuRotY = BSML::Lite::CreateIncrementSetting(container->get_transform(),"Main Menu Rot Y", 0, 2, getModConfig().HeartMainMenuRot.GetValue(), [](float v){
-                getModConfig().HeartMainMenuRot.SetValue(v);
-                heartbeatObj->SetStatus(HEARTBEAT_STATUS_MAINMENU);
-            });
-
-            MenuPosX = BSML::Lite::CreateIncrementSetting(container->get_transform(),"Main Menu X", 2, 0.02, 
-                getModConfig().HeartMainMenuPos.GetValue().x, [](float v){
-                    auto & p = getModConfig().HeartMainMenuPos;
-                    auto vec = p.GetValue();
-                    vec.x = v;
-                    p.SetValue(vec);
-                    heartbeatObj->SetStatus(HEARTBEAT_STATUS_MAINMENU);
-            });
-
-            MenuPosY = BSML::Lite::CreateIncrementSetting(container->get_transform(),"Main Menu Y", 2, 0.02, 
-                getModConfig().HeartMainMenuPos.GetValue().y, [](float v){
-                    auto & p = getModConfig().HeartMainMenuPos;
-                    auto vec = p.GetValue();
-                    vec.y = v;
-                    p.SetValue(vec);
-                    heartbeatObj->SetStatus(HEARTBEAT_STATUS_MAINMENU);
-            });
-
-            MenuPosZ = BSML::Lite::CreateIncrementSetting(container->get_transform(),"Main Menu Z", 2, 0.02, 
-                getModConfig().HeartMainMenuPos.GetValue().z, [](float v){
-                    auto & p = getModConfig().HeartMainMenuPos;
-                    auto vec = p.GetValue();
-                    vec.z = v;
-                    p.SetValue(vec);
-                    heartbeatObj->SetStatus(HEARTBEAT_STATUS_MAINMENU);
-            });
-
-            BSML::Lite::CreateUIButton(container->get_transform(), "Main Menu Position: Reset Default", UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4}, [](){
-                auto & conf = getModConfig();
-                auto d = conf.HeartMainMenuPos.GetDefaultValue();
-                conf.HeartMainMenuPos.SetValue(d);
-                MenuPosX->__set_currentValue(d.x);
-                MenuPosY->__set_currentValue(d.y);
-                MenuPosZ->__set_currentValue(d.z);
-                auto defaultRot = conf.HeartMainMenuRot.GetDefaultValue();
-                MenuRotY->__set_currentValue(defaultRot);
-                conf.HeartMainMenuRot.SetValue(defaultRot);
-                MenuPosX->UpdateState();
-                MenuPosY->UpdateState();
-                MenuPosZ->UpdateState();
-                MenuRotY->UpdateState();
-                heartbeatObj->SetStatus(HEARTBEAT_STATUS_MAINMENU);
-            });
-
-            BSML::Lite::CreateUIButton(container->get_transform(), "Main Menu Position: GO TO", UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4}, [](){
-                heartbeatObj->SetStatus(HEARTBEAT_STATUS_MAINMENU);
             });
 
             UpdateSetthingsContent();

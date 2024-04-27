@@ -1,5 +1,6 @@
 #pragma once
 
+#include "TMPro/TextMeshProUGUI.hpp"
 #include "UnityEngine/MonoBehaviour.hpp"
 #include "beatsaber-hook/shared/utils/il2cpp-functions.hpp"
 #include "custom-types/shared/macros.hpp"
@@ -14,11 +15,11 @@ DECLARE_CLASS_CODEGEN(HeartBeat, HeartBeatObj, UnityEngine::MonoBehaviour,
     DECLARE_INSTANCE_METHOD(void, Start);
     DECLARE_INSTANCE_METHOD(void, Update);
 
-    DECLARE_INSTANCE_METHOD(void, SetStatus,int status);
+    // DECLARE_INSTANCE_METHOD(void, SetStatus,int status);
     // DECLARE_INSTANCE_FIELD creates fields
     //DECLARE_INSTANCE_FIELD(int, counts);
 public:
-    TMPro::TextMeshPro* text;
+    TMPro::TextMeshProUGUI* text;
     int status;
 
     float flash_remains;

@@ -12,5 +12,4 @@
 namespace HeartBeat{
 class HeartBeatObj;
 }
-extern HeartBeat::HeartBeatObj *heartbeatObj;
 Paper::ConstLoggerContext<21> & getLogger();
