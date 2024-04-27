@@ -36,7 +36,8 @@ namespace HeartBeat{
     }
 
     void HeartBeatObj::Update(){
-        return;
+        if(this->gameObject->activeInHierarchy == false)
+            return;
         {
             static int slow_down = 0;
             if(slow_down++ > 20){

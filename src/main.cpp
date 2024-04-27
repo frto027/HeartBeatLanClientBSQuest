@@ -41,9 +41,12 @@ Paper::ConstLoggerContext<21> & getLogger(){
     static Paper::ConstLoggerContext<21> logger = Paper::ConstLoggerContext("HeartBeatLanReceiver");
     return logger;
 }
-
+UnityEngine::GameObject * MainMenuPreviewObject = nullptr;
 MAKE_HOOK_MATCH(GameplayCoreHook, &GlobalNamespace::CoreGameHUDController::Initialize, void, GlobalNamespace::CoreGameHUDController * self, GlobalNamespace::CoreGameHUDController::InitData * data){
     GameplayCoreHook(self, data);
+
+    if(MainMenuPreviewObject)
+        MainMenuPreviewObject->set_active(false);
 
     UnityEngine::GameObject * EnergyGo = self->get_energyPanelGo();
     auto text = BSML::Lite::CreateText(EnergyGo->get_transform(), "???");
@@ -51,10 +54,11 @@ MAKE_HOOK_MATCH(GameplayCoreHook, &GlobalNamespace::CoreGameHUDController::Initi
     rect->SetParent(EnergyGo->transform, false);
     text->get_gameObject()->AddComponent<HeartBeat::HeartBeatObj*>();
     rect->anchoredPosition = {0.5, 0.5};
-    rect->sizeDelta = {300, 20};
+    rect->sizeDelta = {180, 20};
 
-    text->fontSize = 8;
-    text->set_alignment(TMPro::TextAlignmentOptions::MidlineRight);
+    text->color = getModConfig().HeartTextColor.GetValue();
+    text->fontSize = 10;
+    text->set_alignment(TMPro::TextAlignmentOptions::MidlineLeft);
 }
 
 // Called later on in the game loading - a good time to install function hooks

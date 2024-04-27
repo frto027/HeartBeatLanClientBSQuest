@@ -1,6 +1,7 @@
 #pragma once
 
 // Include the modloader header, which allows us to tell the modloader which mod this is, and the version etc.
+#include "UnityEngine/GameObject.hpp"
 #include "scotland2/shared/loader.hpp"
 
 // beatsaber-hook is a modding framework that lets us call functions and fetch field values from in the game
@@ -13,3 +14,5 @@ namespace HeartBeat{
 class HeartBeatObj;
 }
 Paper::ConstLoggerContext<21> & getLogger();
+
+extern UnityEngine::GameObject * MainMenuPreviewObject;

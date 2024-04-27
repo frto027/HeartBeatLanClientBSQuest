@@ -12,3 +12,8 @@ V(unknown_addr_server_fmt, "%s 未知地址。";)
 V(heart_rate_lan_protocol_ver, "Heart Rate Lan 协议版本：";)
 V(mod_version, "模组版本 " VERSION;)
 V(waiting, "等待中...";)
+
+V(text_color, "文字颜色")
+V(flash_text_color, "闪烁颜色")
+V(flash_duration_when_text_come, "数据抵达时的闪烁时长")
+V(flash_test, "闪烁测试")

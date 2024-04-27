@@ -1,12 +1,19 @@
+#include "HMUI/ViewController.hpp"
 #include "ModConfig.hpp"
+#include "TMPro/TextMeshProUGUI.hpp"
 #include "UnityEngine/Color.hpp"
 #include "UnityEngine/Vector2.hpp"
+#include "UnityEngine/Canvas.hpp"
+#include "UnityEngine/GameObject.hpp"
+#include "UnityEngine/RenderMode.hpp"
+#include "UnityEngine/RectTransform.hpp"
 #include "beatsaber-hook/shared/utils/il2cpp-utils-methods.hpp"
 #include "beatsaber-hook/shared/utils/typedefs-string.hpp"
 #include "bsml/shared/BSML-Lite/Creation/Settings.hpp"
 #include "bsml/shared/BSML-Lite/Creation/Text.hpp"
 #include "bsml/shared/BSML/Components/CustomListTableData.hpp"
 #include "bsml/shared/BSML/Components/Settings/DropdownListSetting.hpp"
+#include "custom-types/shared/delegate.hpp"
 #include "i18n.hpp"
 #include "main.hpp"
 #include "HeartBeatSetthings.hpp"
@@ -203,64 +210,83 @@ namespace SetthingUI{
         UpdateSelectedBLEScrollList();
     }
 
+
+HeartBeat::HeartBeatObj * previewObj;
+
+    void EnsurePreviewObject(){
+        if(MainMenuPreviewObject == nullptr){
+            auto obj = UnityEngine::GameObject::New_ctor();
+            UnityEngine::Object::DontDestroyOnLoad(obj);
+            auto canvas = obj->AddComponent<UnityEngine::Canvas*>();
+            canvas->set_renderMode(UnityEngine::RenderMode::WorldSpace);
+            auto crect = canvas->GetComponent<UnityEngine::RectTransform*>();
+            crect->position = {-0.5, 0.5, 3};
+            crect->sizeDelta = {1, 1};
+
+
+            auto text = BSML::Lite::CreateText(canvas->get_transform(), "???");
+            auto rect = text->get_rectTransform();
+            rect->SetParent(canvas->transform, false);
+            previewObj = text->get_gameObject()->AddComponent<HeartBeat::HeartBeatObj*>();
+            rect->anchoredPosition = {0.5, 0.7};
+            rect->sizeDelta = {1, 0.02};
+
+            text->fontSize = 0.1;
+            text->set_alignment(TMPro::TextAlignmentOptions::Center);
+
+            MainMenuPreviewObject = obj;
+        }
+        if(MainMenuPreviewObject->get_active() == false)
+            MainMenuPreviewObject->set_active(true);
+    }
+
     void DidSetthingsActivate(HMUI::ViewController* self, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
+        EnsurePreviewObject();
+        
         if(firstActivation) {
+            self->add_didDeactivateEvent(custom_types::MakeDelegate<HMUI::ViewController::DidDeactivateDelegate*>(std::function([](bool removedFromHierarchy, bool screenSystemDisabling){
+                MainMenuPreviewObject->set_active(false);
+            })));
             setthings_controller = self;
             // Create a container that has a scroll bar
             auto *container = BSML::Lite::CreateScrollableSettingsContainer(self->get_transform());
-            
+
+
             BSML::Lite::CreateText(container->get_transform(),std::string(LANG->heart_rate_lan_protocol_ver) + HeartBeat::HeartBeatLanDataSource::GetProtocolVersion(), 4, UnityEngine::Vector2{}, UnityEngine::Vector2{100, 4});
             BSML::Lite::CreateText(container->get_transform(),LANG->mod_version, 4, UnityEngine::Vector2{}, UnityEngine::Vector2{100, 4});
 
-            pair_stoppair_btn =  BSML::Lite::CreateUIButton(container->get_transform(), LANG->waiting, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4}, PairUnpairBtnClick);
-            private_public_btn =  BSML::Lite::CreateUIButton(container->get_transform(), LANG->waiting, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4}, PrivateNotPrivateBtnClick);
             
-            #define SPLIT(x) do{\
-                BSML::Lite::CreateText(container->get_transform(), "----- " x " -----", 6, UnityEngine::Vector2{}, UnityEngine::Vector2{100, 8})->set_alignment(TMPro::TextAlignmentOptions::Bottom);\
-            }while(0)
-
-            SPLIT("This Config Menu");
-
-            // std::vector<std::string_view> languages = {
-            //     "auto",
-            //     "english",
-            //     "chinese"};
-            // BSML::Lite::CreateDropdown(container->get_transform(),
-            //     "Language(need restart)",getModConfig().ModLang.GetValue(),languages,[](StringW v){
-            //         getModConfig().ModLang.SetValue(v);
-            //     } );
-
             BSML::Lite::CreateToggle(container->get_transform(), LANG->enabled, getModConfig().Enabled.GetValue(), [](bool v){
                 getModConfig().Enabled.SetValue(v);
             });
 
-            static BSML::IncrementSetting *MenuPosX, *MenuPosY, *MenuPosZ, *MenuRotY, *GameCoreX, *GameCoreY, *GameCoreZ, *GameCoreRotY;
+            std::vector<std::string_view> languages = {
+                "auto",
+                "english",
+                "chinese"};
+            BSML::Lite::CreateDropdown(container->get_transform(),
+                "Language(need restart)",getModConfig().ModLang.GetValue(),languages,[](StringW v){
+                    getModConfig().ModLang.SetValue(v);
+                } );
+
+            pair_stoppair_btn =  BSML::Lite::CreateUIButton(container->get_transform(), LANG->waiting, UnityEngine::Vector2{}, UnityEngine::Vector2{200, 4}, PairUnpairBtnClick);
+            private_public_btn =  BSML::Lite::CreateUIButton(container->get_transform(), LANG->waiting, UnityEngine::Vector2{}, UnityEngine::Vector2{200, 4}, PrivateNotPrivateBtnClick);
+
             static BSML::IncrementSetting *FlashDur;
 
-            BSML::Lite::CreateIncrementSetting(container->get_transform(), LANG->config_adjust_speed, 2, 0.01, 0.02, [](float v){
-                MenuPosX->increments = v;
-                MenuPosY->increments = v;
-                MenuPosZ->increments = v;
-                GameCoreX->increments = v;
-                GameCoreY->increments = v;
-                GameCoreZ->increments = v;
-                MenuRotY->increments = v * 100;
-                GameCoreRotY->increments = v * 100;
-                FlashDur->increments = v * 10;
-            })->minValue = 0.01;
-
-            SPLIT("Text Color");
             static UnityEngine::Color TextColor = getModConfig().HeartTextColor.GetValue();
             BSML::Lite::CreateColorPicker(container->get_transform(), LANG->text_color, getModConfig().HeartTextColor.GetValue(),
                 [](UnityEngine::Color color){
                     getModConfig().HeartTextColor.SetValue(TextColor);
-
+                    previewObj->text->color = TextColor;
                 },
                 [](){
                     TextColor = getModConfig().HeartTextColor.GetValue();
+                    previewObj->text->color = TextColor;
                 },
                 [](UnityEngine::Color color){
                     TextColor = color;
+                    previewObj->text->color = TextColor;
             });
             static UnityEngine::Color FlashTextColor = getModConfig().HeartDataComeFlashColor.GetValue();
             BSML::Lite::CreateColorPicker(container->get_transform(), LANG->flash_text_color, getModConfig().HeartDataComeFlashColor.GetValue(),
@@ -283,19 +309,8 @@ namespace SetthingUI{
                 }
                 getModConfig().HeartDataComeFlashDuration.SetValue(v);
             });
-
-            SPLIT("Text");
-
-            static BSML::IncrementSetting *LineSpace;
-            LineSpace = BSML::Lite::CreateIncrementSetting(container->get_transform(), LANG->line_space, 0, 1, getModConfig().HeartLineSpaceDelta.GetValue(), [](float v){
-                getModConfig().HeartLineSpaceDelta.SetValue(v);
-            });
-
-            BSML::Lite::CreateUIButton(container->get_transform(), LANG->reset_default_line_space, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4}, [](){
-                auto v = getModConfig().HeartLineSpaceDelta.GetDefaultValue();
-                getModConfig().HeartLineSpaceDelta.SetValue(v);
-                LineSpace->__set_currentValue(v);
-                LineSpace->UpdateState();
+            BSML::Lite::CreateUIButton(container->get_transform(), LANG->flash_test, UnityEngine::Vector2{}, UnityEngine::Vector2{150, 8}, [](){
+                previewObj->FlashColor();
             });
 
             UpdateSetthingsContent();
@@ -304,8 +319,11 @@ namespace SetthingUI{
 
 
     void DidServersActivate(HMUI::ViewController* self, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
-        // Create our UI elements only when shown for the first time.
+        EnsurePreviewObject();
         if(firstActivation) {
+            self->add_didDeactivateEvent(custom_types::MakeDelegate<HMUI::ViewController::DidDeactivateDelegate*>(std::function([](bool removedFromHierarchy, bool screenSystemDisabling){
+                MainMenuPreviewObject->set_active(false);
+            })));
             servers_controller = self;
             // Create a container that has a scroll bar
             auto *container = BSML::Lite::CreateScrollableSettingsContainer(self->get_transform());
@@ -317,8 +335,11 @@ namespace SetthingUI{
         }
     }
     void DidDevicesActivate(HMUI::ViewController* self, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
-        // Create our UI elements only when shown for the first time.
+        EnsurePreviewObject();
         if(firstActivation) {
+            self->add_didDeactivateEvent(custom_types::MakeDelegate<HMUI::ViewController::DidDeactivateDelegate*>(std::function([](bool removedFromHierarchy, bool screenSystemDisabling){
+                MainMenuPreviewObject->set_active(false);
+            })));
             devices_controller = self;
             // Create a container that has a scroll bar
             auto *container = BSML::Lite::CreateScrollableSettingsContainer(self->get_transform());
