@@ -35,6 +35,10 @@ extern "C" void setup(CModInfo& info) {
 	
     getModConfig().Init(modInfo);
     getLogger().info("Completed setup!");
+
+    if(getModConfig().Enabled.GetValue()){
+        HeartBeat::DataSource::getInstance();
+    }
 }
 
 Paper::ConstLoggerContext<21> & getLogger(){
@@ -82,6 +86,7 @@ extern "C" void late_load() {
         getLogger().info("The mod is not enabled");
         return;
     }
+
 
     getLogger().info("Installing hooks...");
     INSTALL_HOOK(getLogger(), GameplayCoreHook);

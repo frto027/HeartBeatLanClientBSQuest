@@ -35,29 +35,16 @@
 
 namespace SetthingUI{
     HMUI::ViewController* setthings_controller;
-    HMUI::ViewController* servers_controller;
     HMUI::ViewController* devices_controller;
     //============ pair / stop pair btn ==========
-    UnityEngine::UI::Button * pair_stoppair_btn;
     UnityEngine::UI::Button * private_public_btn;
-    bool ui_is_pairing = false;
     bool private_ui = true;
 
     void UpdateSetthingsContent(){
-            if((ui_is_pairing = HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatLanDataSource>()->IsPairing())){
-                BSML::Lite::SetButtonText(pair_stoppair_btn, LANG->pairing);
-            }else{
-                BSML::Lite::SetButtonText(pair_stoppair_btn, LANG->not_pairing);
-            }
             BSML::Lite::SetButtonText(private_public_btn, private_ui ? LANG->hiding_mac_addr: LANG->showing_mac_addr);
     }
     void PairUnpairBtnClick(){
-        auto * instance = HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatLanDataSource>();
-        if(ui_is_pairing){
-            instance->StopPair();
-        }else{
-            instance->StartPair();
-        }
+        auto * instance = HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatBleDataSource>();
         UpdateSetthingsContent();
     }
     void PrivateNotPrivateBtnClick(){
@@ -69,11 +56,10 @@ namespace SetthingUI{
     std::vector<std::string> ble_mac;
 
     void UpdateSelectedBLEScrollList(){
-        auto * i = HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatLanDataSource>();
+        auto * i = HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatBleDataSource>();
         bool any_data_changed = false;
         int the_selected = -1;
         {
-            std::lock_guard<std::mutex> lock(i->mutex);
             std::set<std::string> already_in(ble_mac.begin(), ble_mac.end());
             auto& devs = i->avaliable_devices;
 
@@ -98,7 +84,7 @@ namespace SetthingUI{
                 std::string name;
 
                 if(ble_mac[j] == ""){
-                    name = selected ? ">>Any" : "  Any";
+                    name = selected ? ">>None" : "  None";
                 }else{
                     auto it = devs.find(ble_mac[j]);
                     if(it != devs.end()){
@@ -125,88 +111,16 @@ namespace SetthingUI{
         }
     }
 
-    // server lists
-    BSML::CustomListTableData *server_list;
-    std::vector<std::pair<unsigned int, unsigned short>> server_list_vec;
-    void UpdateServerList(){
-        auto* instance = HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatLanDataSource>();
-
-        auto & servers = instance->paired_servers;
-        std::lock_guard<std::mutex> lock(instance->mutex);
-
-        bool any_data_changed = false;
-
-        while(server_list->data.size() < servers.size()){
-            server_list->data->Add(BSML::CustomCellInfo::construct(""));
-            any_data_changed = true;
-        }
-        while(server_list->data.size() > servers.size()){
-            server_list->data->RemoveAt(server_list->data.size()-1);
-            any_data_changed = true;
-        }
-        server_list_vec.resize(servers.size());
-
-        
-        for(int i=0;i<servers.size();i++){
-            auto & server = servers.at(i);
-            auto * addr = &server.addr;
-            char buff[512];
-            if(addr->sa_family == AF_INET){
-                auto * iaddr = (sockaddr_in*)addr;
-                unsigned int a = ntohl(iaddr->sin_addr.s_addr);
-                unsigned short p = ntohs(iaddr->sin_port);
-                server_list_vec[i] = std::pair(a,p);
-                // sprintf(buff, server.ignored? "a ign server" : "a server");;
-                sprintf(buff, "%s %d.%d.%d.%d:%d", server.ignored ? LANG->server_skip:"     ", (int)((a>>24) &0xFF), (int)((a>>16)&0xFF), (int)((a>>8)&0xFF), (int)(a&0xFF), p);
-            }else{
-                sprintf(buff, LANG->unknown_addr_server_fmt, server.ignored ? LANG->server_skip: "     ");
-            }
-            if(server_list->data[i]->text != buff){
-                server_list->data[i]->text = buff;
-                any_data_changed = true;
-            }
-        }
-        if(any_data_changed){
-            server_list->tableView->ReloadData();
-        }
-    }
-
-    void SwitchServerIgnore(int idx){
-        getLogger().info("toggle server {}", idx);
-        auto* instance = HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatLanDataSource>();
-
-        auto & servers = instance->paired_servers;
-
-        auto e = server_list_vec.at(idx);
-        for(int i=0;i<servers.size();i++){
-            auto & server = servers.at(i);
-            auto * addr = &server.addr;
-            char buff[256];
-            if(addr->sa_family == AF_INET){
-                auto * iaddr = (sockaddr_in*)addr;
-                unsigned int a = ntohl(iaddr->sin_addr.s_addr);
-                unsigned short p = ntohs(iaddr->sin_port);
-                if(std::pair(a,p) == e){
-                    server.ignored = !server.ignored;
-                }
-            }else{
-                getLogger().info("unknown IP addr {}", addr->sa_family);
-            }
-        }
-
-        server_list->tableView->ClearSelection();
-        UpdateServerList();
-    }
-
+    
     void UpdateSetthingsUI(){
-        if(servers_controller && servers_controller->get_isActivated())
-            UpdateServerList();
-        if(devices_controller && devices_controller->get_isActivated())
-            UpdateSelectedBLEScrollList();
+        // no need to do that, the list will only changed when click scan button
+        // if(devices_controller && devices_controller->get_isActivated())
+        //     UpdateSelectedBLEScrollList();
+        
     }
 
     void UpdateSelectedBLEValue(int idx){
-        HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatLanDataSource>()->SetSelectedBleMac(ble_mac[idx]);
+        HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatBleDataSource>()->SetSelectedBleMac(ble_mac[idx]);
         UpdateSelectedBLEScrollList();
     }
 
@@ -251,7 +165,6 @@ HeartBeat::HeartBeatObj * previewObj;
             auto *container = BSML::Lite::CreateScrollableSettingsContainer(self->get_transform());
 
 
-            BSML::Lite::CreateText(container->get_transform(),std::string(LANG->heart_rate_lan_protocol_ver) + HeartBeat::HeartBeatLanDataSource::GetProtocolVersion(), 4, UnityEngine::Vector2{}, UnityEngine::Vector2{100, 4});
             BSML::Lite::CreateText(container->get_transform(),LANG->mod_version, 4, UnityEngine::Vector2{}, UnityEngine::Vector2{100, 4});
 
             
@@ -274,7 +187,6 @@ HeartBeat::HeartBeatObj * previewObj;
                     getModConfig().ModLang.SetValue(v);
                 } );
 
-            pair_stoppair_btn =  BSML::Lite::CreateUIButton(container->get_transform(), LANG->waiting, UnityEngine::Vector2{}, UnityEngine::Vector2{200, 4}, PairUnpairBtnClick);
             private_public_btn =  BSML::Lite::CreateUIButton(container->get_transform(), LANG->waiting, UnityEngine::Vector2{}, UnityEngine::Vector2{200, 4}, PrivateNotPrivateBtnClick);
 
             static BSML::IncrementSetting *FlashDur;
@@ -331,23 +243,6 @@ HeartBeat::HeartBeatObj * previewObj;
         }
     }
 
-
-    void DidServersActivate(HMUI::ViewController* self, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
-        EnsurePreviewObject();
-        if(firstActivation) {
-            self->add_didDeactivateEvent(custom_types::MakeDelegate<HMUI::ViewController::DidDeactivateDelegate*>(std::function([](bool removedFromHierarchy, bool screenSystemDisabling){
-                MainMenuPreviewObject->set_active(false);
-            })));
-            servers_controller = self;
-            // Create a container that has a scroll bar
-            auto *container = BSML::Lite::CreateScrollableSettingsContainer(self->get_transform());
-
-            server_list = BSML::Lite::CreateScrollableList(container->get_transform(), {70, 60}, SwitchServerIgnore);
-            server_list->set_listStyle(BSML::CustomListTableData::ListStyle::Simple);
-            server_list->tableView->set_selectionType(HMUI::TableViewSelectionType::Single);
-            UpdateServerList();
-        }
-    }
     void DidDevicesActivate(HMUI::ViewController* self, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
         EnsurePreviewObject();
         if(firstActivation) {
@@ -357,6 +252,13 @@ HeartBeat::HeartBeatObj * previewObj;
             devices_controller = self;
             // Create a container that has a scroll bar
             auto *container = BSML::Lite::CreateScrollableSettingsContainer(self->get_transform());
+
+            BSML::Lite::CreateUIButton(container->get_transform(), LANG->scan_devices, UnityEngine::Vector2{}, UnityEngine::Vector2{200, 4}, [](){
+                auto instance=HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatBleDataSource>(); 
+                instance->ScanDevice();
+                UpdateSelectedBLEScrollList();
+            });
+
 
             ble_list = BSML::Lite::CreateScrollableList(container->get_transform(), {70,60}, UpdateSelectedBLEValue);
             ble_list->set_listStyle(BSML::CustomListTableData::ListStyle::Simple);
@@ -371,6 +273,5 @@ HeartBeat::HeartBeatObj * previewObj;
         if(ModEnabled == false)
             return;
         BSML::Register::RegisterMainMenuViewControllerMethod("HeartBeatLan", LANG->heart_devices,"<3", SetthingUI::DidDevicesActivate);
-        BSML::Register::RegisterMainMenuViewControllerMethod("HeartBeatLan", LANG->heart_senders, "<3",SetthingUI::DidServersActivate);
     }
 }

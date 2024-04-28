@@ -1,3 +1,4 @@
+#include "ModConfig.hpp"
 #include "TMPro/TextAlignmentOptions.hpp"
 #include "TMPro/TextMeshProUGUI.hpp"
 #include "TMPro/TextMeshPro.hpp"
@@ -45,15 +46,20 @@ namespace HeartBeat{
                 SetthingUI::UpdateSetthingsUI();
             }
         }
-        if(this->status == HEARTBEAT_STATUS_HIDE)
-            return;
         auto instance = HeartBeat::DataSource::getInstance();
         instance->Update();
 
         int data;
         if(HeartBeat::DataSource::getInstance()->GetData(data)){
             char buff[1024];
-            sprintf(buff, "% 3d bpm", data);
+            
+            if(getModConfig().DisplayEnergy.GetValue()){
+                long long energy = HeartBeat::DataSource::getInstance()->GetEnergy();
+                sprintf(buff, "% 3d bpm\n% 3lld KJ", data, energy);
+            }else{
+                sprintf(buff, "% 3d bpm", data);
+            }
+            
             text->set_text(buff);
             FlashColor();
         }

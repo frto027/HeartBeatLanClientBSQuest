@@ -2,6 +2,7 @@
 
 #include "sys/socket.h"
 #include "sys/types.h"
+#include <atomic>
 #include <vector>
 #include <string>
 #include <map>
@@ -14,6 +15,7 @@ namespace HeartBeat{
 class DataSource{
 public:
     virtual bool GetData(int& heartbeat);
+    virtual long long GetEnergy();
     virtual void Update();
     static DataSource* getInstance();
     template<typename T>
@@ -68,5 +70,28 @@ public:
         this->selected_mac = mac;
         getModConfig().SelectedBleMac.SetValue(mac, true);
     }
+};
+class HeartBeatBleDataSource:public DataSource{
+private:
+    std::string selected_mac = "";
+    bool has_new_data;
+    int heartbeat = 0;
+    std::atomic_llong energy = 0;
+public:
+    HeartBeatBleDataSource();
+    bool GetData(int& heartbeat);
+    long long GetEnergy();
+
+    void ScanDevice();
+
+    std::string& GetSelectedBleMac(){ return selected_mac; }
+    void SetSelectedBleMac(const std::string mac);
+
+    std::map<std::string/*mac*/, HeartBeatLanDevice> avaliable_devices;
+
+    //called from java
+    void InformNativeDevice(const std::string& macAddr, const std::string& name);
+    void OnDataCome(const std::string& macAddr, int heartRate, long energy);
+
 };
 };//namespace HeartBeat
