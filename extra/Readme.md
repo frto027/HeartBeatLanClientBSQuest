@@ -1,1 +1,2 @@
-The `classes.dex` is compiled from an android studio project, and will be public later.
+The `classes.dex` is compiled from `/AndroidProject/HeartBeatNative`, and extract from
+`AndroidProject\HeartBeatNative\nativeblereader\build\outputs\apk\debug\nativeblereader-debug.apk`

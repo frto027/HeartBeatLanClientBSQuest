@@ -1,43 +1,24 @@
 # HeartBeatLanReceiver - Quest (BeatSaber mod)
 
-[中文说明](README.cn.md)
+~~[中文说明](README.cn.md)~~
 
 view your heartbeat inside the quest game
 
-1. Install [the apk](https://github.com/frto027/HeartbeatLanServer/releases/latest) on your quest device. Open and select the Bluetooth heartrate device. Keep this app open while playing the game. Or you can also install it to your android phone, and keep the phone and quest headset in the same network.
-2. Install [this](https://github.com/frto027/HeartBeatLanClientBSQuest/releases/latest) mod on your quest.
-3. Open the beatsaber game. If you install the apk in quest, or your quest and android phone in the same network, the heartrate will display.
-4. (Optional)Inside the game,you can configure the mod via the mod menu at your left side. If there is more than one smartphones using the app, you can filter out the sender or devices that you want to use. Select the bluetooth device instead of `any` to prevent other possible senders from LAN.
+1. install this mod via [mbf](https://mbf.bsquest.xyz/), and patch the game with BLUETOOTH_CONNECTION permission.
+2. pair your heart rate BLE device with your quest.
+3. Open the game, and select your device at the device list menu.
 
-```mermaid
-graph TD;
-    POLAR_H10[Polar H10]
-    SMART_WATCH[smart watch, broadcast heartrate]
-    BLE_DEV[other BLE heartrate devices]
-    PHONE[sender, a smart phone or quest, which is an android apk]
-    BEATSABER[receiver, beatsaber quest mod, <span style="color:red">YOU ARE HERE</span>]
+# How it works
 
-    POLAR_H10--bluetooth-->PHONE;
-    SMART_WATCH--bluetooth-->PHONE;
-    BLE_DEV--bluetooth-->PHONE;
-    PHONE--LAN-->BEATSABER;
-    PHONE--LAN-->...;
-```
+This mod uses [JNI](https://docs.oracle.com/javase/8/docs/technotes/guides/jni/spec/jniTOC.html) to load an external java library with [PathClassLoader](https://developer.android.com/reference/dalvik/system/PathClassLoader) to access bluetooth device.
 
 # Dev.
+Use `qpm s build` to build
+Same goes for `qpm s copy` and `.\scripts\createqmod.ps1`
 
-~~Install both this mod and apk to quest is an accident design. I don't think we should let two app communicat each other on the same device. I will try to get rid of the apk in the future.~~
+# Dev. Android Project
 
-~~Can't let the Beatsaber game read bluetooth data directly because of android permission limit. It's fine to use the helper app.~~
-
-I'm trying to get rid of it.
-
-Use `qpm-rust s build` to build
-Same goes for `qpm-rust s copy` and `qpm-rust s qmod`
-
-TODO:
-- Clean up the network thread when game close? If the game's process exits normally, I think it's no need to do this.
-
+The Bluetooth access code at `AndroidProject/HeartBeatNative` can be compiled with AndroidStudio and Android SDK 34.
 
 ## Credits
 
