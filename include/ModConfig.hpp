@@ -21,4 +21,6 @@ DECLARE_CONFIG(ModConfig,
     CONFIG_VALUE(ModLang, std::string, "Mod Language", "auto");
 
     CONFIG_VALUE(DisplayEnergy, bool, "Display Energy", true);
+
+    CONFIG_VALUE(DataSourceType, int, "DataSourceType", 2);
 );

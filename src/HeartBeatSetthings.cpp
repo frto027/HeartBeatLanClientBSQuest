@@ -43,89 +43,18 @@ namespace SetthingUI{
     void UpdateSetthingsContent(){
             BSML::Lite::SetButtonText(private_public_btn, private_ui ? LANG->hiding_mac_addr: LANG->showing_mac_addr);
     }
-    void PairUnpairBtnClick(){
-        auto * instance = HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatBleDataSource>();
-        UpdateSetthingsContent();
-    }
     void PrivateNotPrivateBtnClick(){
         private_ui = !private_ui;
         UpdateSetthingsContent();
     }
-
-    BSML::CustomListTableData *ble_list;
-    std::vector<std::string> ble_mac;
-
-    void UpdateSelectedBLEScrollList(){
-        auto * i = HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatBleDataSource>();
-        bool any_data_changed = false;
-        int the_selected = -1;
-        {
-            std::set<std::string> already_in(ble_mac.begin(), ble_mac.end());
-            auto& devs = i->avaliable_devices;
-
-            for(auto it = devs.begin(), end = devs.end(); it != end; ++it){
-                if(already_in.count(it->first))
-                    continue;
-                ble_mac.push_back(it->first);
-                already_in.insert(it->first);
-            }
-
-            while(ble_list->data.size() > ble_mac.size()){
-                ble_list->data->RemoveAt(ble_list->data.size() - 1);
-                any_data_changed = true;
-            }
-            while(ble_list->data.size() < ble_mac.size()){
-                ble_list->data->Add(BSML::CustomCellInfo::construct(""));
-                any_data_changed = true;
-            }
-
-            for(int j=0;j<ble_mac.size();j++){
-                bool selected = (ble_mac[j] == i->GetSelectedBleMac());
-                std::string name;
-
-                if(ble_mac[j] == ""){
-                    name = selected ? ">>None" : "  None";
-                }else{
-                    auto it = devs.find(ble_mac[j]);
-                    if(it != devs.end()){
-                        name = std::string(selected ? ">>" : "  ") + (it->second.name) + "(" + 
-                             (private_ui ? "XX-XX-XX-XX-XX-XX" : ble_mac[j])
-                             + ")";
-                    }else{
-                        name = std::string(selected ? ">>" : "  ") + (LANG->unknown_left_quote) + ble_mac[j] + ")";
-                    }
-                }
-                if(ble_list->data[j]->text != name){
-                    ble_list->data[j]->text = name;
-                    any_data_changed = true;
-                }
-                if(selected){
-                    the_selected = j;
-                }
-            }
-        }
-        if(any_data_changed)
-            ble_list->tableView->ReloadData();
-        if(the_selected >= 0){
-            ble_list->tableView->SelectCellWithIdx(the_selected, false);
-        }
-    }
-
-    
+    //Called from HeartBeat::Update
     void UpdateSetthingsUI(){
-        // no need to do that, the list will only changed when click scan button
-        // if(devices_controller && devices_controller->get_isActivated())
-        //     UpdateSelectedBLEScrollList();
-        
+        if(HeartBeat::dataSourceType == HeartBeat::DS_LAN){
+            // update lan devices
+        }
     }
 
-    void UpdateSelectedBLEValue(int idx){
-        HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatBleDataSource>()->SetSelectedBleMac(ble_mac[idx]);
-        UpdateSelectedBLEScrollList();
-    }
-
-
-HeartBeat::HeartBeatObj * previewObj;
+    HeartBeat::HeartBeatObj * previewObj;
 
     void EnsurePreviewObject(){
         if(MainMenuPreviewObject == nullptr){
@@ -174,7 +103,7 @@ HeartBeat::HeartBeatObj * previewObj;
 
             if(ModEnabled == false)
                 return;
-            
+
             self->add_didDeactivateEvent(custom_types::MakeDelegate<HMUI::ViewController::DidDeactivateDelegate*>(std::function([](bool removedFromHierarchy, bool screenSystemDisabling){
                 MainMenuPreviewObject->set_active(false);
             })));
@@ -186,6 +115,30 @@ HeartBeat::HeartBeatObj * previewObj;
                 "Language(need restart)",getModConfig().ModLang.GetValue(),languages,[](StringW v){
                     getModConfig().ModLang.SetValue(v);
                 } );
+
+            // A data source toggle
+            // static std::vector<std::string_view> data_sources;
+            // data_sources = {
+            //     LANG->data_source_random,
+            //     LANG->data_source_lan,
+            //     LANG->data_source_bluetooth,
+            // };
+            // auto current_data_type = getModConfig().DataSourceType.GetValue();
+            // if(current_data_type >= data_sources.size()){
+            //     current_data_type = 2;
+            // }
+            // if(current_data_type < 0)
+            //     current_data_type = 2;
+            // BSML::Lite::CreateDropdown(container->get_transform(),
+            //     LANG->data_source, 
+            //     data_sources[current_data_type], data_sources, [](::StringW value){
+            //         for(int i=0;i<data_sources.size();i++){
+            //             if(data_sources[i] == value){
+            //                 getModConfig().DataSourceType.SetValue(i);
+            //                 break;
+            //             }
+            //         }
+            //     });
 
             private_public_btn =  BSML::Lite::CreateUIButton(container->get_transform(), LANG->waiting, UnityEngine::Vector2{}, UnityEngine::Vector2{200, 4}, PrivateNotPrivateBtnClick);
 
@@ -243,28 +196,92 @@ HeartBeat::HeartBeatObj * previewObj;
         }
     }
 
-    void DidDevicesActivate(HMUI::ViewController* self, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
-        EnsurePreviewObject();
-        if(firstActivation) {
-            self->add_didDeactivateEvent(custom_types::MakeDelegate<HMUI::ViewController::DidDeactivateDelegate*>(std::function([](bool removedFromHierarchy, bool screenSystemDisabling){
-                MainMenuPreviewObject->set_active(false);
-            })));
-            devices_controller = self;
-            // Create a container that has a scroll bar
-            auto *container = BSML::Lite::CreateScrollableSettingsContainer(self->get_transform());
+    namespace BleDataSource{
+        BSML::CustomListTableData *ble_list;
+        std::vector<std::string> ble_mac;
 
-            BSML::Lite::CreateUIButton(container->get_transform(), LANG->scan_devices, UnityEngine::Vector2{}, UnityEngine::Vector2{200, 4}, [](){
-                auto instance=HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatBleDataSource>(); 
-                instance->ScanDevice();
-                UpdateSelectedBLEScrollList();
-            });
+        void UpdateSelectedBLEScrollList(){
+            auto * i = HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatBleDataSource>();
+            bool any_data_changed = false;
+            int the_selected = -1;
+            {
+                std::set<std::string> already_in(ble_mac.begin(), ble_mac.end());
+                auto& devs = i->avaliable_devices;
 
+                for(auto it = devs.begin(), end = devs.end(); it != end; ++it){
+                    if(already_in.count(it->first))
+                        continue;
+                    ble_mac.push_back(it->first);
+                    already_in.insert(it->first);
+                }
 
-            ble_list = BSML::Lite::CreateScrollableList(container->get_transform(), {70,60}, UpdateSelectedBLEValue);
-            ble_list->set_listStyle(BSML::CustomListTableData::ListStyle::Simple);
-            ble_list->tableView->set_selectionType(HMUI::TableViewSelectionType::Single);
-            ble_mac.push_back("");
+                while(ble_list->data.size() > ble_mac.size()){
+                    ble_list->data->RemoveAt(ble_list->data.size() - 1);
+                    any_data_changed = true;
+                }
+                while(ble_list->data.size() < ble_mac.size()){
+                    ble_list->data->Add(BSML::CustomCellInfo::construct(""));
+                    any_data_changed = true;
+                }
+
+                for(int j=0;j<ble_mac.size();j++){
+                    bool selected = (ble_mac[j] == i->GetSelectedBleMac());
+                    std::string name;
+
+                    if(ble_mac[j] == ""){
+                        name = selected ? ">>None" : "  None";
+                    }else{
+                        auto it = devs.find(ble_mac[j]);
+                        if(it != devs.end()){
+                            name = std::string(selected ? ">>" : "  ") + (it->second.name) + "(" + 
+                                (private_ui ? "XX-XX-XX-XX-XX-XX" : ble_mac[j])
+                                + ")";
+                        }else{
+                            name = std::string(selected ? ">>" : "  ") + (LANG->unknown_left_quote) + ble_mac[j] + ")";
+                        }
+                    }
+                    if(ble_list->data[j]->text != name){
+                        ble_list->data[j]->text = name;
+                        any_data_changed = true;
+                    }
+                    if(selected){
+                        the_selected = j;
+                    }
+                }
+            }
+            if(any_data_changed)
+                ble_list->tableView->ReloadData();
+            if(the_selected >= 0){
+                ble_list->tableView->SelectCellWithIdx(the_selected, false);
+            }
+        }
+        void UpdateSelectedBLEValue(int idx){
+            HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatBleDataSource>()->SetSelectedBleMac(ble_mac[idx]);
             UpdateSelectedBLEScrollList();
+        }
+        void DidDevicesActivate(HMUI::ViewController* self, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
+            EnsurePreviewObject();
+            if(firstActivation) {
+                self->add_didDeactivateEvent(custom_types::MakeDelegate<HMUI::ViewController::DidDeactivateDelegate*>(std::function([](bool removedFromHierarchy, bool screenSystemDisabling){
+                    MainMenuPreviewObject->set_active(false);
+                })));
+                devices_controller = self;
+                // Create a container that has a scroll bar
+                auto *container = BSML::Lite::CreateScrollableSettingsContainer(self->get_transform());
+
+                BSML::Lite::CreateUIButton(container->get_transform(), LANG->scan_devices, UnityEngine::Vector2{}, UnityEngine::Vector2{200, 4}, [](){
+                    auto instance=HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatBleDataSource>(); 
+                    instance->ScanDevice();
+                    UpdateSelectedBLEScrollList();
+                });
+
+
+                ble_list = BSML::Lite::CreateScrollableList(container->get_transform(), {70,60}, UpdateSelectedBLEValue);
+                ble_list->set_listStyle(BSML::CustomListTableData::ListStyle::Simple);
+                ble_list->tableView->set_selectionType(HMUI::TableViewSelectionType::Single);
+                ble_mac.push_back("");
+                UpdateSelectedBLEScrollList();
+            }
         }
     }
 
@@ -272,6 +289,10 @@ HeartBeat::HeartBeatObj * previewObj;
         BSML::Register::RegisterMainMenuViewControllerMethod("HeartBeatLan", LANG->heart_config, "<3", SetthingUI::DidSetthingsActivate);
         if(ModEnabled == false)
             return;
-        BSML::Register::RegisterMainMenuViewControllerMethod("HeartBeatLan", LANG->heart_devices,"<3", SetthingUI::DidDevicesActivate);
+        if(HeartBeat::dataSourceType == HeartBeat::DS_BLE){
+            BSML::Register::RegisterMainMenuViewControllerMethod(
+                "HeartBeatLan", LANG->heart_devices,"<3", 
+                SetthingUI::BleDataSource::DidDevicesActivate);
+        }
     }
 }

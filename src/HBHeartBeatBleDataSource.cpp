@@ -12,26 +12,10 @@ namespace HeartBeat{
     DECLARE_DATA_SOURCE(HeartBeatBleDataSource)
 }
 
-class EnvAttacher{
-    bool detached;
-    JNIEnv** envp;
-public:
-    EnvAttacher(bool detached, JNIEnv** envp):detached(detached),envp(envp){
-        if(detached)
-            modloader_jvm->AttachCurrentThread(envp, NULL);
-    }
-
-    ~EnvAttacher(){
-        // if(detached)
-        //     modloader_jvm->DetachCurrentThread();
-    }
-};
-
 HeartBeat::HeartBeatBleDataSource * bleDataSource;
 
 JNIEnv * env;
 jobject bleReader;
-jclass bleReaderClass;
 jmethodID bleReader_BleStart;
 jmethodID bleReader_BleToggle;
 jmethodID bleReader_IdDeviceSelected;
@@ -39,14 +23,15 @@ jmethodID bleReader_IdDeviceSelected;
 JNIEXPORT void JNICALL
 Java_top_zxff_nativeblereader_BleReader_OnDeviceData
 (JNIEnv *env, jobject thiz, jstring macAddr, jint heartRate, jlong energy){
-    //this happens on a background thread
+    //this happens on a background thread, as google documented
     auto chars = env->GetStringUTFChars(macAddr, NULL);
     bleDataSource->OnDataCome(chars, heartRate, energy);
     env->ReleaseStringUTFChars(macAddr, chars);
 }
 JNIEXPORT void JNICALL
-Java_top_zxff_nativeblereader_BleReader_InformNativeDevice(jstring macAddr, jstring name){
+Java_top_zxff_nativeblereader_BleReader_InformNativeDevice(JNIEnv *env, jobject thiz, jstring macAddr, jstring name){
     //Add the ui or do something...
+    //bleReader_BleStart call this function in java code
     auto macChar = env->GetStringUTFChars(macAddr, NULL);
     auto nameChar = env->GetStringUTFChars(name, NULL);
     bleDataSource->InformNativeDevice(macChar, nameChar);
@@ -55,6 +40,7 @@ Java_top_zxff_nativeblereader_BleReader_InformNativeDevice(jstring macAddr, jstr
 }
 
 void ScanDevices(){
+    //also check permissions
     env->CallVoidMethod(bleReader, bleReader_BleStart);
     if(env->ExceptionCheck()){
         getLogger().debug("Exception occurred");
@@ -84,28 +70,39 @@ bool IsDeviceSelected(std::string macAddr){
 }
 
 void LoadJavaLibrary(std::string path){
-    //We use jni to load a java library to access bluetooth devices
-    // il2cpp_utils::threading::attach_thread();
+    // use jni to load a java library to access bluetooth devices
+
     auto ret = modloader_jvm->GetEnv((void**)&env, JNI_VERSION_1_6);
     
-    getLogger().debug("jni GetEnv()->{}", ret);
     if(env == nullptr){
         getLogger().debug("JNI Env is nullptr");
         return;
     }
     env->ExceptionClear();
 
-    //Good, I will load my java class
+    /*
+    Good, will load my java class
+
+        new dalvik.system.PathClassLoader({path}, {env->FindClass("com/unity3d/player/UnityPlayer").getClassLoader()})
+            .loadClass("top.zxff.nativeblereader.BleReader")
+            
+    */
     auto path_str = env->NewStringUTF(path.c_str());
-    getLogger().debug("Finding class loader");
-    auto ClassLoaderClass = env->FindClass("java/lang/ClassLoader");
-    getLogger().debug("Get SystemClassLoader, class loader {}", (void*)ClassLoaderClass);
-    auto ClassLoader_getSystemClassLoader = env->GetStaticMethodID(ClassLoaderClass, "getSystemClassLoader", 
-        "()Ljava/lang/ClassLoader;");
-    getLogger().debug("Method A ID {}", (void*)ClassLoader_getSystemClassLoader);
-    if(ClassLoader_getSystemClassLoader == nullptr)
+
+    auto unityPlayerClass = env->FindClass("com/unity3d/player/UnityPlayer");
+    if(unityPlayerClass == nullptr){
+        getLogger().error("UnityPlayer class not found");
         return;
-    auto ClassLoader = env->CallStaticObjectMethod(ClassLoaderClass, ClassLoader_getSystemClassLoader);
+    }
+
+    auto ClassClass = env->FindClass("java/lang/Class");
+    auto ClassClass_getClassLoader = env->GetMethodID(ClassClass, "getClassLoader", 
+        "()Ljava/lang/ClassLoader;");
+    if(ClassClass_getClassLoader == nullptr){
+        getLogger().error("Can't find class loader");
+        return;
+    }
+    auto ClassLoader = env->CallObjectMethod(unityPlayerClass, ClassClass_getClassLoader);
     
     auto PathClassLoaderClass = env->FindClass("dalvik/system/PathClassLoader");
     if(PathClassLoaderClass == nullptr){
@@ -127,48 +124,40 @@ void LoadJavaLibrary(std::string path){
         return;
     }
 
-    auto return_value_of_loadClass_class = env->GetObjectClass(return_value_of_loadClass);
-
-    auto getMethodMethod = env->GetMethodID(return_value_of_loadClass_class,
-        "getMethod", "(Ljava/lang/String;[Ljava/lang/Class;)Ljava/lang/reflect/Method;");
-    auto return_value_of_getMethod = env->CallObjectMethod(return_value_of_loadClass, getMethodMethod,
-        env->NewStringUTF("Initialize"), env->NewObjectArray(1, env->FindClass("java/lang/Class"), env->FindClass("java/lang/Class")));
-    
-    if(env->ExceptionCheck()){
-        getLogger().debug("Exception occurred");
-        env->ExceptionDescribe();
+    // We can't use env->FindClass("top.zxff.nativeblereader.BleReader") to find our class
+    // Because we use a different class loader, which is a PathClassLoader,
+    //      and FindClass uses the classloader that ralated to the top of call stack
+    auto bleReaderClass = static_cast<jclass>(return_value_of_loadClass);
+    if(bleReaderClass == nullptr){
+        getLogger().error("class not found");
         return;
     }
-
-    auto unityPlayerClass = env->FindClass("com/unity3d/player/UnityPlayer");
-    if(unityPlayerClass == nullptr){
-        getLogger().error("UnityPlayer class not found");
-        return;
-    }
-
-    auto return_value_of_getMethod_class = env->GetObjectClass(return_value_of_getMethod);
-
-    auto invokeMethod = env->GetMethodID(return_value_of_getMethod_class, "invoke", "(Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;");
-    auto tmpBleReader = env->CallObjectMethod(return_value_of_getMethod, invokeMethod, nullptr,env->NewObjectArray(1, env->FindClass("java/lang/Object"), unityPlayerClass));
-    if(env->ExceptionCheck()){
-        getLogger().debug("Exception occurred");
-        env->ExceptionDescribe();
-        return;
-    }
-
-    bleReaderClass = env->GetObjectClass(tmpBleReader);
-
     //find class method
     bleReader_BleStart = env->GetMethodID(bleReaderClass, "BleStart", "()V");
     bleReader_BleToggle = env->GetMethodID(bleReaderClass, "BleToggle", "(Ljava/lang/String;Z)Z");
     bleReader_IdDeviceSelected = env->GetMethodID(bleReaderClass, "IsDeviceSelected","(Ljava/lang/String;)Z");
 
-    // recreate the object with JNI to prevent crash
-    auto bleReaderCtor = env->GetMethodID(bleReaderClass, "<init>", "(Ljava/lang/Class;)V");
-    bleReader = env->NewObject(bleReaderClass, bleReaderCtor, unityPlayerClass);
-    bleReader = env->NewGlobalRef(bleReader);
+    static const JNINativeMethod methods[] = {
+        {"OnDeviceData", "(Ljava/lang/String;IJ)V", reinterpret_cast<void*>(Java_top_zxff_nativeblereader_BleReader_OnDeviceData)},
+        {"InformNativeDevice", "(Ljava/lang/String;Ljava/lang/String;)V", reinterpret_cast<void*>(Java_top_zxff_nativeblereader_BleReader_InformNativeDevice)},
+    };
+    int rc = env->RegisterNatives(bleReaderClass, methods, sizeof(methods)/sizeof(JNINativeMethod));
+    if (rc != JNI_OK){
+        getLogger().error("Failed to register native methods");
+        return;
+    }
 
-    getLogger().debug("Loaded! {} {} {}", (void*)bleReader_BleStart, (void*)bleReader_BleToggle, (void*)bleReader_IdDeviceSelected);
+
+    auto bleReaderCtor = env->GetMethodID(bleReaderClass, "<init>", "()V");
+    bleReader = env->NewGlobalRef(env->NewObject(bleReaderClass, bleReaderCtor));
+
+    if(env->ExceptionCheck()){
+        getLogger().debug("Exception occurred");
+        env->ExceptionDescribe();
+        return;
+    }
+
+    getLogger().debug("Java module loaded {} {} {}", (void*)bleReader_BleStart, (void*)bleReader_BleToggle, (void*)bleReader_IdDeviceSelected);
 }
 
 

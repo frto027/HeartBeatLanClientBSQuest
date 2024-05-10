@@ -72,6 +72,7 @@ extern "C" void late_load() {
     il2cpp_functions::Init();
 
     ModEnabled = getModConfig().Enabled.GetValue();
+    HeartBeat::dataSourceType = (HeartBeat::DataSourceType)getModConfig().DataSourceType.GetValue();
 
     getLogger().info("init BSML");
     BSML::Init();

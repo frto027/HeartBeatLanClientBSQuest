@@ -12,6 +12,14 @@
 
 namespace HeartBeat{
 
+enum DataSourceType{
+    DS_RANDOM,
+    DS_LAN,
+    DS_BLE,
+};
+
+extern DataSourceType dataSourceType;
+
 class DataSource{
 public:
     virtual bool GetData(int& heartbeat);
