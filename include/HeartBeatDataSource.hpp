@@ -85,6 +85,7 @@ private:
     bool has_new_data;
     int heartbeat = 0;
     std::atomic_llong energy = 0;
+    std::atomic_llong persistent_energy = 0;
 public:
     HeartBeatBleDataSource();
     bool GetData(int& heartbeat);
@@ -100,6 +101,7 @@ public:
     //called from java
     void InformNativeDevice(const std::string& macAddr, const std::string& name);
     void OnDataCome(const std::string& macAddr, int heartRate, long energy);
+    void OnEnergyReset();
 
 };
 };//namespace HeartBeat

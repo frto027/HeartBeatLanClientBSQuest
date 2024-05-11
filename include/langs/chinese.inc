@@ -27,6 +27,7 @@ V(reset_to_default, "恢复默认")
 V(scan_devices,"扫描设备")
 V(data_source, "数据源(重启生效)")
 
-V(data_source_random, "随机")
-V(data_source_lan, "局域网")
-V(data_source_bluetooth, "蓝牙")
+//BUG: can't translate text inside dropdown
+//V(data_source_random, "随机")
+//V(data_source_lan, "局域网")
+//V(data_source_bluetooth, "蓝牙")

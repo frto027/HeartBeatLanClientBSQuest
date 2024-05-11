@@ -1,1 +1,1 @@
-adb push C:\Users\q6027\AndroidStudioProjects\HeartBeatNative\nativeblereader\build\outputs\apk\debug\nativeblereader-debug\classes.dex /sdcard/ModData/com.beatgames.beatsaber/Mods/classes.dex
+adb push .\AndroidProject\HeartBeatNative\nativeblereader\build\outputs\apk\debug\nativeblereader-debug\classes.dex /sdcard/ModData/com.beatgames.beatsaber/Mods/HeartBeatQuest/HeartBeatBLEReader.dex

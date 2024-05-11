@@ -4,11 +4,10 @@ namespace HeartBeat{
     DataSourceType dataSourceType = DS_RANDOM;
 
     DataSource* DataSource::getInstance(){
-        return getInstance<HeartBeatBleDataSource>();
         static DataSource * instance = nullptr;
-        if(instance != nullptr){
-            return instance;
-        }else{
+        if(instance == nullptr){
+            dataSourceType = (HeartBeat::DataSourceType)getModConfig().DataSourceType.GetValue();
+
             switch (dataSourceType) {
                 case DS_RANDOM:
                     instance = getInstance<RandomDataSource>();

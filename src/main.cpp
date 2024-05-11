@@ -27,6 +27,8 @@
 
 static modloader::ModInfo modInfo = {MOD_ID, VERSION, 0}; // Stores the ID and version of our mod, and is sent to the modloader upon startup
 
+bool ModEnabled;
+
 // Called at the early stages of game loading
 extern "C" void setup(CModInfo& info) {
     info.id = MOD_ID;
@@ -36,7 +38,9 @@ extern "C" void setup(CModInfo& info) {
     getModConfig().Init(modInfo);
     getLogger().info("Completed setup!");
 
-    if(getModConfig().Enabled.GetValue()){
+    ModEnabled = getModConfig().Enabled.GetValue();
+
+    if(ModEnabled){
         HeartBeat::DataSource::getInstance();
     }
 }
@@ -64,15 +68,11 @@ MAKE_HOOK_MATCH(GameplayCoreHook, &GlobalNamespace::CoreGameHUDController::Initi
     text->set_alignment(TMPro::TextAlignmentOptions::MidlineLeft);
     text->get_gameObject()->AddComponent<HeartBeat::HeartBeatObj*>();
 }
-bool ModEnabled;
 // Called later on in the game loading - a good time to install function hooks
 extern "C" void late_load() {
     getLogger().info("Loading HeartbeatLan");
 
     il2cpp_functions::Init();
-
-    ModEnabled = getModConfig().Enabled.GetValue();
-    HeartBeat::dataSourceType = (HeartBeat::DataSourceType)getModConfig().DataSourceType.GetValue();
 
     getLogger().info("init BSML");
     BSML::Init();

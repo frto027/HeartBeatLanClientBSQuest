@@ -8,6 +8,8 @@
 #include "main.hpp"
 #include "scotland2/shared/modloader.h"
 
+#define DEX_PATH "/sdcard/ModData/com.beatgames.beatsaber/Mods/HeartBeatQuest/HeartBeatBLEReader.dex"
+
 namespace HeartBeat{
     DECLARE_DATA_SOURCE(HeartBeatBleDataSource)
 }
@@ -37,6 +39,11 @@ Java_top_zxff_nativeblereader_BleReader_InformNativeDevice(JNIEnv *env, jobject 
     bleDataSource->InformNativeDevice(macChar, nameChar);
     env->ReleaseStringUTFChars(macAddr, macChar);
     env->ReleaseStringUTFChars(name, nameChar);
+}
+JNIEXPORT void JNICALL
+Java_top_zxff_nativeblereader_BleReader_OnEnergyReset
+(JNIEnv *env, jobject thiz){
+    bleDataSource->OnEnergyReset();
 }
 
 void ScanDevices(){
@@ -83,7 +90,7 @@ void LoadJavaLibrary(std::string path){
     /*
     Good, will load my java class
 
-        new dalvik.system.PathClassLoader({path}, {env->FindClass("com/unity3d/player/UnityPlayer").getClassLoader()})
+        new dalvik.system.PathClassLoader({path}, {env->FindClass("com/unity3d/player/UnityPlayer")}.getClassLoader())
             .loadClass("top.zxff.nativeblereader.BleReader")
             
     */
@@ -140,6 +147,7 @@ void LoadJavaLibrary(std::string path){
     static const JNINativeMethod methods[] = {
         {"OnDeviceData", "(Ljava/lang/String;IJ)V", reinterpret_cast<void*>(Java_top_zxff_nativeblereader_BleReader_OnDeviceData)},
         {"InformNativeDevice", "(Ljava/lang/String;Ljava/lang/String;)V", reinterpret_cast<void*>(Java_top_zxff_nativeblereader_BleReader_InformNativeDevice)},
+        {"OnEnergyReset","()V",reinterpret_cast<void*>(Java_top_zxff_nativeblereader_BleReader_OnEnergyReset)},
     };
     int rc = env->RegisterNatives(bleReaderClass, methods, sizeof(methods)/sizeof(JNINativeMethod));
     if (rc != JNI_OK){
@@ -163,7 +171,7 @@ void LoadJavaLibrary(std::string path){
 
 HeartBeat::HeartBeatBleDataSource::HeartBeatBleDataSource(){
     bleDataSource = this;
-    LoadJavaLibrary("/sdcard/ModData/com.beatgames.beatsaber/Mods/classes.dex");
+    LoadJavaLibrary(DEX_PATH);
 }
 
 void HeartBeat::HeartBeatBleDataSource::SetSelectedBleMac(const std::string mac){ 
@@ -191,7 +199,7 @@ bool HeartBeat::HeartBeatBleDataSource::GetData(int& heartbeat){
 }
 
 long long HeartBeat::HeartBeatBleDataSource::GetEnergy(){
-    return this->energy.load();
+    return this->energy.load() + this->persistent_energy.load();
 }
 
 void HeartBeat::HeartBeatBleDataSource::InformNativeDevice(const std::string& macAddr, const std::string& name){
@@ -207,5 +215,9 @@ void HeartBeat::HeartBeatBleDataSource::InformNativeDevice(const std::string& ma
 void HeartBeat::HeartBeatBleDataSource::OnDataCome(const std::string& macAddr, int heartRate, long energy){
     this->heartbeat = heartRate;
     this->has_new_data = true;
-    this->energy.fetch_add(energy);
+    this->energy.store(energy);
+}
+void HeartBeat::HeartBeatBleDataSource::OnEnergyReset(){
+    this->persistent_energy.fetch_add(this->energy.load());
+    this->energy.store(0);
 }

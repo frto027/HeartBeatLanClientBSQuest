@@ -58,6 +58,8 @@ foreach ($lib in $modJson.libraryFiles) {
     $filelist += $path
 }
 
+$filelist += "./extra/HeartBeatBLEReader.dex"
+
 $zip = $qmodName + ".zip"
 $qmod = $qmodName + ".qmod"
 

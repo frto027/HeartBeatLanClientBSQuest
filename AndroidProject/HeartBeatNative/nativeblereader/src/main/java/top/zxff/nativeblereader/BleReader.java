@@ -38,8 +38,7 @@ public class BleReader {
 
     public native void InformNativeDevice(String macAddr, String deviceName);
     public native void OnDeviceData(String macAddr, int heartRate, long energy);
-
-
+    public native void OnEnergyReset();
     public boolean IsDeviceSelected(String macAddr){
         return BleDevices.containsKey(macAddr) && BleDevices.get(macAddr).selected;
     }
@@ -84,7 +83,7 @@ public class BleReader {
         //As Google documented, the Callback happens in a background thread. Good!
         class BluetoothGattCb extends BluetoothGattCallback {
             final static String HEART_UUID = "00002a37-0000-1000-8000-00805f9b34fb";
-
+            final static String CONTROL_POINT_UUID = "00002a39-0000-1000-8000-00805f9b34fb";
             BluetoothGatt gatt;
             @SuppressLint("MissingPermission")
             public void close(){
@@ -101,6 +100,7 @@ public class BleReader {
                 So the stupid variable here to prevent duplicate data.
              */
             boolean useLatestHandleGatt = false;
+            @SuppressLint("MissingPermission")
             private void handleGatt(@NonNull BluetoothGatt gatt, @NonNull BluetoothGattCharacteristic characteristic){
                 if (HEART_UUID.equals(characteristic.getUuid().toString())) {
                     int flag = characteristic.getProperties();
@@ -120,6 +120,14 @@ public class BleReader {
                         energy = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT16, offset);
                     }
                     OnDeviceData(dev.getAddress(), heartRate, energy);
+                    if(energy > 10000){
+                        BluetoothGattCharacteristic control_point_cb = characteristic.getService()
+                                .getCharacteristic(UUID.fromString(CONTROL_POINT_UUID));
+                        if(control_point_cb != null){
+                            control_point_cb.setValue(new byte[]{1});//reset the energy
+                            gatt.writeCharacteristic(control_point_cb);
+                        }
+                    }
                 }
             }
 
@@ -148,6 +156,16 @@ public class BleReader {
                 }
             }
 
+            @Override
+            public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+                super.onCharacteristicWrite(gatt, characteristic, status);
+                if(CONTROL_POINT_UUID.equals(characteristic.getUuid().toString())){
+                    if(status == 0){
+                        OnEnergyReset();
+                    }
+                }
+            }
+
             @SuppressLint("MissingPermission")
             @Override
             public void onServicesDiscovered(BluetoothGatt gatt, int status) {
@@ -162,6 +180,11 @@ public class BleReader {
                             descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
                             gatt.writeDescriptor(descriptor);
                             serviceDiscovered = true;
+                        }
+                        if(CONTROL_POINT_UUID.equals(ch.getUuid().toString())){
+                            //for energy accumulator
+                            ch.setValue(new byte[]{1});
+                            gatt.writeCharacteristic(ch);
                         }
                     }
                 }
