@@ -18,6 +18,12 @@ view your heartbeat inside the quest game
 3. Open the game, scan and select your device at the device list menu.
 
 
+# Alternative way
+
+> An android application to read heart rate data is also avaliable
+
+If you can't or don't want to patch your game with bluetooth permission, you can use [this android apk](https://github.com/frto027/HeartbeatLanServer/releases/latest) in your quest or android phone in same local network. After you use it, switch the data source toggle to `local network` inside the game at the mod menu in your left side.
+
 # How it works
 
 This mod uses [JNI](https://docs.oracle.com/javase/8/docs/technotes/guides/jni/spec/jniTOC.html) to load an external java library with [PathClassLoader](https://developer.android.com/reference/dalvik/system/PathClassLoader) to access bluetooth device.
