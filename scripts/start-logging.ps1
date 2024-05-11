@@ -62,7 +62,7 @@ if ($all -eq $false) {
         $pattern += "$custom|"
     }
     if ($pattern -eq "(") {
-        $pattern = "(QuestHook|modloader|"
+        $pattern = "(QuestHook|modloader|beatsaber-hook|System.err:"
     }
     $pattern += "AndroidRuntime|CRASH)"
     $command += " | Select-String -pattern `"$pattern`""

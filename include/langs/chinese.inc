@@ -1,7 +1,7 @@
 #ifndef V
 #define V(key, value)
 #endif
-V(enabled, "启用(设置后重启)")
+V(enabled, "启用(重启生效)")
 
 V(heart_config, "心率设置")
 V(heart_devices, "心率设备")
@@ -23,3 +23,11 @@ V(flash_text_color, "闪烁颜色")
 V(flash_duration_when_text_come, "数据抵达时的闪烁时长")
 V(flash_test, "闪烁测试")
 V(reset_to_default, "恢复默认")
+
+V(scan_devices,"扫描设备")
+V(data_source, "数据源(重启生效)")
+
+//BUG: can't translate text inside dropdown
+//V(data_source_random, "随机")
+//V(data_source_lan, "局域网")
+//V(data_source_bluetooth, "蓝牙")
