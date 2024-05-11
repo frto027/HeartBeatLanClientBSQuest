@@ -9,8 +9,11 @@
   "packageVersion": "1.35.0_8016709773",
   "description": "Receive and display heart rate data from an external apk. The apk can be installed in quest headset itself or an android device via local network. ",
   "dependencies": [],
-  "modFiles": ["libHeartBeatLanClientQuest.so"],
+  "modFiles": [],
   "libraryFiles": [],
+  "lateModFiles":[
+    "libHeartBeatLanClientQuest.so"
+  ],
   "fileCopies": [{
     "name": "HeartBeatBLEReader.dex",
     "destination":"/sdcard/ModData/com.beatgames.beatsaber/Mods/HeartBeatQuest/HeartBeatBLEReader.dex"

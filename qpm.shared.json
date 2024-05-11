@@ -3,9 +3,9 @@
     "sharedDir": "shared",
     "dependenciesDir": "extern",
     "info": {
-      "name": "HeartBeatLanReceiver",
+      "name": "HeartBeatQuest",
       "id": "HeartBeatLanReceiver",
-      "version": "0.2.0",
+      "version": "0.2.1",
       "url": null,
       "additionalData": {
         "overrideSoName": "libHeartBeatLanClientQuest.so",
