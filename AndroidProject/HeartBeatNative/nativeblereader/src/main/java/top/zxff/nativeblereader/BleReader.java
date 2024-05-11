@@ -124,7 +124,8 @@ public class BleReader {
                         BluetoothGattCharacteristic control_point_cb = characteristic.getService()
                                 .getCharacteristic(UUID.fromString(CONTROL_POINT_UUID));
                         if(control_point_cb != null){
-                            control_point_cb.setValue(new byte[]{1});//reset the energy
+                            control_point_cb.setValue(new byte[]{1,1});//reset the energy
+                            control_point_cb.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
                             gatt.writeCharacteristic(control_point_cb);
                         }
                     }
@@ -183,7 +184,8 @@ public class BleReader {
                         }
                         if(CONTROL_POINT_UUID.equals(ch.getUuid().toString())){
                             //for energy accumulator
-                            ch.setValue(new byte[]{1});
+                            ch.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
+                            ch.setValue(new byte[]{1,1});
                             gatt.writeCharacteristic(ch);
                         }
                     }
