@@ -4,14 +4,15 @@
 
 view your heartbeat inside the quest game
 
-1. install this mod via [mbf](https://mbf.bsquest.xyz/), and patch the game with the following permission.
-
-        android.permission.BLUETOOTH
-        android.permission.BLUETOOTH_CONNECT
-
+1. install this mod via [mbf](https://mbf.bsquest.xyz/), and patch the game with the `bluetooth` permission.
 2. pair your heart rate BLE device with your quest.
 3. Open the game, scan and select your device at the device list menu.
 
+More accurately, it requires the game has the following permission
+
+
+        android.permission.BLUETOOTH
+        android.permission.BLUETOOTH_CONNECT
 
 # Alternative way
 
