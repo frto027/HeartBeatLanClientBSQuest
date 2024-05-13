@@ -116,6 +116,7 @@ namespace SetthingUI{
                 LANG->data_source_random,
                 LANG->data_source_lan,
                 LANG->data_source_bluetooth,
+                LANG->data_source_osc,
             };
             auto current_data_type = getModConfig().DataSourceType.GetValue();
             if(current_data_type >= data_sources.size()){
@@ -187,6 +188,12 @@ namespace SetthingUI{
                 getModConfig().HeartDataComeFlashDuration.SetValue(getModConfig().HeartDataComeFlashDuration.GetDefaultValue());
                 FlashDur->currentValue = getModConfig().HeartDataComeFlashDuration.GetDefaultValue();
             });
+
+            static char osc_port[4096];
+            if(HeartBeat::dataSourceType == HeartBeat::DS_OSC){
+                sprintf(osc_port, LANG->heart_osc_port, getModConfig().OSCPort.GetValue());
+                BSML::Lite::CreateText(container->get_transform(),osc_port, 4, UnityEngine::Vector2{}, UnityEngine::Vector2{100, 4});
+            }
 
             UpdateSetthingsContent();
         }
@@ -455,6 +462,79 @@ namespace SetthingUI{
         }
     }
 
+    namespace OscDataSource{
+        HMUI::ViewController *addrController;
+        BSML::CustomListTableData *osc_list;
+        std::vector<std::string> osc_addr;
+
+        void UpdateOscScrollList(){
+            auto * i = HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatOSCDataSource>();
+            bool any_data_changed = false;
+            int the_selected = -1;
+            {
+                std::set<std::string> already_in(osc_addr.begin(), osc_addr.end());
+                auto& devs = i->received_addresses;
+
+                for(auto it = devs.begin(), end = devs.end(); it != end; ++it){
+                    if(already_in.count(*it))
+                        continue;
+                    osc_addr.push_back(*it);
+                    already_in.insert(*it);
+                }
+
+                while(osc_list->data.size() > osc_addr.size()){
+                    osc_list->data->RemoveAt(osc_list->data.size() - 1);
+                    any_data_changed = true;
+                }
+                while(osc_list->data.size() < osc_addr.size()){
+                    osc_list->data->Add(BSML::CustomCellInfo::construct(""));
+                    any_data_changed = true;
+                }
+
+                for(int j=0;j<osc_addr.size();j++){
+                    bool selected = (osc_addr[j] == i->GetSelectedAddress());
+                    std::string name;
+
+                    name = std::string(selected ? ">>" : "  ") + osc_addr[j];
+                    if(osc_list->data[j]->text != name){
+                        osc_list->data[j]->text = name;
+                        any_data_changed = true;
+                    }
+                    if(selected){
+                        the_selected = j;
+                    }
+                }
+            }
+            if(any_data_changed)
+                osc_list->tableView->ReloadData();
+            if(the_selected >= 0){
+                osc_list->tableView->SelectCellWithIdx(the_selected, false);
+            }
+        }
+        void UpdateSelectedOscValue(int idx){
+            HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatOSCDataSource>()->SetSelectedAddr(osc_addr[idx]);
+            UpdateOscScrollList();
+        }
+        void DidDevicesActivate(HMUI::ViewController* self, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
+            EnsurePreviewObject();
+            if(firstActivation) {
+                addrController = self;
+                self->add_didDeactivateEvent(custom_types::MakeDelegate<HMUI::ViewController::DidDeactivateDelegate*>(std::function([](bool removedFromHierarchy, bool screenSystemDisabling){
+                    MainMenuPreviewObject->set_active(false);
+                })));
+                devices_controller = self;
+                // Create a container that has a scroll bar
+                auto *container = BSML::Lite::CreateScrollableSettingsContainer(self->get_transform());
+
+                osc_list = BSML::Lite::CreateScrollableList(container->get_transform(), {70,60}, UpdateSelectedOscValue);
+                osc_list->set_listStyle(BSML::CustomListTableData::ListStyle::Simple);
+                osc_list->tableView->set_selectionType(HMUI::TableViewSelectionType::Single);
+                osc_addr.push_back("");
+                UpdateOscScrollList();
+            }
+        }
+    }
+
     //Called from HeartBeat::Update
     void UpdateSetthingsUI(){
         if(HeartBeat::dataSourceType == HeartBeat::DS_LAN){
@@ -463,6 +543,10 @@ namespace SetthingUI{
                 LanDataSource::UpdateServerList();
             if(devices_controller && devices_controller->get_isActivated())
                 LanDataSource::UpdateSelectedBLEScrollList();
+        }
+        if(HeartBeat::dataSourceType == HeartBeat::DS_OSC){
+            if(OscDataSource::addrController && OscDataSource::addrController->get_isActivated())
+                OscDataSource::UpdateOscScrollList();
         }
     }
 
@@ -482,6 +566,12 @@ namespace SetthingUI{
             BSML::Register::RegisterMainMenuViewControllerMethod(
                 "HeartBeatLan", LANG->heart_senders, "<3",
                 SetthingUI::LanDataSource::DidServersActivate);
+        }
+        if(HeartBeat::dataSourceType == HeartBeat::DS_OSC){
+            BSML::Register::RegisterMainMenuViewControllerMethod(
+                "HeartBeatLan", LANG->heart_osc_senders, "<3",
+                SetthingUI::OscDataSource::DidDevicesActivate);
+
         }
     }
 }

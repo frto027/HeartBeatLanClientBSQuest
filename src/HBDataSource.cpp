@@ -18,6 +18,9 @@ namespace HeartBeat{
                 case DS_BLE:
                     instance = getInstance<HeartBeatBleDataSource>();
                     break;
+                case DS_OSC:
+                    instance = getInstance<HeartBeatOSCDataSource>();
+                    break;
             }
         }
         return instance;

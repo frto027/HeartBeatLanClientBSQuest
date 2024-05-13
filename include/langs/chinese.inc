@@ -6,6 +6,7 @@ V(enabled, "启用(重启生效)")
 V(heart_config, "心率设置")
 V(heart_devices, "心率设备")
 V(heart_senders, "心率数据源")
+V(heart_osc_senders, "OSC心率源")
 
 V(pairing, "正在配对，点击停止")
 V(not_pairing, "配对停止，点击开始")

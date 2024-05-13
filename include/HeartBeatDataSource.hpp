@@ -16,6 +16,7 @@ enum DataSourceType{
     DS_RANDOM,
     DS_LAN,
     DS_BLE,
+    DS_OSC,
 };
 
 extern DataSourceType dataSourceType;
@@ -77,6 +78,33 @@ public:
     const void SetSelectedBleMac(const std::string& mac){ 
         this->selected_mac = mac;
         getModConfig().SelectedBleMac.SetValue(mac, true);
+    }
+};
+class HeartBeatOSCDataSource:public DataSource{
+private:
+    int recv_socket;
+    volatile int the_heart;
+    volatile bool has_unread_heart_data = false;
+
+    int flush_pipe[2];
+    std::string selected_addr;
+
+    void CreateSocket();
+public:
+    HeartBeatOSCDataSource();
+    bool GetData(int& heartbeat);
+
+    static void * ServerThread(void *self);
+    std::mutex mutex;
+    
+    std::set<std::string> received_addresses;
+    const std::string& GetSelectedAddress(){
+        std::lock_guard<std::mutex> g(mutex);
+        return selected_addr; 
+    }
+    const void SetSelectedAddr(const std::string& mac){
+        std::lock_guard<std::mutex> g(mutex);
+        this->selected_addr = mac;
     }
 };
 class HeartBeatBleDataSource:public DataSource{
