@@ -32,6 +32,11 @@ Same goes for `qpm s copy` and `.\scripts\createqmod.ps1`
 
 The Bluetooth access code at `AndroidProject/HeartBeatNative` can be compiled with AndroidStudio and Android SDK 34.
 
+# TODO List
+
+- Add OSC protocol support.
+- Android apk that send HR data via OSC.
+
 ## Credits
 
 This mod is created by frto027.
