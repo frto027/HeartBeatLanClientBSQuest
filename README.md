@@ -35,7 +35,7 @@ The Bluetooth access code at `AndroidProject/HeartBeatNative` can be compiled wi
 # TODO List
 
 - Add OSC protocol support.
-- Android apk that send HR data via OSC.
+- [x] Android apk that send HR data via OSC.
 
 ## Credits
 
