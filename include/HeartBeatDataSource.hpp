@@ -106,6 +106,10 @@ public:
         std::lock_guard<std::mutex> g(mutex);
         this->selected_addr = mac;
     }
+
+private:
+    //in background thread
+    void parseOscMessage(char *&thebuff, ssize_t &sz);
 };
 class HeartBeatBleDataSource:public DataSource{
 private:

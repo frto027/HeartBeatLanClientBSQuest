@@ -8,6 +8,8 @@ V(heart_devices, "心率设备")
 V(heart_senders, "心率数据源")
 V(heart_osc_senders, "OSC心率源")
 
+V(heart_osc_port, "OSC端口号: %d")
+
 V(pairing, "正在配对，点击停止")
 V(not_pairing, "配对停止，点击开始")
 V(hiding_mac_addr, "MAC地址已隐藏，点击显示")

@@ -529,7 +529,7 @@ namespace SetthingUI{
                 osc_list = BSML::Lite::CreateScrollableList(container->get_transform(), {70,60}, UpdateSelectedOscValue);
                 osc_list->set_listStyle(BSML::CustomListTableData::ListStyle::Simple);
                 osc_list->tableView->set_selectionType(HMUI::TableViewSelectionType::Single);
-                osc_addr.push_back("");
+                osc_addr.push_back("None");
                 UpdateOscScrollList();
             }
         }

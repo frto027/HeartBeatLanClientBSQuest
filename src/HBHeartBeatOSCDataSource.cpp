@@ -82,6 +82,77 @@ float readOscFloat32(char*&buff, ssize_t&size){
         return NAN;
     return *(float*)&r;
 }
+uint32_t readOscTimeTag(char *&buff, ssize_t&size){
+    if(size >= 8){
+        uint32_t ret = ntohl(*(uint32_t*)buff);
+        buff += 8;
+        size -= 8;
+        return ret;
+    }
+    buff = nullptr;
+    return 0;
+}
+
+void HeartBeatOSCDataSource::parseOscMessage(char *&thebuff, ssize_t &sz){
+
+        if(sz >= 8 && strcmp(thebuff, "#bundle") == 0){
+            // parse osc bundle
+            thebuff += 8;
+            sz -= 8;
+            while(sz > 0){
+                int32_t size = readOscInt32(thebuff, sz);
+                if(thebuff == nullptr)
+                    return;//invalid buffer
+                if(size > sz){
+                    thebuff = nullptr;
+                    return;//buffer overflow
+                }
+                if(size % 4 != 0){
+                    thebuff = nullptr;
+                    return;
+                }
+                
+                char * subbuff = thebuff;
+                ssize_t subbuff_sz = size;
+                parseOscMessage(subbuff, subbuff_sz);
+                if(subbuff == nullptr){
+                    thebuff = nullptr;
+                    return;//invalid buffer
+                }
+                sz -= size;
+                thebuff += size;
+            }
+            return;
+        }
+        if(thebuff[0] != '/')
+            return;//unknown package
+        char * addr = readOscString(thebuff, sz);
+        if(addr == nullptr) return;
+        char * typestr = readOscString(thebuff, sz);
+        if(typestr == nullptr) return;
+        if(typestr[0] != ',' || typestr[2] != '\0' || (typestr[1] != 'f' && typestr[1] != 'i'))
+            return;
+        int heart_rate = 0;
+        if(typestr[1] == 'f'){
+            heart_rate = readOscFloat32(thebuff, sz);
+            if(thebuff == nullptr)
+                return;
+        }
+        if(typestr[1] == 'i'){
+            heart_rate = readOscInt32(thebuff, sz);
+            if(thebuff == nullptr)
+                return;
+        }
+
+        {
+            std::lock_guard<std::mutex> g(this->mutex);
+            if(this->selected_addr == addr){
+                this->the_heart = heart_rate;
+                this->has_unread_heart_data = true;
+            }
+            this->received_addresses.insert(addr);
+        }
+}
 
 void * HeartBeatOSCDataSource::ServerThread(void *self){
     HeartBeatOSCDataSource * me = (decltype(me))self;
@@ -93,35 +164,8 @@ void * HeartBeatOSCDataSource::ServerThread(void *self){
         }
         char buff[4096];
         ssize_t sz = recvfrom(me->recv_socket, buff, sizeof(buff), 0, NULL, NULL);
-        if(sz == 0 || buff[0] != '/')
-            continue;
-        char * thebuff = buff;
-        char * addr = readOscString(thebuff, sz);
-        if(addr == nullptr) continue;
-        char * typestr = readOscString(thebuff, sz);
-        if(typestr == nullptr) continue;
-        if(typestr[0] != ',' || typestr[2] != '\0' || (typestr[1] != 'f' && typestr[1] != 'i'))
-            continue;
-        int heart_rate = 0;
-        if(typestr[1] == 'f'){
-            heart_rate = readOscFloat32(thebuff, sz);
-            if(thebuff == nullptr)
-                continue;
-        }
-        if(typestr[1] == 'i'){
-            heart_rate = readOscInt32(thebuff, sz);
-            if(thebuff == nullptr)
-                continue;
-        }
-
-        {
-            std::lock_guard<std::mutex> g(me->mutex);
-            if(me->selected_addr == addr){
-                me->the_heart = heart_rate;
-                me->has_unread_heart_data = true;
-            }
-            me->received_addresses.insert(addr);
-        }
+        char *thebuff = buff;
+        me->parseOscMessage(thebuff, sz);
     }
     return nullptr;
 }
@@ -129,6 +173,7 @@ void * HeartBeatOSCDataSource::ServerThread(void *self){
 bool HeartBeatOSCDataSource::GetData(int&heartbeat){
     if(has_unread_heart_data)
     {
+        has_unread_heart_data = false;
         heartbeat = the_heart;
         return true;
     }

@@ -16,6 +16,14 @@ More accurately, it requires the game has the following permission
 
 # Alternative way
 
+> OSC Protocol is supported
+
+Use your favorite heart rate OSC senders, send to the port 9000 for your quest device.
+
+The port will be show at the mod setthings menu, and can edit via config file. 
+
+# Alternative way(don't use it if other way works for you)
+
 > An android application to read heart rate data is also avaliable
 
 If you can't or don't want to patch your game with bluetooth permission, you can use [this android apk](https://github.com/frto027/HeartbeatLanServer/releases/latest) in your quest or android phone in same local network. After you use it, switch the data source toggle to `local network` inside the game at the mod menu in your left side.
@@ -31,11 +39,6 @@ Same goes for `qpm s copy` and `.\scripts\createqmod.ps1`
 # Dev. Android Project
 
 The Bluetooth access code at `AndroidProject/HeartBeatNative` can be compiled with AndroidStudio and Android SDK 34.
-
-# TODO List
-
-- Add OSC protocol support.
-- Android apk that send HR data via OSC.
 
 ## Credits
 
