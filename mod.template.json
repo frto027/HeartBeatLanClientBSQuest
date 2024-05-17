@@ -7,7 +7,7 @@
   "version": "${version}",
   "packageId": "com.beatgames.beatsaber",
   "packageVersion": "1.35.0_8016709773",
-  "description": "Receive and display heart rate data from an external apk. The apk can be installed in quest headset itself or an android device via local network. ",
+  "description": "Receive and display heart rate data. Need patch the game with bluetooth permission or install an external apk.",
   "dependencies": [],
   "modFiles": [],
   "libraryFiles": [],
