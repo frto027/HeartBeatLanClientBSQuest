@@ -1,8 +1,36 @@
-# 心率LAN接收端 - Quest一体机（BeatSaber模组）
+# HeartBeatQuest - Quest一体机BeatSaber模组
 
-这是一个可以在quest上查看心率的节奏光剑模组，可以显示与Quest配对的蓝牙心率设备。
+最新版本支持的游戏版本：1.35.0_8016709773
 
-支持游戏版本：1.35.0_8016709773
+在quest游戏中显示心率数据。
+
+1. 使用[mbf](https://mbf.bsquest.xyz/)安装这个模组，同时需要给游戏打`bluetooth`权限补丁。
+2. 在quest的蓝牙中，将BLE心率设备进行配对（需要设备使用蓝牙广播）。
+3. 打开游戏，在左侧的设备列表中选择你的设备。（第一次扫描设备会提示申请蓝牙权限）
+
+准确来说，这一模组需要游戏具有以下权限：
+
+
+        android.permission.BLUETOOTH
+        android.permission.BLUETOOTH_CONNECT
+
+# 备选方式
+
+> 支持OSC协议，无需bluetooth权限
+
+使用其它的OSC心率数据源，发送到你的quest设备9000端口。
+
+这个端口号会在模组设置菜单里显示，可以手动编辑模组的设置文件来修改。
+
+# 备选方式（不要使用，除非其它方式不可用）
+
+> 可以使用一个安卓app来读取心率数据
+
+把[这个apk](https://github.com/frto027/HeartbeatLanServer/releases/latest)安装到你的quest设备或者同局域网的安卓设备上。
+
+# 工作原理
+
+此模组使用[JNI](https://docs.oracle.com/javase/8/docs/technotes/guides/jni/spec/jniTOC.html)调用[PathClassLoader](https://developer.android.com/reference/dalvik/system/PathClassLoader)加载蓝牙驱动class文件。
 
 # 作者信息
 

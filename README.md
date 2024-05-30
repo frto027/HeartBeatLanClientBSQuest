@@ -1,6 +1,8 @@
 # HeartBeatLanReceiver - Quest (BeatSaber mod)
 
-~~[中文说明](README.cn.md)~~
+[中文说明](README.cn.md)
+
+the latest version for beatsaber `1.35.0_8016709773`
 
 view your heartbeat inside the quest game
 
@@ -16,7 +18,7 @@ More accurately, it requires the game has the following permission
 
 # Alternative way
 
-> OSC Protocol is supported
+> OSC Protocol is supported, bluetooth permission is not required
 
 Use your favorite heart rate OSC senders, send to the port 9000 for your quest device.
 
