@@ -6,8 +6,9 @@ the latest version for beatsaber `1.35.0_8016709773`
 
 view your heartbeat inside the quest game
 
-1. install this mod via [mbf](https://mbf.bsquest.xyz/), and patch the game with the `bluetooth` permission.
-2. pair your heart rate BLE device with your quest.
+1. patch the game with the `bluetooth` permission via [mbf](https://mbf.bsquest.xyz/), which is the officially recommand way to mod the beatsaber now.
+1. install this mod via mbf.
+2. In your quest bluetooth setthings, pair your heart rate BLE device with your quest.
 3. Open the game, scan and select your device at the device list menu.
 
 More accurately, it requires the game has the following permission
@@ -24,11 +25,16 @@ Use your favorite heart rate OSC senders, send to the port 9000 for your quest d
 
 The port will be show at the mod setthings menu, and can edit via config file. 
 
-# Alternative way(don't use it if other way works for you)
+You can also use [this android apk](https://github.com/frto027/HeartbeatLanServer/releases/latest) to send osc data from your android phone, or install it on your quest device directly and send to `127.0.0.1:9000`.
 
+# Alternative way(don't use it if other way works for you)
+<details>
+        
 > An android application to read heart rate data is also avaliable
 
 If you can't or don't want to patch your game with bluetooth permission, you can use [this android apk](https://github.com/frto027/HeartbeatLanServer/releases/latest) in your quest or android phone in same local network. After you use it, switch the data source toggle to `local network` inside the game at the mod menu in your left side.
+
+</details>
 
 # How it works
 
