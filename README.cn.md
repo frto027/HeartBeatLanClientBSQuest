@@ -22,11 +22,16 @@
 
 这个端口号会在模组设置菜单里显示，可以手动编辑模组的设置文件来修改。
 
-# 备选方式（不要使用，除非其它方式不可用）
+你也可以选择[这个apk](https://github.com/frto027/HeartbeatLanServer/releases/latest)。也可以把它装到quest上，然后发送至`127.0.0.1:9000`。
 
+# 备选方式（不要使用，除非其它方式不可用）
+<details>
+        
 > 可以使用一个安卓app来读取心率数据
 
 把[这个apk](https://github.com/frto027/HeartbeatLanServer/releases/latest)安装到你的quest设备或者同局域网的安卓设备上。
+
+</details>
 
 # 工作原理
 
