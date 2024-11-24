@@ -6,7 +6,7 @@ the latest version for beatsaber `1.37.0_9064817954`
 
 view your heartbeat inside the quest game
 
-1. patch the game with the `bluetooth` permission via [mbf](https://mbf.bsquest.xyz/), which is the officially recommand way to mod the beatsaber now.
+1. patch the game with the `bluetooth` permission via [mbf](https://mbf.bsquest.xyz/), which is the recommand way to mod the beatsaber now.
 1. install this mod via mbf.
 2. In your quest bluetooth setthings, pair your heart rate BLE device with your quest.
 3. Open the game, scan and select your device at the device list menu.
