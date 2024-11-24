@@ -1,10 +1,11 @@
 {
+  "version": "0.1.0",
   "sharedDir": "shared",
   "dependenciesDir": "extern",
   "info": {
     "name": "HeartBeatQuest",
     "id": "HeartBeatLanReceiver",
-    "version": "0.2.2",
+    "version": "0.2.3",
     "url": null,
     "additionalData": {
       "overrideSoName": "libHeartBeatLanClientQuest.so",
@@ -35,12 +36,15 @@
       "tomb": [
         "pwsh ./scripts/pull-tombstone.ps1"
       ]
-    }
+    },
+    "qmodIncludeDirs": [],
+    "qmodIncludeFiles": [],
+    "qmodOutput": null
   },
   "dependencies": [
     {
       "id": "beatsaber-hook",
-      "versionRange": "^5.1.6",
+      "versionRange": "^5.1.9",
       "additionalData": {}
     },
     {
@@ -50,12 +54,12 @@
     },
     {
       "id": "custom-types",
-      "versionRange": "^0.17.6",
+      "versionRange": "^0.17.10",
       "additionalData": {}
     },
     {
       "id": "bs-cordl",
-      "versionRange": "^3500.0.0",
+      "versionRange": "^3700.0.0",
       "additionalData": {}
     },
     {
@@ -65,12 +69,17 @@
     },
     {
       "id": "paper",
-      "versionRange": "^3.6.3",
+      "versionRange": "^3.6.4",
       "additionalData": {}
     },
     {
       "id": "bsml",
-      "versionRange": "^0.4.22",
+      "versionRange": "^0.4.43",
+      "additionalData": {}
+    },
+    {
+      "id": "bsml",
+      "versionRange": "^0.4.43",
       "additionalData": {}
     }
   ]

@@ -88,7 +88,7 @@ namespace SetthingUI{
             auto *container = BSML::Lite::CreateScrollableSettingsContainer(self->get_transform());
 
 
-            BSML::Lite::CreateText(container->get_transform(),LANG->mod_version, 4, UnityEngine::Vector2{}, UnityEngine::Vector2{100, 4});
+            BSML::Lite::CreateText(container->get_transform(),LANG->mod_version, 4, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4});
 
             
             BSML::Lite::CreateToggle(container->get_transform(), LANG->enabled, getModConfig().Enabled.GetValue(), [](bool v){
@@ -137,7 +137,7 @@ namespace SetthingUI{
                     getLogger().debug("{} selected.", value);
                 });
 
-            private_public_btn =  BSML::Lite::CreateUIButton(container->get_transform(), LANG->waiting, UnityEngine::Vector2{}, UnityEngine::Vector2{200, 4}, PrivateNotPrivateBtnClick);
+            private_public_btn =  BSML::Lite::CreateUIButton(container->get_transform(), LANG->waiting, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 8}, PrivateNotPrivateBtnClick);
 
             static BSML::IncrementSetting *FlashDur;
 
@@ -176,10 +176,10 @@ namespace SetthingUI{
                 }
                 getModConfig().HeartDataComeFlashDuration.SetValue(v);
             });
-            BSML::Lite::CreateUIButton(container->get_transform(), LANG->flash_test, UnityEngine::Vector2{}, UnityEngine::Vector2{150, 8}, [](){
+            BSML::Lite::CreateUIButton(container->get_transform(), LANG->flash_test, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 8}, [](){
                 previewObj->FlashColor();
             });
-            BSML::Lite::CreateUIButton(container->get_transform(), LANG->reset_to_default, UnityEngine::Vector2{}, UnityEngine::Vector2{150, 8}, [](){
+            BSML::Lite::CreateUIButton(container->get_transform(), LANG->reset_to_default, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 8}, [](){
                 getModConfig().HeartTextColor.SetValue(getModConfig().HeartTextColor.GetDefaultValue());
                 previewObj->text->color = getModConfig().HeartTextColor.GetDefaultValue();
 
@@ -192,7 +192,7 @@ namespace SetthingUI{
             static char osc_port[4096];
             if(HeartBeat::dataSourceType == HeartBeat::DS_OSC){
                 sprintf(osc_port, LANG->heart_osc_port, getModConfig().OSCPort.GetValue());
-                BSML::Lite::CreateText(container->get_transform(),osc_port, 4, UnityEngine::Vector2{}, UnityEngine::Vector2{100, 4});
+                BSML::Lite::CreateText(container->get_transform(),osc_port, 4, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4});
             }
 
             UpdateSetthingsContent();
@@ -446,7 +446,7 @@ namespace SetthingUI{
                 // Create a container that has a scroll bar
                 auto *container = BSML::Lite::CreateScrollableSettingsContainer(self->get_transform());
 
-                BSML::Lite::CreateUIButton(container->get_transform(), LANG->scan_devices, UnityEngine::Vector2{}, UnityEngine::Vector2{200, 4}, [](){
+                BSML::Lite::CreateUIButton(container->get_transform(), LANG->scan_devices, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 8}, [](){
                     auto instance=HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatBleDataSource>(); 
                     instance->ScanDevice();
                     UpdateSelectedBLEScrollList();
