@@ -12,7 +12,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: setup qpm
-      run: wget https://github.com/QuestPackageManager/QPM.CLI/releases/download/v1.3.1/qpm-windows-x64.zip
+      run: Invoke-WebRequest https://github.com/QuestPackageManager/QPM.CLI/releases/download/v1.3.1/qpm-windows-x64.zip -OutFile qpm-windows-x64.zip 
     - name: unzip qpm
       run: \"C:\\Program Files\\7-Zip\\7z.exe\" e qpm-windows-x64.zip
   
