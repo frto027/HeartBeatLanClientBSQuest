@@ -20,7 +20,7 @@ jobs:
     - name: unzip ninja
       run:  7z e ninja-win.zip
     - name: setup ndk
-      run: echo %ANDROID_NDK% > ndkpath.txt
+      run: echo $env:ANDROID_NDK > ndkpath.txt
     - name: miao
       run: cmd /C cd
     - name: miaomiao
