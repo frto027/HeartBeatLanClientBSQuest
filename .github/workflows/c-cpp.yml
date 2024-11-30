@@ -18,7 +18,7 @@ jobs:
     - name: setup ndk
       run: echo %ANDROID_NDK% > ndkpath.txt
     - name: setup system path
-      run: echo "$GITHUB_WORKSPACE" >> $GITHUB_PATH
+      run: echo "$GITHUB_WORKSPACE" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
     - name: qpm restore
       run: qpm restore
     - name: build
