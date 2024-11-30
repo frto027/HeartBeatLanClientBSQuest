@@ -18,11 +18,11 @@ jobs:
     - name: setup ndk
       run: echo %ANDROID_NDK% > ndkpath.txt
     - name: miao
-      run: echo "$GITHUB_WORKSPACE"
+      run: cmd /C cd
     - name: miaomiao
       run: dir
     - name: setup system path
-      run: echo "$GITHUB_WORKSPACE" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+      run: cmd /C cd | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
     - name: qpm restore
       run: qpm restore
     - name: build
