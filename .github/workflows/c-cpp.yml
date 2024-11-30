@@ -15,6 +15,13 @@ jobs:
       run: Invoke-WebRequest https://github.com/QuestPackageManager/QPM.CLI/releases/download/v1.3.1/qpm-windows-x64.zip -OutFile qpm-windows-x64.zip 
     - name: unzip qpm
       run:  7z e qpm-windows-x64.zip
-  
+    - name: setup ndk
+      run: echo %ANDROID_NDK% > ndkpath.txt
+    - name: qpm restore
+      run: qpm restore
+    - name: build
+      run: qpm s build
+    - name: make qmod
+      run: .\scripts\createqmod.ps1
     - name: echo everything
       run: dir
