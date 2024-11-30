@@ -17,10 +17,10 @@ jobs:
       run:  7z e qpm-windows-x64.zip
     - name: setup ndk
       run: echo %ANDROID_NDK% > ndkpath.txt
-    - name: qpm restore
-      run: qpm restore
+    - name: .\qpm.exe restore
+      run: .\qpm.exe restore
     - name: build
-      run: qpm s build
+      run: .\qpm.exe s build
     - name: make qmod
       run: .\scripts\createqmod.ps1
     - name: echo everything
