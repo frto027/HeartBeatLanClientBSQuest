@@ -17,11 +17,18 @@ jobs:
       run:  7z e qpm-windows-x64.zip
     - name: setup ndk
       run: echo %ANDROID_NDK% > ndkpath.txt
-    - name: .\qpm.exe restore
-      run: .\qpm.exe restore
+    - name: setup system path
+    - run: echo "$GITHUB_WORKSPACE" >> $GITHUB_PATH
+    - name: qpm.exe restore
+      run: qpm.exe restore
     - name: build
-      run: .\qpm.exe s build
+      run: qpm.exe s build
     - name: make qmod
       run: .\scripts\createqmod.ps1
     - name: echo everything
       run: dir
+    - uses: actions/upload-artifact@v4
+      with:
+        name: HeartBeatQuest.qmod
+        path: HeartBeatQuest.qmod
+        overwrite: true
