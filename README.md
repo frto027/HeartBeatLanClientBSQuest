@@ -1,5 +1,7 @@
 # HeartBeatLanReceiver - Quest (BeatSaber mod)
 
+[![C/C++ CI](https://github.com/frto027/HeartBeatLanClientBSQuest/actions/workflows/qmod_build.yml/badge.svg)](https://github.com/frto027/HeartBeatLanClientBSQuest/actions/workflows/qmod_build.yml)
+
 [中文说明](README.cn.md)
 
 the latest version for beatsaber `1.37.0_9064817954`

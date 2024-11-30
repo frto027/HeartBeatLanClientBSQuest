@@ -3,6 +3,9 @@ name: C/C++ CI
 on:
   push:
     branches: [ "master" ]
+    paths-ignore:
+      - '*.md'
+      - 'CHANGELOG'
   pull_request:
     branches: [ "master" ]
 
@@ -21,10 +24,6 @@ jobs:
       run:  7z e ninja-win.zip
     - name: setup ndk
       run: echo $env:ANDROID_NDK > ndkpath.txt
-    - name: miao
-      run: cmd /C cd
-    - name: miaomiao
-      run: dir
     - name: setup system path
       run: cmd /C cd | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
     - name: qpm restore
