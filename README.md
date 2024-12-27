@@ -81,7 +81,6 @@ void Update(){
         }else{
             //old buffered data got
         }
-
         // the result of GetData will not chaned until you call heartBeatApi->Update() at next game update cycle
     }
 }

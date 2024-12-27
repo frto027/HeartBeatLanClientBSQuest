@@ -17,12 +17,14 @@ struct HeartBeatApi{
     /* call this more than once in the same Update frame will be ignored */
     void (*Update)(void);
     /* 
-        heartbeat: the output of last updated heart beat value
+        heartrate: the output of last updated heart beat value
         return val: returns if new data was come in this update frame 
         */
-    int (*GetData)(int * heartbeat);
+    int (*GetData)(int * heartrate);
     /*
-        if the Updater is not nullptr, it will replace the internal GetData.
+        provide your own data updater to heart mod.
+
+        if the Updater is not nullptr, it will replace the internal GetData function.
         then the heart mod will display heart rate provided by the Updater, instead of data from physical sensors.
         the result of GetData is also affected.
 
