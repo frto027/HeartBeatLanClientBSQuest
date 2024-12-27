@@ -2,13 +2,14 @@
 #include "UnityEngine/Time.hpp"
 
 #include "../shared/HeartBeatApi.h"
+#include <cstddef>
 
 namespace HeartBeat{
     namespace ApiInternal{
-        bool (*AlternateDataUpdater)(int *heartBeat) = nullptr;
+        int (*AlternateDataUpdater)(int *heartBeat) = nullptr;
 
         int data;
-        bool hasNewData = false;
+        int hasNewData = false;
         void Update(){
             static int lastUpdateFrame = 0;
             int curFrame = UnityEngine::Time::get_frameCount();
@@ -25,7 +26,7 @@ namespace HeartBeat{
             }
         }
 
-        bool GetData(int * heartbeat){
+        int GetData(int * heartbeat){
             if(heartbeat){
                 *heartbeat = data;
             }
@@ -34,23 +35,13 @@ namespace HeartBeat{
     }
 }
 
-namespace HeartBeatApi{
-    class Api_impl : virtual public Api{
-        const char * Version(){
-            return VERSION;
-        }
-        void Update(){
-            HeartBeat::ApiInternal::Update();
-        }
-        bool GetData(int * heartbeat){
-            return HeartBeat::ApiInternal::GetData(heartbeat);
-        }
-        void SetAlternateDataUpdater(bool (*Updater)(int* heart_output)){
-            HeartBeat::ApiInternal::AlternateDataUpdater = Updater;
-        }
-    };
-
-    extern Api_impl api;
-    Api_impl api;
-}
+extern "C" HeartBeatApi heartBeatApi = {
+    .ApiVersion = 1,
+    .Update = HeartBeat::ApiInternal::Update,
+    .GetData = HeartBeat::ApiInternal::GetData,
+    .SetAlternateDataUpdater = [](auto t){
+        HeartBeat::ApiInternal::AlternateDataUpdater = t;
+    },
+    .__not_used2__ = {NULL},
+};
 

@@ -3,51 +3,74 @@
 #include "scotland2/shared/loader.hpp"
 #include <dlfcn.h>
 
-namespace HeartBeatApi{
-    class ApiBase;
+struct HeartBeatApi;
 
+#ifdef __cplusplus
+extern "C"{
+#endif
 
-    /*
-    Basic Usage:
-
-    HeartBeatApi::Api * api = DynamicFindMod<HeartBeatApi::Api *>();
-    if(api){
-        //do something with api
-    }
-    */
-    template<typename T>
-    inline T DynamicFindMod(){
-        for(auto & mod : modloader::get_loaded()){
-            if(mod.info.id == "HeartBeatLanReceiver"){
-                return dynamic_cast<T>((ApiBase*)dlsym(mod.handle, "_ZN12HeartBeatApi3apiE"));
-            }
-        }
-        return nullptr;
-    }
-
-
-    class ApiBase{
-        /* get mod version string number, for example "0.2.3" */
-        virtual const char * Version() = 0;
-    };
-
-    class Api: public ApiBase{
-    public:
-        /* call this at least once per frame, to change the result of GetData */
-        /* call this more than once in the same Update frame will be ignored */
-        virtual void Update() = 0;
-        /* 
-            heartbeat: the output of last updated heart beat value
-            return val: returns if new data was come in this update frame 
-         */
-        virtual bool GetData(int * heartbeat) = 0;
-        /*
-            if the Updater is not nullptr, it will replace the internal GetData.
-            then the heart mod will display heart rate provided by the Updater, instead of data from physical sensors.
-            the result of GetData is also affected.
-
-            if the Updater is nullptr, the physical data will be used.
+// every thing is a function, to make sure we have no aligh problem
+struct HeartBeatApi{
+    int ApiVersion; 
+    int __not_used__;
+    /* call this at least once per frame, to change the result of GetData */
+    /* call this more than once in the same Update frame will be ignored */
+    void (*Update)(void);
+    /* 
+        heartbeat: the output of last updated heart beat value
+        return val: returns if new data was come in this update frame 
         */
-        virtual void SetAlternateDataUpdater(bool (*Updater)(int* heart_output)) = 0;
-    };
+    int (*GetData)(int * heartbeat);
+    /*
+        if the Updater is not nullptr, it will replace the internal GetData.
+        then the heart mod will display heart rate provided by the Updater, instead of data from physical sensors.
+        the result of GetData is also affected.
+
+        if the Updater is nullptr, the physical data will be used.
+    */
+    void (*SetAlternateDataUpdater)(int (*Updater)(int* heart_output));
+
+
+    void (*__not_used2__[20])(void);
+} __attribute__((packed,aligned(16)));
+
+#ifdef __cplusplus
 }
+#endif
+
+
+/*
+Basic Usage:
+
+HeartBeatApi * api = DynamicFindMod();
+
+if(api){
+    api->Update()
+    int data;
+    if(api->GetData(&data)){
+        ...
+    }
+    //do something with api
+}
+*/
+
+#ifdef __cplusplus
+namespace HeartBeat {
+#endif
+
+inline HeartBeatApi * GetHeartBeatApi(){
+    for(auto & mod : modloader::get_loaded()){
+        if(mod.info.id == "HeartBeatLanReceiver"){
+            HeartBeatApi* api = (HeartBeatApi*)dlsym(mod.handle, "heartBeatApi");
+            return api;
+        }
+    }
+    return nullptr;
+}
+
+
+#ifdef __cplusplus
+}
+#endif
+
+

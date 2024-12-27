@@ -58,18 +58,18 @@ Not avaliable for the latest version for now. Current work at `shared/HeartBeatA
 
 ## Basic API Usage
 
-Copy `shared/HeartBeatApi.h` file to your mod, call `DynamicFindMod`, and you will get a instance of `class Api`, or `nullptr` if the HeartBeatQuest mod is not avaliable.
+Copy `shared/HeartBeatApi.h` file to your mod
 
-The file is clean, and only depends on `scotland2` mod loader. This file is designed with compatability, and will work for future versions. The `DynamicFindMod<ApiBase*>` will always avaliable in the future.
+The file is clean, and only depends on `scotland2` mod loader.
 
 for example in your mod:
 
 ```cpp
 #include "HeartBeatApi.h"
 
-HeartBeatApi::Api * heartBeatApi = nullptr;
+HeartBeatApi * heartBeatApi = nullptr;
 extern "C" void late_load() {
-    heartBeatApi = HeartBeatApi::DynamicFindMod<Api*>();
+    heartBeatApi = HeartBeat::GetHeartBeatApi();
 }
 
 void Update(){
