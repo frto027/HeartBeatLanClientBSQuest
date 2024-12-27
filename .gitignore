@@ -67,3 +67,5 @@ extern.cmake
 mod.json.schema
 
 .cache
+
+compile_commands.json
