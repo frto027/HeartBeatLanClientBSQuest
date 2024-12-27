@@ -56,7 +56,7 @@ Not avaliable for the latest version for now. Current work at `shared/HeartBeatA
 
 
 
-## Basic Usage
+## Basic API Usage
 
 Copy `shared/HeartBeatApi.h` file to your mod, call `DynamicFindMod`, and you will get a instance of `class Api`, or `nullptr` if the HeartBeatQuest mod is not avaliable.
 
