@@ -17,7 +17,7 @@
 #include "paper/shared/logger.hpp"
 
 #include "HeartBeatDataSource.hpp"
-
+#include "HeartBeatApiInternal.hpp"
 DEFINE_TYPE(HeartBeat, HeartBeatObj);
 
 #define GAMECORE_DEFAULT_TEXT "???\nbpm"
@@ -46,11 +46,10 @@ namespace HeartBeat{
                 SetthingUI::UpdateSetthingsUI();
             }
         }
-        auto instance = HeartBeat::DataSource::getInstance();
-        instance->Update();
+        HeartBeat::ApiInternal::Update();
 
         int data;
-        if(HeartBeat::DataSource::getInstance()->GetData(data)){
+        if(HeartBeat::ApiInternal::GetData(&data)){
             char buff[1024];
             
             if(false && getModConfig().DisplayEnergy.GetValue()){

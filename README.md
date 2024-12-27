@@ -50,6 +50,43 @@ Same goes for `qpm s copy` and `.\scripts\createqmod.ps1`
 
 The Bluetooth access code at `AndroidProject/HeartBeatNative` can be compiled with AndroidStudio and Android SDK 34.
 
+# Mod api
+
+Not avaliable for the latest version for now. Current work at `shared/HeartBeatApi.h`.
+
+
+
+## Basic Usage
+
+Copy `shared/HeartBeatApi.h` file to your mod, call `DynamicFindMod`, and you will get a instance of `class Api`, or `nullptr` if the HeartBeatQuest mod is not avaliable.
+
+The file is clean, and only depends on `scotland2` mod loader. This file is designed with compatability, and will work for future versions. The `DynamicFindMod<ApiBase*>` will always avaliable in the future.
+
+for example in your mod:
+
+```cpp
+#include "HeartBeatApi.h"
+
+HeartBeatApi::Api * heartBeatApi = nullptr;
+extern "C" void late_load() {
+    heartBeatApi = HeartBeatApi::DynamicFindMod<Api*>();
+}
+
+void Update(){
+    if(heartBeatApi){
+        heartBeatApi->Update();
+        int data;
+        if(heartBeatApi->GetData(&data)){
+            //new data come in this frame
+        }else{
+            //old buffered data got
+        }
+
+        // the result of GetData will not chaned until you call heartBeatApi->Update() at next game update cycle
+    }
+}
+```
+
 ## Credits
 
 This mod is created by frto027.
