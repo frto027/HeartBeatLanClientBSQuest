@@ -25,4 +25,6 @@ DECLARE_CONFIG(ModConfig,
     CONFIG_VALUE(DataSourceType, int, "DataSourceType", 2);
 
     CONFIG_VALUE(OSCPort, int, "OSC Port", 9000);
+
+    CONFIG_VALUE(QountersComponent, bool, "Work With Qounters", false);
 );

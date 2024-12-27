@@ -2,6 +2,7 @@
 #define V(key, value)
 #endif
 V(enabled, "启用(重启生效)")
+V(qounters, "Qounters++支持(重启生效，若可用)")
 
 V(heart_config, "心率设置")
 V(heart_devices, "心率设备")

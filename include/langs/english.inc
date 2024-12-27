@@ -2,6 +2,7 @@
 #define V(key, value)
 #endif
 V(enabled, "enabled(need restart)")
+V(qounters, "Qounters++ support(need restart, if avaliable)")
 
 V(heart_config, "HEART Config")
 V(heart_devices, "HEART Devices")

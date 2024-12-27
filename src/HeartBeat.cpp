@@ -17,6 +17,7 @@
 #include "paper/shared/logger.hpp"
 
 #include "HeartBeatDataSource.hpp"
+#include "QounterSourceProvider.hpp"
 
 DEFINE_TYPE(HeartBeat, HeartBeatObj);
 
@@ -39,18 +40,35 @@ namespace HeartBeat{
     void HeartBeatObj::Update(){
         if(this->gameObject->activeInHierarchy == false)
             return;
+
+        int32_t curFrame = UnityEngine::Time::get_frameCount();
+
         {
-            static int slow_down = 0;
-            if(slow_down++ > 20){
-                slow_down = 0;
+            static int32_t lastUpdateSetthingUIFrame = 0;
+            if(curFrame - lastUpdateSetthingUIFrame > 20){
+                lastUpdateSetthingUIFrame = curFrame;
                 SetthingUI::UpdateSetthingsUI();
             }
         }
-        auto instance = HeartBeat::DataSource::getInstance();
-        instance->Update();
 
-        int data;
-        if(HeartBeat::DataSource::getInstance()->GetData(data)){
+        static int data = 0;
+        static int hasNewData = 0;
+        {
+            //only update data once per frame
+            static int32_t lastUpdateFrame = 0;
+            if(curFrame != lastUpdateFrame){
+                lastUpdateFrame = curFrame;
+                auto instance = HeartBeat::DataSource::getInstance();
+                instance->Update();
+                hasNewData = instance->GetData(data);
+                
+                
+                if(hasNewData)
+                    InformHeartForQounters(data);
+            }
+        }
+
+        if(hasNewData){
             char buff[1024];
             
             if(false && getModConfig().DisplayEnergy.GetValue()){
@@ -81,6 +99,9 @@ namespace HeartBeat{
     }
 
     void HeartBeatObj::FlashColor(){
+
+        if(isQounterComponent) return; // does qounters++ controls text color?
+
         auto & conf = getModConfig();
         flash_remains = conf.HeartDataComeFlashDuration.GetValue();
         if(flash_remains < 0.01){

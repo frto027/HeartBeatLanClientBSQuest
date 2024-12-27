@@ -64,7 +64,7 @@ namespace SetthingUI{
             auto text = BSML::Lite::CreateText(canvas->get_transform(), "???");
             auto rect = text->get_rectTransform();
             rect->SetParent(canvas->transform, false);
-            previewObj = text->get_gameObject()->AddComponent<HeartBeat::HeartBeatObj*>();
+            previewObj = text->get_gameObject()->AddComponent<HeartBeat::HeartBeatObj*>()->InitComponent();
             rect->anchoredPosition = {0.5, 0.7};
             rect->sizeDelta = {1, 0.02};
 
@@ -94,6 +94,11 @@ namespace SetthingUI{
             BSML::Lite::CreateToggle(container->get_transform(), LANG->enabled, getModConfig().Enabled.GetValue(), [](bool v){
                 getModConfig().Enabled.SetValue(v);
             });
+
+            BSML::Lite::CreateToggle(container->get_transform(), LANG->qounters, getModConfig().QountersComponent.GetValue(), [](bool v){
+                getModConfig().QountersComponent.SetValue(v);
+            });
+
 
             if(ModEnabled == false)
                 return;

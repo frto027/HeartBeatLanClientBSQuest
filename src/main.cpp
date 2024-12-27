@@ -25,6 +25,8 @@
 #include "i18n.hpp"
 #include <cstddef>
 
+#include "QounterSourceProvider.hpp"
+
 static modloader::ModInfo modInfo = {MOD_ID, VERSION, 0}; // Stores the ID and version of our mod, and is sent to the modloader upon startup
 
 bool ModEnabled;
@@ -55,7 +57,9 @@ MAKE_HOOK_MATCH(GameplayCoreHook, &GlobalNamespace::CoreGameHUDController::Initi
 
     if(MainMenuPreviewObject)
         MainMenuPreviewObject->set_active(false);
-
+    
+    //create in game ui component
+    
     UnityEngine::GameObject * EnergyGo = self->get_energyPanelGo();
     auto text = BSML::Lite::CreateText(EnergyGo->get_transform(), "");
     auto rect = text->get_rectTransform();
@@ -66,7 +70,7 @@ MAKE_HOOK_MATCH(GameplayCoreHook, &GlobalNamespace::CoreGameHUDController::Initi
     text->color = getModConfig().HeartTextColor.GetValue();
     text->fontSize = 10;
     text->set_alignment(TMPro::TextAlignmentOptions::MidlineLeft);
-    text->get_gameObject()->AddComponent<HeartBeat::HeartBeatObj*>();
+    text->get_gameObject()->AddComponent<HeartBeat::HeartBeatObj*>()->InitComponent();
 }
 // Called later on in the game loading - a good time to install function hooks
 extern "C" void late_load() {
@@ -92,5 +96,11 @@ extern "C" void late_load() {
     getLogger().info("Installing hooks...");
     INSTALL_HOOK(getLogger(), GameplayCoreHook);
 
-    getLogger().info("Installed all hooks!");
+    if(getModConfig().QountersComponent.GetValue()){
+        getLogger().info("Initialize qounters things...");
+        HeartBeat::InitQocunterSource();
+    }else{
+        getLogger().info("Skip qounters++ init due to mod config.");
+    }
+    getLogger().info("The mod has been initialized.");
 }

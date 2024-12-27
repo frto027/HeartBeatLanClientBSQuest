@@ -21,9 +21,15 @@ DECLARE_CLASS_CODEGEN(HeartBeat, HeartBeatObj, UnityEngine::MonoBehaviour,
 public:
     TMPro::TextMeshProUGUI* text;
     int status;
+    bool isQounterComponent;
 
     float flash_remains;
     void GoToGameCorePos();
     void GoToMainMenuPos();
     void FlashColor();
+
+    HeartBeatObj *InitComponent(){
+        isQounterComponent = 0;
+        return this;
+    }
 );
