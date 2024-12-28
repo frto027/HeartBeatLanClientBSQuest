@@ -56,24 +56,6 @@ struct HeartBeatApi{
 }
 #endif
 
-
-/*
-Basic Usage:
-
-HeartBeat::HeartBeatApi * api = GetHeartBeatApi();
-
-void Update(){
-    if(api){
-        api->Update();
-        int data;
-        if(api->GetData(&data)){
-            ...
-        }
-    }
-}
-
-*/
-
 #ifdef __cplusplus
 namespace HeartBeat {
 #endif
