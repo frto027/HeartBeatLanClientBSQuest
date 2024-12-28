@@ -186,7 +186,6 @@ void HeartBeat::HeartBeatBleDataSource::SetSelectedBleMac(const std::string mac)
 void HeartBeat::HeartBeatBleDataSource::ScanDevice(){
     avaliable_devices.clear();
     ScanDevices();
-    SetSelectedBleMac(selected_mac);
 }
 
 bool HeartBeat::HeartBeatBleDataSource::GetData(int& heartbeat){
@@ -210,6 +209,11 @@ void HeartBeat::HeartBeatBleDataSource::InformNativeDevice(const std::string& ma
             .last_data = 0,
             .last_data_time = 0
         }});
+    }
+
+    if(macAddr == selected_mac){
+        //relink the device here
+        SetSelectedBleMac(macAddr);
     }
 }
 void HeartBeat::HeartBeatBleDataSource::OnDataCome(const std::string& macAddr, int heartRate, long energy){

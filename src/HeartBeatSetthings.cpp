@@ -558,6 +558,7 @@ namespace SetthingUI{
             BSML::Register::RegisterMainMenuViewControllerMethod(
                 "HeartBeatLan", LANG->heart_devices,"<3", 
                 SetthingUI::BleDataSource::DidDevicesActivate);
+            HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatBleDataSource>()->ScanDevice();
         }
         if(HeartBeat::dataSourceType == HeartBeat::DS_LAN){
             BSML::Register::RegisterMainMenuViewControllerMethod(

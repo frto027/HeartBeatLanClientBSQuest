@@ -67,6 +67,14 @@ MAKE_HOOK_MATCH(GameplayCoreHook, &GlobalNamespace::CoreGameHUDController::Initi
     text->fontSize = 10;
     text->set_alignment(TMPro::TextAlignmentOptions::MidlineLeft);
     text->get_gameObject()->AddComponent<HeartBeat::HeartBeatObj*>();
+
+    static int firstInitialize = true;
+    if(firstInitialize){
+        firstInitialize = false;
+        if(HeartBeat::dataSourceType == HeartBeat::DS_BLE){
+            HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatBleDataSource>()->SetSelectedBleMac(getModConfig().SelectedBleMac.GetValue());
+        }
+    }
 }
 // Called later on in the game loading - a good time to install function hooks
 extern "C" void late_load() {
