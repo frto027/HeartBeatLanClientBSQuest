@@ -17,7 +17,7 @@ struct HeartBeatApi{
     /* call this more than once in the same Update frame will be ignored */
     void (*Update)(void);
     /* 
-        heartrate: the output of last updated heart beat value
+        heartrate: the output of last updated heart rate value
         return val: returns if new data was come in this update frame 
         */
     int (*GetData)(int * heartrate);
