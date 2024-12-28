@@ -52,9 +52,6 @@ The Bluetooth access code at `AndroidProject/HeartBeatNative` can be compiled wi
 
 # Mod api
 
-Not avaliable for the latest version for now. Current work at `shared/HeartBeatApi.h`.
-
-
 
 ## Basic API Usage
 
