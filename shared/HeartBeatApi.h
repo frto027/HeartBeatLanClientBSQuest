@@ -13,20 +13,36 @@ extern "C"{
 struct HeartBeatApi{
     int ApiVersion; 
     int __not_used__;
-    /* call this at least once per frame, to change the result of GetData */
-    /* call this more than once in the same Update frame will be ignored */
-    void (*Update)(void);
+
     /* 
-        heartrate: the output of last updated heart rate value
-        return val: returns if new data was come in this update frame 
-        */
+        call this at least once per frame, to change the result of GetData.
+        call this more than once in the same Update frame will be ignored.
+    */
+    void (*Update)(void);
+
+
+    /* 
+        arguments:
+            heartrate: the output of last updated heart rate value
+
+        return value:
+            returns a boolean value, which means if this update frame has new data
+        
+        if the function returns 0, an old data will be assigned to heartrate.
+    */
     int (*GetData)(int * heartrate);
+
+
     /*
+        argument:
+            Updater: a function pointer that act as the GetData function
+
         provide your own data updater to heart mod.
 
         if the Updater is not nullptr, it will replace the internal GetData function.
-        then the heart mod will display heart rate provided by the Updater, instead of data from physical sensors.
-        the result of GetData is also affected.
+        then the heart mod will display heart rate provided by the Updater, instead of
+        data from physical sensors. the result of GetData is also affected. The updater
+        will be called once per frame if someone calls Update.
 
         if the Updater is nullptr, the physical data will be used.
     */
@@ -44,16 +60,18 @@ struct HeartBeatApi{
 /*
 Basic Usage:
 
-HeartBeatApi * api = DynamicFindMod();
+HeartBeat::HeartBeatApi * api = GetHeartBeatApi();
 
-if(api){
-    api->Update()
-    int data;
-    if(api->GetData(&data)){
-        ...
+void Update(){
+    if(api){
+        api->Update();
+        int data;
+        if(api->GetData(&data)){
+            ...
+        }
     }
-    //do something with api
 }
+
 */
 
 #ifdef __cplusplus
