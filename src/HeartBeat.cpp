@@ -2,6 +2,7 @@
 #include "TMPro/TextAlignmentOptions.hpp"
 #include "TMPro/TextMeshProUGUI.hpp"
 #include "TMPro/TextMeshPro.hpp"
+#include "UnityEngine/Color.hpp"
 #include "bsml/shared/BSML-Lite/Creation/Text.hpp"
 #include "main.hpp"
 #include "HeartBeat.hpp"
@@ -18,6 +19,9 @@
 
 #include "HeartBeatDataSource.hpp"
 #include "HeartBeatApiInternal.hpp"
+
+#include "BeatLeaderRecorder.hpp"
+
 DEFINE_TYPE(HeartBeat, HeartBeatObj);
 
 #define GAMECORE_DEFAULT_TEXT "???\nbpm"
@@ -34,6 +38,10 @@ namespace HeartBeat{
         }
 
         this->flash_remains = 0;
+    }
+
+    inline UnityEngine::Color GetFlashColor(ModConfig_t & conf){
+        return HeartBeat::Recorder::isReplaying() ? conf.HeartReplayDataComeFlashColor.GetValue() : conf.HeartDataComeFlashColor.GetValue();
     }
 
     void HeartBeatObj::Update(){
@@ -73,7 +81,7 @@ namespace HeartBeat{
             float total_time = conf.HeartDataComeFlashDuration.GetValue();
             float r = flash_remains / total_time;
             if(total_time > 0){
-                text->set_color(UnityEngine::Color::Lerp(conf.HeartTextColor.GetValue(), conf.HeartDataComeFlashColor.GetValue(), 
+                text->set_color(UnityEngine::Color::Lerp(conf.HeartTextColor.GetValue(),  GetFlashColor(conf), 
                     r));
             }
         }
@@ -86,6 +94,6 @@ namespace HeartBeat{
             flash_remains = 0;
             return;
         }
-        text->set_color(conf.HeartDataComeFlashColor.GetValue());
+        text->set_color(GetFlashColor(conf));
     }
 };

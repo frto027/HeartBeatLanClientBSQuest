@@ -7,6 +7,7 @@
 #include "beatsaber-hook/shared/utils/il2cpp-utils.hpp"
 #include "main.hpp"
 #include "scotland2/shared/modloader.h"
+#include "BeatLeaderRecorder.hpp"
 
 #define DEX_PATH "/sdcard/ModData/com.beatgames.beatsaber/Mods/HeartBeatQuest/HeartBeatBLEReader.dex"
 
@@ -62,7 +63,7 @@ bool ToggleDevice(std::string macAddr, jboolean selected){
         getLogger().debug("Exception occurred");
         env->ExceptionDescribe();
         return false;
-    }
+    }    
     return ret;
 }
 
@@ -181,6 +182,13 @@ void HeartBeat::HeartBeatBleDataSource::SetSelectedBleMac(const std::string mac)
     getModConfig().SelectedBleMac.SetValue(mac, true);
 
     ToggleDevice(this->selected_mac, true);
+
+    auto it = avaliable_devices.find(this->selected_mac);
+    if(it != avaliable_devices.end()){
+        Recorder::heartDeviceName = it->second.name;
+    }else{
+        Recorder::heartDeviceName = "";
+    }
 }
 
 void HeartBeat::HeartBeatBleDataSource::ScanDevice(){

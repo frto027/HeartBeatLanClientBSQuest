@@ -9,7 +9,7 @@ struct HeartBeatApi;
 extern "C"{
 #endif
 
-// every thing is a function, to make sure we have no aligh problem
+// every thing is a function, to make sure we have no align problem
 struct HeartBeatApi{
     int ApiVersion; 
     int __not_used__;

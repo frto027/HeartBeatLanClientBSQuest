@@ -82,6 +82,16 @@
         "id": "bsml",
         "versionRange": "^0.4.43",
         "additionalData": {}
+      },
+      {
+        "id": "conditional-dependencies",
+        "versionRange": "^0.3.0",
+        "additionalData": {}
+      },
+      {
+        "id": "bs-utils",
+        "versionRange": "^0.8.4",
+        "additionalData": {}
       }
     ]
   },
@@ -103,6 +113,21 @@
     },
     {
       "dependency": {
+        "id": "bs-utils",
+        "versionRange": "=0.8.4",
+        "additionalData": {
+          "soLink": "https://github.com/RedBrumbler/QuestBS-Utils/releases/download/v0.8.4/libbs-utils.so",
+          "debugSoLink": "https://github.com/RedBrumbler/QuestBS-Utils/releases/download/v0.8.4/debug_libbs-utils.so",
+          "overrideSoName": "libbs-utils.so",
+          "modLink": "https://github.com/RedBrumbler/QuestBS-Utils/releases/download/v0.8.4/BS-Utils.qmod",
+          "branchName": "version/v0_8_4",
+          "cmake": true
+        }
+      },
+      "version": "0.8.4"
+    },
+    {
+      "dependency": {
         "id": "paper",
         "versionRange": "=3.7.0",
         "additionalData": {
@@ -120,18 +145,6 @@
         }
       },
       "version": "3.7.0"
-    },
-    {
-      "dependency": {
-        "id": "rapidjson-macros",
-        "versionRange": "=1.2.1",
-        "additionalData": {
-          "headersOnly": true,
-          "branchName": "version/v1_2_1",
-          "cmake": true
-        }
-      },
-      "version": "1.2.1"
     },
     {
       "dependency": {
@@ -169,6 +182,18 @@
     },
     {
       "dependency": {
+        "id": "rapidjson-macros",
+        "versionRange": "=1.2.1",
+        "additionalData": {
+          "headersOnly": true,
+          "branchName": "version/v1_2_1",
+          "cmake": true
+        }
+      },
+      "version": "1.2.1"
+    },
+    {
+      "dependency": {
         "id": "libil2cpp",
         "versionRange": "=0.3.2",
         "additionalData": {
@@ -177,6 +202,18 @@
         }
       },
       "version": "0.3.2"
+    },
+    {
+      "dependency": {
+        "id": "conditional-dependencies",
+        "versionRange": "=0.3.0",
+        "additionalData": {
+          "headersOnly": true,
+          "branchName": "version/v0_3_0",
+          "cmake": false
+        }
+      },
+      "version": "0.3.0"
     },
     {
       "dependency": {
@@ -217,30 +254,15 @@
     {
       "dependency": {
         "id": "scotland2",
-        "versionRange": "=0.1.4",
+        "versionRange": "=0.1.6",
         "additionalData": {
-          "soLink": "https://github.com/sc2ad/scotland2/releases/download/v0.1.4/libsl2.so",
-          "debugSoLink": "https://github.com/sc2ad/scotland2/releases/download/v0.1.4/debug_libsl2.so",
+          "soLink": "https://github.com/sc2ad/scotland2/releases/download/v0.1.6/libsl2.so",
+          "debugSoLink": "https://github.com/sc2ad/scotland2/releases/download/v0.1.6/debug_libsl2.so",
           "overrideSoName": "libsl2.so",
-          "branchName": "version/v0_1_4"
+          "branchName": "version/v0_1_6"
         }
       },
-      "version": "0.1.4"
-    },
-    {
-      "dependency": {
-        "id": "tinyxml2",
-        "versionRange": "=10.0.0",
-        "additionalData": {
-          "soLink": "https://github.com/MillzyDev/NDK-tinyxml2/releases/download/v10.0.0/libtinyxml2.so",
-          "debugSoLink": "https://github.com/MillzyDev/NDK-tinyxml2/releases/download/v10.0.0/debug_libtinyxml2.so",
-          "overrideSoName": "libtinyxml2.so",
-          "modLink": "https://github.com/MillzyDev/NDK-tinyxml2/releases/download/v10.0.0/tinyxml2.qmod",
-          "branchName": "version/v10_0_0",
-          "cmake": true
-        }
-      },
-      "version": "10.0.0"
+      "version": "0.1.6"
     },
     {
       "dependency": {
@@ -260,6 +282,21 @@
         }
       },
       "version": "11.0.2"
+    },
+    {
+      "dependency": {
+        "id": "tinyxml2",
+        "versionRange": "=10.0.0",
+        "additionalData": {
+          "soLink": "https://github.com/MillzyDev/NDK-tinyxml2/releases/download/v10.0.0/libtinyxml2.so",
+          "debugSoLink": "https://github.com/MillzyDev/NDK-tinyxml2/releases/download/v10.0.0/debug_libtinyxml2.so",
+          "overrideSoName": "libtinyxml2.so",
+          "modLink": "https://github.com/MillzyDev/NDK-tinyxml2/releases/download/v10.0.0/tinyxml2.qmod",
+          "branchName": "version/v10_0_0",
+          "cmake": true
+        }
+      },
+      "version": "10.0.0"
     }
   ]
 }

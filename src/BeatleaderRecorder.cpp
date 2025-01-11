@@ -1,0 +1,165 @@
+#include "BeatLeaderRecorder.hpp"
+#include "conditional-dependencies/shared/main.hpp"
+#include <cstddef>
+#include <cstdint>
+#include <cstdlib>
+#include <cstring>
+#include <functional>
+#include <string>
+#include <arpa/inet.h>
+#include <sys/endian.h>
+#include "beatsaber-hook/shared/utils/logging.hpp"
+#include "beatsaber-hook/shared/utils/il2cpp-functions.hpp"
+#include "beatsaber-hook/shared/utils/hooking.hpp"
+#include "GlobalNamespace/ScoreController.hpp"
+#include "GlobalNamespace/AudioTimeSyncController.hpp"
+#include "GlobalNamespace/GameplayCoreInstaller.hpp"
+#include "GlobalNamespace/PauseMenuManager.hpp"
+#include "bs-utils/shared/utils.hpp"
+#include "main.hpp"
+
+namespace HeartBeat{
+namespace Recorder{
+
+bool needRecord = false;
+bool recordStarted = false;
+bool isPaused = false;
+
+bool replayStarted = false;
+int nextDataToReplay = 0;
+
+struct RecordEntry{
+    float timestamp;
+    unsigned int heartrate;
+};
+std::vector<RecordEntry> recordData;
+std::string heartDeviceName = "unknown";
+
+void RecordCallback(std::string name, int* length, void** data){
+    recordStarted = false;
+
+    static std::vector<uint8_t> datas;
+
+    datas.clear();
+
+    auto PushUInt32 = [](unsigned int x){
+        x = htole32(x);
+        uint8_t * d = (uint8_t*)&x;
+        datas.push_back(d[0]);
+        datas.push_back(d[1]);
+        datas.push_back(d[2]);
+        datas.push_back(d[3]);
+    };
+    auto PushFloat = [](float x){
+        uint8_t * d = (uint8_t*)&x;
+        datas.push_back(d[0]);
+        datas.push_back(d[1]);
+        datas.push_back(d[2]);
+        datas.push_back(d[3]);
+    };
+    auto PushStr = [&](const char * str){
+        size_t len = strlen(str);
+        PushUInt32(len);
+        for(int i=0;i<len;i++){
+            datas.push_back(str[i]);
+        }
+    };
+    
+    size_t recordCount = recordData.size();
+
+    getLogger().info("encoding {} heart record to replay.", recordCount);
+
+    PushUInt32(1); // version
+
+    PushUInt32(recordCount);
+    for(int i=0;i<recordCount;i++){
+        PushFloat(recordData[i].timestamp);
+        PushUInt32(recordData[i].heartrate);
+    }
+
+    PushStr(heartDeviceName.c_str());
+    
+    *length = datas.size();
+    *data = datas.data();
+
+    recordData.clear();
+}
+
+GlobalNamespace::AudioTimeSyncController* audioTimeSyncController = NULL;
+MAKE_HOOK_MATCH(ScoreControllerStart, &GlobalNamespace::ScoreController::Start, void, GlobalNamespace::ScoreController* self) {
+    ScoreControllerStart(self);
+    audioTimeSyncController = self->_audioTimeSyncController;
+}
+
+// copy from beatleader mod
+inline bool UploadDisabledByReplay() {
+    for (auto kv : bs_utils::Submission::getDisablingMods()) {
+        if (kv.id == "Replay") {
+            return true;
+        }
+    }
+    return false;
+}
+
+MAKE_HOOK_MATCH(SinglePlayerInstallBindings, &GlobalNamespace::GameplayCoreInstaller::InstallBindings, void, GlobalNamespace::GameplayCoreInstaller* self) {
+    SinglePlayerInstallBindings(self);
+
+    if(UploadDisabledByReplay()){
+        recordStarted = false;
+        isPaused = false;
+        recordData.clear();
+        getLogger().info("this is a replay, don't start record.");
+        return;
+    }
+
+    getLogger().info("start record heart infos");
+    recordData.clear();
+    recordStarted = true;
+    isPaused = false;
+}
+
+MAKE_HOOK_MATCH(LevelPause, &GlobalNamespace::PauseMenuManager::ShowMenu, void, GlobalNamespace::PauseMenuManager* self) {
+    LevelPause(self);
+    isPaused = true;
+}
+
+MAKE_HOOK_MATCH(LevelUnpause, &GlobalNamespace::PauseMenuManager::HandleResumeFromPauseAnimationDidFinish, void, GlobalNamespace::PauseMenuManager* self) {
+    LevelUnpause(self);
+    isPaused = false;
+}
+
+void Init(){
+    auto AddReplayCustomDataProvider = CondDeps::FindUnsafe<void, std::string, std::function<void(std::string, int*, void**)> >("bl", "AddReplayCustomDataProvider");
+
+    if(AddReplayCustomDataProvider.has_value()){
+        getLogger().info("Beatleader is detected, enable record support");
+        needRecord = true;
+        AddReplayCustomDataProvider.value()("HeartBeatQuest", RecordCallback);
+        INSTALL_HOOK(getLogger(), ScoreControllerStart);
+        INSTALL_HOOK(getLogger(), SinglePlayerInstallBindings);
+        INSTALL_HOOK(getLogger(), LevelPause);
+        INSTALL_HOOK(getLogger(), LevelUnpause);
+    }
+}
+
+
+void RecordDataIfNeeded(int heartrate){
+    if(needRecord && audioTimeSyncController && recordStarted && !isPaused){
+        recordData.emplace_back(audioTimeSyncController->songTime, heartrate);
+    }
+}
+
+bool isReplaying(){
+    return replayStarted;
+}
+bool ReplayGetData(int &heartrate){
+    if(replayStarted && audioTimeSyncController && nextDataToReplay < recordData.size() && audioTimeSyncController->songTime >= recordData[nextDataToReplay].timestamp){
+        heartrate = recordData[nextDataToReplay].heartrate;
+        nextDataToReplay++;
+        return true;
+    }
+    return false;
+}
+
+}
+}

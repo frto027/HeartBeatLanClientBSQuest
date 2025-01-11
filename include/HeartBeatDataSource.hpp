@@ -21,6 +21,12 @@ enum DataSourceType{
 
 extern DataSourceType dataSourceType;
 
+inline bool IsDatasourceAbleToRecord(){
+    if(dataSourceType == DS_RANDOM)
+        return false;
+    return true;
+}
+
 class DataSource{
 public:
     virtual bool GetData(int& heartbeat);

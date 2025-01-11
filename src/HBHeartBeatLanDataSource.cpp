@@ -18,6 +18,7 @@
 #include <unistd.h>
 
 #include <algorithm>
+#include <BeatLeaderRecorder.hpp>
 
 #define PORT 9965
 
@@ -62,6 +63,8 @@ failed:
     }
 
     HeartBeatLanDataSource::HeartBeatLanDataSource(){
+        Recorder::heartDeviceName = "LAN";
+
         pair_socket = -1;
         recv_socket = -1;
 
