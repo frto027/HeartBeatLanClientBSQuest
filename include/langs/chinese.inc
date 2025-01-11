@@ -35,3 +35,6 @@ V(data_source, "数据源(重启生效)")
 //V(data_source_random, "随机")
 //V(data_source_lan, "局域网")
 //V(data_source_bluetooth, "蓝牙")
+
+V(enable_record, "启用录像")
+V(record_dev_name, "记录设备名称")

@@ -17,6 +17,7 @@
 #include "GlobalNamespace/PauseMenuManager.hpp"
 #include "bs-utils/shared/utils.hpp"
 #include "main.hpp"
+#include "ModConfig.hpp"
 
 namespace HeartBeat{
 namespace Recorder{
@@ -33,7 +34,7 @@ struct RecordEntry{
     unsigned int heartrate;
 };
 std::vector<RecordEntry> recordData;
-std::string heartDeviceName = "unknown";
+std::string heartDeviceName = HEART_DEV_NAME_UNK;
 
 void RecordCallback(std::string name, int* length, void** data){
     recordStarted = false;
@@ -77,7 +78,11 @@ void RecordCallback(std::string name, int* length, void** data){
         PushUInt32(recordData[i].heartrate);
     }
 
-    PushStr(heartDeviceName.c_str());
+    if(getModConfig().RecordDevName.GetValue()){
+        PushStr(heartDeviceName.c_str());
+    }else{
+        PushStr(HEART_DEV_NAME_HIDE);
+    }
     
     *length = datas.size();
     *data = datas.data();
@@ -104,7 +109,7 @@ inline bool UploadDisabledByReplay() {
 MAKE_HOOK_MATCH(SinglePlayerInstallBindings, &GlobalNamespace::GameplayCoreInstaller::InstallBindings, void, GlobalNamespace::GameplayCoreInstaller* self) {
     SinglePlayerInstallBindings(self);
 
-    if(UploadDisabledByReplay()){
+    if(UploadDisabledByReplay() || !(getModConfig().EnableRecord.GetValue())){
         recordStarted = false;
         isPaused = false;
         recordData.clear();

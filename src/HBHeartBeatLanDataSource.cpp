@@ -63,7 +63,7 @@ failed:
     }
 
     HeartBeatLanDataSource::HeartBeatLanDataSource(){
-        Recorder::heartDeviceName = "LAN";
+        Recorder::heartDeviceName = HEART_DEV_NAME_LAN;
 
         pair_socket = -1;
         recv_socket = -1;

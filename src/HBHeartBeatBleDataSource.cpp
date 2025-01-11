@@ -187,7 +187,7 @@ void HeartBeat::HeartBeatBleDataSource::SetSelectedBleMac(const std::string mac)
     if(it != avaliable_devices.end()){
         Recorder::heartDeviceName = it->second.name;
     }else{
-        Recorder::heartDeviceName = "";
+        Recorder::heartDeviceName = HEART_DEV_NAME_UNK;
     }
 }
 

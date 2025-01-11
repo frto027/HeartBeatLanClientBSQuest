@@ -95,6 +95,14 @@ namespace SetthingUI{
                 getModConfig().Enabled.SetValue(v);
             });
 
+            BSML::Lite::CreateToggle(container->get_transform(), LANG->enable_record, getModConfig().EnableRecord.GetValue(), [](bool v){
+                getModConfig().EnableRecord.SetValue(v);
+            });
+            BSML::Lite::CreateToggle(container->get_transform(), LANG->record_dev_name, getModConfig().RecordDevName.GetValue(), [](bool v){
+                getModConfig().RecordDevName.SetValue(v);
+            });
+
+
             if(ModEnabled == false)
                 return;
 

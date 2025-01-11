@@ -29,7 +29,7 @@ DECLARE_DATA_SOURCE(HeartBeatOSCDataSource)
 HeartBeatOSCDataSource * oscDataSource;
 
 HeartBeatOSCDataSource::HeartBeatOSCDataSource(){
-    Recorder::heartDeviceName = "OSC";
+    Recorder::heartDeviceName = HEART_DEV_NAME_OSC;
     this->CreateSocket();
 }
 
