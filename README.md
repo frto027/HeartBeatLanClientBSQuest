@@ -88,27 +88,17 @@ void Update(){
 
 The mod records hearts data to replay file with mod ID `HeartBeatQuest`.
 
-little endian, 4 byte int, 4 byte float, which follows [BSOR](https://github.com/BeatLeader/BS-Open-Replay) format
+little endian, 4 byte int, 4 byte float, string(length+bytes), which follows [BSOR](https://github.com/BeatLeader/BS-Open-Replay) format
 
 ```
+int version; // the value is always 1
+int dataCount;
 struct {
-    int version; // the value is always 1
-    int dataCount;
-    struct {
         float time;
         int heartRate;
-    } datas[dataCount];
+} datas[dataCount];
 
-    string bluetoothDeviceName;
-}
-```
-
-
-```
-struct string{
-    int strSize;
-    char data[strSize];
-};
+string bluetoothDeviceName; // a utf-8 format byte array directly from from Java VM
 ```
 
 ## Credits
