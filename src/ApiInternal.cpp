@@ -2,6 +2,8 @@
 #include "UnityEngine/Time.hpp"
 
 #include "../shared/HeartBeatApi.h"
+#include "BeatLeaderRecorder.hpp"
+
 #include <cstddef>
 
 namespace HeartBeat{
@@ -16,13 +18,22 @@ namespace HeartBeat{
             if(curFrame != lastUpdateFrame){
                 lastUpdateFrame = curFrame;
 
-                if(AlternateDataUpdater){
-                    hasNewData = AlternateDataUpdater(&data);
+                if(HeartBeat::Recorder::isReplaying()){
+                    hasNewData = HeartBeat::Recorder::ReplayGetData(data);
                 }else{
-                    auto instance = HeartBeat::DataSource::getInstance();
-                    instance->Update();
-                    hasNewData = instance->GetData(data);
+                    if(AlternateDataUpdater){
+                        hasNewData = AlternateDataUpdater(&data);
+                    }else{
+                        auto instance = HeartBeat::DataSource::getInstance();
+                        instance->Update();
+                        hasNewData = instance->GetData(data);
+                    }
+
+                    if(hasNewData && !AlternateDataUpdater && HeartBeat::IsDatasourceAbleToRecord()){
+                        HeartBeat::Recorder::RecordDataIfNeeded(data);
+                    }
                 }
+
             }
         }
 

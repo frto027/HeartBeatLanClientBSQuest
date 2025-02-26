@@ -53,7 +53,7 @@ if ($all -eq $false) {
 }
 
 if ($all -eq $false) {
-    $pattern = "("
+    $pattern = "(HeartBeatLanReceiver|"
     if ($self -eq $true) {
         $modID = (Get-Content "./mod.json" -Raw | ConvertFrom-Json).id
         $pattern += "$modID|"

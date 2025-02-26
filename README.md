@@ -83,6 +83,25 @@ void Update(){
 }
 ```
 
+
+## Replay Structure
+
+The mod records hearts data to replay file with mod ID `HeartBeatQuest`.
+
+little endian, 4 byte int, 4 byte float, string(length+bytes), which follows [BSOR](https://github.com/BeatLeader/BS-Open-Replay) format
+
+```
+version                 - int, the value is always 1
+dataCount               - int, how many data we will have later
+
+{                       - heart rate datas, repeat dataCount times
+  time                  - float, timestamp
+  heartRate             - int, heart rate data
+}
+
+bluetoothDeviceName     - string, a utf-8 format byte array directly from from Java VM
+```
+
 ## Credits
 
 This mod is created by frto027.

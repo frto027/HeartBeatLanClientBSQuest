@@ -95,6 +95,14 @@ namespace SetthingUI{
                 getModConfig().Enabled.SetValue(v);
             });
 
+            BSML::Lite::CreateToggle(container->get_transform(), LANG->enable_record, getModConfig().EnableRecord.GetValue(), [](bool v){
+                getModConfig().EnableRecord.SetValue(v);
+            });
+            BSML::Lite::CreateToggle(container->get_transform(), LANG->record_dev_name, getModConfig().RecordDevName.GetValue(), [](bool v){
+                getModConfig().RecordDevName.SetValue(v);
+            });
+
+
             if(ModEnabled == false)
                 return;
 
@@ -140,9 +148,12 @@ namespace SetthingUI{
             private_public_btn =  BSML::Lite::CreateUIButton(container->get_transform(), LANG->waiting, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 8}, PrivateNotPrivateBtnClick);
 
             static BSML::IncrementSetting *FlashDur;
+            static BSML::ColorSetting *TextColorPicker;
+            static BSML::ColorSetting *FlashColorPicker;
+            static BSML::ColorSetting *ReplayFlashColorPicker;
 
             static UnityEngine::Color TextColor = getModConfig().HeartTextColor.GetValue();
-            BSML::Lite::CreateColorPicker(container->get_transform(), LANG->text_color, getModConfig().HeartTextColor.GetValue(),
+            TextColorPicker = BSML::Lite::CreateColorPicker(container->get_transform(), LANG->text_color, getModConfig().HeartTextColor.GetValue(),
                 [](UnityEngine::Color color){
                     getModConfig().HeartTextColor.SetValue(TextColor);
                     previewObj->text->color = TextColor;
@@ -156,16 +167,33 @@ namespace SetthingUI{
                     previewObj->text->color = TextColor;
             });
             static UnityEngine::Color FlashTextColor = getModConfig().HeartDataComeFlashColor.GetValue();
-            BSML::Lite::CreateColorPicker(container->get_transform(), LANG->flash_text_color, getModConfig().HeartDataComeFlashColor.GetValue(),
+            FlashColorPicker = BSML::Lite::CreateColorPicker(container->get_transform(), LANG->flash_text_color, getModConfig().HeartDataComeFlashColor.GetValue(),
                 [](UnityEngine::Color color){
                     getModConfig().HeartDataComeFlashColor.SetValue(FlashTextColor);
-                    FlashTextColor = getModConfig().HeartTextColor.GetValue();
+                    previewObj->text->color = TextColor;
                 },
                 [](){
-                    FlashTextColor = getModConfig().HeartTextColor.GetValue();
+                    FlashTextColor = getModConfig().HeartDataComeFlashColor.GetValue();
+                    previewObj->text->color = TextColor;
                 },
                 [](UnityEngine::Color color){
                     FlashTextColor = color;
+                    previewObj->text->color = color;
+            });
+
+            static UnityEngine::Color ReplayFlashTextColor = getModConfig().HeartReplayDataComeFlashColor.GetValue();
+            ReplayFlashColorPicker = BSML::Lite::CreateColorPicker(container->get_transform(), LANG->replay_flash_text_color, getModConfig().HeartReplayDataComeFlashColor.GetValue(),
+                [](UnityEngine::Color color){
+                    getModConfig().HeartReplayDataComeFlashColor.SetValue(ReplayFlashTextColor);
+                    previewObj->text->color = TextColor;
+                },
+                [](){
+                    ReplayFlashTextColor = getModConfig().HeartReplayDataComeFlashColor.GetValue();
+                    previewObj->text->color = TextColor;
+                },
+                [](UnityEngine::Color color){
+                    ReplayFlashTextColor = color;
+                    previewObj->text->color = color;
             });
 
             FlashDur = BSML::Lite::CreateIncrementSetting(container->get_transform(), LANG->flash_duration_when_text_come, 1, 0.2, getModConfig().HeartDataComeFlashDuration.GetValue(), [](float v){
@@ -181,12 +209,18 @@ namespace SetthingUI{
             });
             BSML::Lite::CreateUIButton(container->get_transform(), LANG->reset_to_default, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 8}, [](){
                 getModConfig().HeartTextColor.SetValue(getModConfig().HeartTextColor.GetDefaultValue());
+                TextColorPicker->set_currentColor(getModConfig().HeartTextColor.GetDefaultValue());
                 previewObj->text->color = getModConfig().HeartTextColor.GetDefaultValue();
 
                 getModConfig().HeartDataComeFlashColor.SetValue(getModConfig().HeartDataComeFlashColor.GetDefaultValue());
-                
+                FlashColorPicker->set_currentColor(getModConfig().HeartDataComeFlashColor.GetDefaultValue());
+
+                getModConfig().HeartReplayDataComeFlashColor.SetValue(getModConfig().HeartReplayDataComeFlashColor.GetDefaultValue());
+                ReplayFlashColorPicker->set_currentColor(getModConfig().HeartReplayDataComeFlashColor.GetDefaultValue());
+
                 getModConfig().HeartDataComeFlashDuration.SetValue(getModConfig().HeartDataComeFlashDuration.GetDefaultValue());
-                FlashDur->currentValue = getModConfig().HeartDataComeFlashDuration.GetDefaultValue();
+                FlashDur->__set_currentValue(getModConfig().HeartDataComeFlashDuration.GetDefaultValue());
+                FlashDur->UpdateState();
             });
 
             static char osc_port[4096];

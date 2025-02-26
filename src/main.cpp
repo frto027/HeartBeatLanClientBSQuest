@@ -24,6 +24,7 @@
 
 #include "i18n.hpp"
 #include <cstddef>
+#include "BeatLeaderRecorder.hpp"
 
 static modloader::ModInfo modInfo = {MOD_ID, VERSION, 0}; // Stores the ID and version of our mod, and is sent to the modloader upon startup
 
@@ -100,5 +101,8 @@ extern "C" void late_load() {
     getLogger().info("Installing hooks...");
     INSTALL_HOOK(getLogger(), GameplayCoreHook);
 
-    getLogger().info("Installed all hooks!");
+    getLogger().info("init recorder...");
+    HeartBeat::Recorder::Init();
+
+    getLogger().info("Done.");
 }

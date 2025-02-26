@@ -18,6 +18,7 @@
 #include "beatsaber-hook/shared/utils/il2cpp-utils.hpp"
 #include "main.hpp"
 #include "scotland2/shared/modloader.h"
+#include "BeatLeaderRecorder.hpp"
 
 #define DEX_PATH "/sdcard/ModData/com.beatgames.beatsaber/Mods/HeartBeatQuest/HeartBeatBLEReader.dex"
 
@@ -28,6 +29,7 @@ DECLARE_DATA_SOURCE(HeartBeatOSCDataSource)
 HeartBeatOSCDataSource * oscDataSource;
 
 HeartBeatOSCDataSource::HeartBeatOSCDataSource(){
+    Recorder::heartDeviceName = HEART_DEV_NAME_OSC;
     this->CreateSocket();
 }
 
