@@ -26,6 +26,7 @@ bool needRecord = false;
 bool recordStarted = false;
 bool isPaused = false;
 
+// the replay is not supported for this version
 bool replayStarted = false;
 int nextDataToReplay = 0;
 
