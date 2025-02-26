@@ -83,7 +83,7 @@ void RecordCallback(std::string name, int* length, void** data){
         PushUInt32(recordData[i].heartrate);
     }
 
-    if(getModConfig().RecordDevName.GetValue()){
+    if(getModConfig().EnableRecord.GetValue() && getModConfig().RecordDevName.GetValue()){
         PushStr(heartDeviceName.c_str());
     }else{
         PushStr(HEART_DEV_NAME_HIDE);
