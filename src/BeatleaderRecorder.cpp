@@ -30,6 +30,10 @@ bool isPaused = false;
 bool replayStarted = false;
 int nextDataToReplay = 0;
 
+//don't record too often
+float_t lastRecordSongTime = -1000;
+#define MIN_REDORD_TIME_INVERVAL 0.3f
+
 struct RecordEntry{
     float timestamp;
     unsigned int heartrate;
@@ -110,17 +114,28 @@ inline bool UploadDisabledByReplay() {
 MAKE_HOOK_MATCH(SinglePlayerInstallBindings, &GlobalNamespace::GameplayCoreInstaller::InstallBindings, void, GlobalNamespace::GameplayCoreInstaller* self) {
     SinglePlayerInstallBindings(self);
 
-    if(UploadDisabledByReplay() || !(getModConfig().EnableRecord.GetValue())){
+    auto DisableRecord = [](){
         recordStarted = false;
         isPaused = false;
         recordData.clear();
+    };
+
+    if(UploadDisabledByReplay()){
+        DisableRecord();
         getLogger().info("this is a replay, don't start record.");
+        return;
+    }
+
+    if(!(getModConfig().EnableRecord.GetValue())){
+        DisableRecord();
+        getLogger().info("the player doesn't enable record, don't start record.");
         return;
     }
 
     getLogger().info("start record heart infos");
     recordData.clear();
     recordStarted = true;
+    lastRecordSongTime = -1000;
     isPaused = false;
 }
 
@@ -151,6 +166,12 @@ void Init(){
 
 void RecordDataIfNeeded(int heartrate){
     if(needRecord && audioTimeSyncController && recordStarted && !isPaused){
+        float_t now = audioTimeSyncController->songTime;
+
+        if(now >= lastRecordSongTime && now < lastRecordSongTime + MIN_REDORD_TIME_INVERVAL)
+            return;
+        lastRecordSongTime = now;
+        // getLogger().info("recording {} {}", audioTimeSyncController->songTime, heartrate);
         recordData.emplace_back(audioTimeSyncController->songTime, heartrate);
     }
 }
