@@ -25,5 +25,8 @@ public:
     float flash_remains;
     void GoToGameCorePos();
     void GoToMainMenuPos();
-    void FlashColor();
+    void FlashColor(int dataHint);
+
+private:
+    void SetColor(float percent, int dataHint);
 );

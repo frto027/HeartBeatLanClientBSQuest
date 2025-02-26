@@ -36,6 +36,53 @@ namespace HeartBeat{
         this->flash_remains = 0;
     }
 
+    enum HeartRateZone{
+        Zone0, // None, lower than 50%
+        Zone1, // 50% - 60%
+        Zone2, // 60% - 70%
+        Zone3, // 70% - 80%
+        Zone4, // 80% - 90%
+        Zone5  // 90% - 100%
+    };
+
+    HeartRateZone GetZone(int heart){
+        int Maximum = 220 - getModConfig().Age.GetValue();
+        int area = heart * 10 / Maximum;
+        if(area >= 9)
+            return Zone5;
+        switch(area){
+            case 8:return Zone4;
+            case 7:return Zone3;
+            case 6:return Zone2;
+            case 5:return Zone1;
+            default:return Zone0;
+        }
+    }
+
+    void HeartBeatObj::SetColor(float percent, int dataHint){
+        //percent = 0 : Normal
+        //percent = 1 : Data Come and flash
+        auto & conf = getModConfig();
+
+        UnityEngine::Color TextColor,FlashColor;
+        // auto Zone = GetZone(dataHint);
+        // switch(Zone){
+        // #define CASE(Zone) case Zone : TextColor = conf.HeartTextColor##Zone.GetValue(); break;
+        //     CASE(Zone0)
+        //     CASE(Zone1)
+        //     CASE(Zone2)
+        //     CASE(Zone3)
+        //     CASE(Zone4)
+        //     CASE(Zone5)
+        // #undef CASE
+        // }
+
+        TextColor = conf.HeartTextColor.GetValue();
+        FlashColor = conf.HeartDataComeFlashColor.GetValue();
+
+        text->set_color(UnityEngine::Color::Lerp(TextColor, FlashColor, percent));
+    }
+
     void HeartBeatObj::Update(){
         if(this->gameObject->activeInHierarchy == false)
             return;
@@ -61,7 +108,7 @@ namespace HeartBeat{
             }
             
             text->set_text(buff);
-            FlashColor();
+            FlashColor(data);
         }
         
         if(flash_remains > 0){
@@ -73,19 +120,18 @@ namespace HeartBeat{
             float total_time = conf.HeartDataComeFlashDuration.GetValue();
             float r = flash_remains / total_time;
             if(total_time > 0){
-                text->set_color(UnityEngine::Color::Lerp(conf.HeartTextColor.GetValue(), conf.HeartDataComeFlashColor.GetValue(), 
-                    r));
+                SetColor(r, data);
             }
         }
     }
 
-    void HeartBeatObj::FlashColor(){
+    void HeartBeatObj::FlashColor(int dataHint){
         auto & conf = getModConfig();
         flash_remains = conf.HeartDataComeFlashDuration.GetValue();
         if(flash_remains < 0.01){
             flash_remains = 0;
             return;
         }
-        text->set_color(conf.HeartDataComeFlashColor.GetValue());
+        SetColor(1, dataHint);
     }
 };

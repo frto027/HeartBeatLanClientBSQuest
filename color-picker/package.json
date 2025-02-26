@@ -1,0 +1,11 @@
+{
+  "name": "color-picker",
+  "version": "1.0.0",
+  "description": "more easy to edit mod config colors for the mod",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index.js"
+  },
+  "author": "frto027",
+  "license": "MIT"
+}
