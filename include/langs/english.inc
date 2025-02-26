@@ -44,4 +44,4 @@ V(data_source_osc, "OSC")
 
 
 V(enable_record, "Enable Record")
-V(record_dev_name, "Record Device Name")
+V(record_dev_name, "Save Device Name To Record")
