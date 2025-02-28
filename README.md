@@ -23,11 +23,13 @@ More accurately, it requires the game has the following permission
 
 > OSC Protocol is supported, bluetooth permission is not required
 
-Use your favorite heart rate OSC senders, send to the port 9000 for your quest device.
+Use your favorite heart rate OSC senders, send to the port 9000 for your quest device.**If your sender program is not supported by this mod, please [let me know](https://github.com/frto027/HeartBeatLanClientBSQuest/issues).**
 
-The port will be show at the mod setthings menu, and can edit via config file. 
+After you change the data source to OSC in the setthings menu, the port will be show at the menu, and can edit manually via config file if you need. 
 
-You can also use [this android apk](https://github.com/frto027/HeartbeatLanServer/releases/latest) to send osc data from your android phone, or install it on your quest device directly and send to `127.0.0.1:9000`.
+You can also use [this android apk](https://github.com/frto027/HeartbeatLanServer/releases/latest) to send osc data from your android phone, or install it on your quest device directly and send to `127.0.0.1:9000`. 
+
+This apk does not extend the device compatability, because it read bluetooth data just like what the mod does in game. If your heart monitor device is not supported, you may need some other program to convert their data to OSC protocol, or try to enable something like bluetooth broadcast in your monitor device. **I also have plan to support [gadgetbridge](https://gadgetbridge.org/), which may extend the device compatability. If you need it, please [let me know](https://github.com/frto027/HeartBeatLanClientBSQuest/issues).**
 
 # Alternative way(don't use it if other way works for you)
 <details>
