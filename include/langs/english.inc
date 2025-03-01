@@ -45,3 +45,8 @@ V(data_source_osc, "OSC")
 
 V(enable_record, "Enable Record")
 V(record_dev_name, "Save Device Name To Record")
+
+V(age, "Age")
+
+V(select_ui, "Select UI")
+V(max_heart, "Max Heartrate")

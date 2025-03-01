@@ -70,15 +70,16 @@ public class HeartController : MonoBehaviour
     void DataCome(int heart)
     {
         int age = 25;
-        float heartzone = heart * 10 / (220 - age);
+        float maxheart = 220 - age;
+        float precent = heart / maxheart;
 
         foreach (var tm in heartRateTexts)
             tm.text = "" + heart;
         if (animator)
         {
-            animator.SetTrigger("datacome");
-            animator.SetFloat("heartzone", heartzone);
+            animator.SetFloat("heartpercent", precent);
             animator.SetInteger("heartrate", heart);
+            animator.SetTrigger("datacome");
         }
     }
 

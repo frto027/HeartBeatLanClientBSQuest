@@ -88,11 +88,13 @@ namespace SetthingUI{
 
 
             BSML::Lite::CreateText(container->get_transform(),LANG->mod_version, 4, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4});
-
             
             BSML::Lite::CreateToggle(container->get_transform(), LANG->enabled, getModConfig().Enabled.GetValue(), [](bool v){
                 getModConfig().Enabled.SetValue(v);
             });
+
+            if(ModEnabled == false)
+                return;
 
             BSML::Lite::CreateToggle(container->get_transform(), LANG->enable_record, getModConfig().EnableRecord.GetValue(), [](bool v){
                 getModConfig().EnableRecord.SetValue(v);
@@ -101,9 +103,6 @@ namespace SetthingUI{
                 getModConfig().RecordDevName.SetValue(v);
             });
 
-
-            if(ModEnabled == false)
-                return;
 
             self->add_didDeactivateEvent(custom_types::MakeDelegate<HMUI::ViewController::DidDeactivateDelegate*>(std::function([](bool removedFromHierarchy, bool screenSystemDisabling){
                 MainMenuPreviewObject->set_active(false);
@@ -117,13 +116,27 @@ namespace SetthingUI{
                     getModConfig().ModLang.SetValue(v);
                 } );
 
+            // the age is just used to provide a default value for maxheart
+            static BSML::IncrementSetting * MaxHeartIncr;
+            BSML::Lite::CreateIncrementSetting(container->get_transform(),
+                LANG->age, 0, 1, getModConfig().Age.GetValue(), [](float v){
+                    getModConfig().Age.SetValue(v);
+                    MaxHeartIncr->set_Value(220 - v);
+                    MaxHeartIncr->UpdateState();
+                    getModConfig().MaxHeart.SetValue(220 - v);
+                });
+            MaxHeartIncr = BSML::Lite::CreateIncrementSetting(container->get_transform(),
+                LANG->max_heart, 0, 1, getModConfig().MaxHeart.GetValue(), [](float v){
+                    getModConfig().MaxHeart.SetValue(v);
+                });
+
             std::vector<std::string_view> ui_s;
             for(auto& pair : HeartBeat::assetBundleMgr.loadedBundles){
                 ui_s.push_back(pair.first);
             }
 
             BSML::Lite::CreateDropdown(container->get_transform(),
-                "UI", getModConfig().SelectedUI.GetValue(), ui_s, [](StringW v){
+                LANG->select_ui, getModConfig().SelectedUI.GetValue(), ui_s, [](StringW v){
                     if(getModConfig().SelectedUI.GetValue() != v){
                         getModConfig().SelectedUI.SetValue(v);
                         UnityEngine::Object::Destroy(MainMenuPreviewObject.ptr());

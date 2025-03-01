@@ -43,14 +43,19 @@ namespace HeartBeat{
 
         int data;
         if(HeartBeat::ApiInternal::GetData(&data)){
+            int Maximum = 220 - getModConfig().MaxHeart.GetValue();
+            float percent = ((float)data) / Maximum;
+
+
             char buff[256];
             sprintf(buff, "%d", data);
             for(auto text : loadedComponents.heartrateTexts)
                 text->set_text(buff);
             if(loadedComponents.animator){
-                loadedComponents.animator->SetTrigger("datacome");
+                //loadedComponents.animator->SetInteger("age", 25);
                 loadedComponents.animator->SetInteger("heartrate", data);
-                loadedComponents.animator->SetFloat("heartzone", 0);//TODO
+                loadedComponents.animator->SetFloat("heartpercent", percent);
+                loadedComponents.animator->SetTrigger("datacome");
             }
         }
     }

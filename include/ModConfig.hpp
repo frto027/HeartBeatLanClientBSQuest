@@ -23,6 +23,9 @@ DECLARE_CONFIG(ModConfig,
 
     CONFIG_VALUE(DisplayEnergy, bool, "Display Energy", true);
 
+    CONFIG_VALUE(Age, int, "Age", 25);
+    CONFIG_VALUE(MaxHeart, int, "MaxHeart", 220 - 25);
+
     CONFIG_VALUE(DataSourceType, int, "DataSourceType", 2);
 
     CONFIG_VALUE(OSCPort, int, "OSC Port", 9000);
