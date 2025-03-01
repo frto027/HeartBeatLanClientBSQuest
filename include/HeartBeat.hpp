@@ -2,28 +2,44 @@
 
 #include "TMPro/TextMeshProUGUI.hpp"
 #include "UnityEngine/MonoBehaviour.hpp"
-#include "beatsaber-hook/shared/utils/il2cpp-functions.hpp"
 #include "custom-types/shared/macros.hpp"
 #include "TMPro/TextMeshPro.hpp"
+#include <map>
+#include "UnityEngine/Animator.hpp"
+
+
+namespace HeartBeat{
+
+struct AssetUI{
+    std::map<std::string, std::string> infos;
+    SafePtr<UnityEngine::GameObject> prefab;
+};
+
+struct AssetBundleInstinateInformation{
+    std::vector<TMPro::TMP_Text*> heartrateTexts;
+    UnityEngine::Animator * animator;
+    UnityEngine::GameObject * gameObject;
+};
+struct AssetBundleManager{
+    bool initialized = false;
+
+    std::map<std::string, AssetUI> loadedBundles;
+    void Init();
+
+    bool Instantiate(std::string name, UnityEngine::Transform * parent, AssetBundleInstinateInformation & result);
+};
+
+extern AssetBundleManager assetBundleMgr;
+
+}
+
 
 // parameters are (namespace, class name, parent class, contents)
-#define HEARTBEAT_STATUS_MAINMENU 1
-#define HEARTBEAT_STATUS_GAMECORE 2
-#define HEARTBEAT_STATUS_HIDE 3
 DECLARE_CLASS_CODEGEN(HeartBeat, HeartBeatObj, UnityEngine::MonoBehaviour,
     // DECLARE_INSTANCE_METHOD creates methods
-    DECLARE_INSTANCE_METHOD(void, Start);
     DECLARE_INSTANCE_METHOD(void, Update);
-
-    // DECLARE_INSTANCE_METHOD(void, SetStatus,int status);
-    // DECLARE_INSTANCE_FIELD creates fields
-    //DECLARE_INSTANCE_FIELD(int, counts);
 public:
-    TMPro::TextMeshProUGUI* text;
-    int status;
-
-    float flash_remains;
-    void GoToGameCorePos();
-    void GoToMainMenuPos();
-    void FlashColor();
+    AssetBundleInstinateInformation loadedComponents;
 );
+
+

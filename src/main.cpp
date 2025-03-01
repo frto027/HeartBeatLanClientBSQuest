@@ -50,24 +50,37 @@ Paper::ConstLoggerContext<21> & getLogger(){
     static Paper::ConstLoggerContext<21> logger = Paper::ConstLoggerContext("HeartBeatLanReceiver");
     return logger;
 }
-UnityEngine::GameObject * MainMenuPreviewObject = nullptr;
+SafePtr<UnityEngine::GameObject> MainMenuPreviewObject = nullptr;
 MAKE_HOOK_MATCH(GameplayCoreHook, &GlobalNamespace::CoreGameHUDController::Initialize, void, GlobalNamespace::CoreGameHUDController * self, GlobalNamespace::CoreGameHUDController::InitData * data){
     GameplayCoreHook(self, data);
 
     if(MainMenuPreviewObject)
         MainMenuPreviewObject->set_active(false);
 
-    UnityEngine::GameObject * EnergyGo = self->get_energyPanelGo();
-    auto text = BSML::Lite::CreateText(EnergyGo->get_transform(), "");
-    auto rect = text->get_rectTransform();
-    rect->SetParent(EnergyGo->transform, false);
-    rect->anchoredPosition = {0.5, 0.5};
-    rect->sizeDelta = {180, 20};
+    HeartBeat::assetBundleMgr.Init();
 
-    text->color = getModConfig().HeartTextColor.GetValue();
-    text->fontSize = 10;
-    text->set_alignment(TMPro::TextAlignmentOptions::MidlineLeft);
-    text->get_gameObject()->AddComponent<HeartBeat::HeartBeatObj*>();
+
+    std::string SelectedUI = getModConfig().SelectedUI.GetValue();
+    if(!HeartBeat::assetBundleMgr.loadedBundles.contains(SelectedUI))
+        SelectedUI = "Default";
+    if(!HeartBeat::assetBundleMgr.loadedBundles.contains(SelectedUI)){
+        getLogger().error("Can't find ui asset bundle '{}' to load!", SelectedUI);
+        return;
+    }
+
+    UnityEngine::GameObject * parent = self->get_energyPanelGo();
+    auto & assetUI = HeartBeat::assetBundleMgr.loadedBundles[SelectedUI];
+    if(assetUI.infos.contains("root")){
+        std::string root_str = assetUI.infos["root"];
+        if(root_str == "energyPanelGo") parent = self->get_energyPanelGo();
+        else if(root_str == "songProgressPanelGO") parent = self->get_songProgressPanelGO();
+        else if(root_str == "relativeScoreGo") parent = self->get_relativeScoreGo();
+        else if(root_str == "immediateRankGo") parent = self->get_immediateRankGo();
+        else getLogger().info("unknown position {}, attach it to energyPanelGo", root_str);
+    }
+    HeartBeat::AssetBundleInstinateInformation result;
+    HeartBeat::assetBundleMgr.Instantiate(SelectedUI, parent->get_transform(), result);
+    result.gameObject->AddComponent<HeartBeat::HeartBeatObj*>()->loadedComponents = result;
 
     static int firstInitialize = true;
     if(firstInitialize){

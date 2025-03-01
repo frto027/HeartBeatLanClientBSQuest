@@ -22,28 +22,13 @@
 
 #include "BeatLeaderRecorder.hpp"
 
+#include "UnityEngine/AssetBundle.hpp"
+#include "stdio.h"
 DEFINE_TYPE(HeartBeat, HeartBeatObj);
 
 #define GAMECORE_DEFAULT_TEXT "???\nbpm"
 
 namespace HeartBeat{
-    void HeartBeatObj::Start(){
-        text = this->GetComponent<TMPro::TextMeshProUGUI*>();
-        if(text == nullptr){
-            getLogger().info("the text create failed.!");
-        }else{
-            // text->set_text("??? bpm");
-            // text->set_color(getModConfig().HeartTextColor.GetValue());
-            getLogger().info("the text has craeted!");
-        }
-
-        this->flash_remains = 0;
-    }
-
-    inline UnityEngine::Color GetFlashColor(ModConfig_t & conf){
-        return HeartBeat::Recorder::isReplaying() ? conf.HeartReplayDataComeFlashColor.GetValue() : conf.HeartDataComeFlashColor.GetValue();
-    }
-
     void HeartBeatObj::Update(){
         if(this->gameObject->activeInHierarchy == false)
             return;
@@ -58,42 +43,126 @@ namespace HeartBeat{
 
         int data;
         if(HeartBeat::ApiInternal::GetData(&data)){
-            char buff[1024];
-            
-            if(false && getModConfig().DisplayEnergy.GetValue()){
-                //energy not work, maybe something is missed in bluetooth protocol
-                long long energy = HeartBeat::DataSource::getInstance()->GetEnergy();
-                sprintf(buff, "% 3d bpm\n% 3lld KJ", data, energy);
-            }else{
-                sprintf(buff, "% 3d bpm", data);
-            }
-            
-            text->set_text(buff);
-            FlashColor();
-        }
-        
-        if(flash_remains > 0){
-            flash_remains -= UnityEngine::Time::get_deltaTime();
-            if(flash_remains < 0){
-                flash_remains = 0;
-            }
-            auto & conf = getModConfig();
-            float total_time = conf.HeartDataComeFlashDuration.GetValue();
-            float r = flash_remains / total_time;
-            if(total_time > 0){
-                text->set_color(UnityEngine::Color::Lerp(conf.HeartTextColor.GetValue(),  GetFlashColor(conf), 
-                    r));
+            char buff[256];
+            sprintf(buff, "%d", data);
+            for(auto text : loadedComponents.heartrateTexts)
+                text->set_text(buff);
+            if(loadedComponents.animator){
+                loadedComponents.animator->SetTrigger("datacome");
+                loadedComponents.animator->SetInteger("heartrate", data);
+                loadedComponents.animator->SetFloat("heartzone", 0);//TODO
             }
         }
-    }
-
-    void HeartBeatObj::FlashColor(){
-        auto & conf = getModConfig();
-        flash_remains = conf.HeartDataComeFlashDuration.GetValue();
-        if(flash_remains < 0.01){
-            flash_remains = 0;
-            return;
-        }
-        text->set_color(GetFlashColor(conf));
     }
 };
+
+#define ASSET_UI_PATH "/sdcard/ModData/com.beatgames.beatsaber/Mods/HeartBeatQuest/UI/"
+
+bool endsWith(const char * a, const char *b){
+    size_t lena = strlen(a);
+    size_t lenb = strlen(b);
+    if(lena < lenb)
+        return false;
+    if(strcmp(a + lenb, b) == 0)
+        return true;
+    return false;
+}
+
+namespace HeartBeat{
+    AssetBundleManager assetBundleMgr;
+    
+    
+    void AssetBundleManager::Init(){
+        if(initialized)return;
+        initialized = true;
+
+        auto LoadAssetBundle = [this](UnityW<UnityEngine::AssetBundle> bundle){
+            for(auto name : bundle->GetAllAssetNames()){
+                auto gameObject = bundle->LoadAsset<UnityEngine::GameObject*>(name);
+                if(gameObject){
+                    auto info = gameObject->get_transform()->Find("info");
+                    if(!info)
+                        continue;
+                    
+                    AssetUI assetUI = {};
+
+                    for(int i=0;i<info->get_childCount();i++){
+                        auto name = info->GetChild(i)->get_name();
+                        if(name){
+                            auto col = name->IndexOf(':');
+                            if(col > 0){
+                                auto key = name->Substring(0, col);
+                                auto val = name->Substring(col+1);
+                                assetUI.infos[std::string(key)] = std::string(val);
+                            }
+                        }
+                    }
+                    
+                    std::string name = "NoName";
+                    if(assetUI.infos.contains("name"))
+                        name = assetUI.infos["name"];
+                    if(loadedBundles.contains(name)){
+                        size_t malloc_size = name.size() + 10;
+                        char * buff = (char*)malloc(malloc_size);
+                        for(int i=0;i<100;i++){
+                            sprintf(buff, "%s %d", name.c_str(), i);
+                            if(!loadedBundles.contains(buff))
+                                break;
+                        }
+                        name = buff;
+                        free(buff);
+                    }
+                    if(loadedBundles.contains(name)){
+                        continue;
+                    }
+                    assetUI.prefab = gameObject;
+                    getLogger().info("Loaded UI {}", name);
+                    loadedBundles.insert({name, assetUI});
+                }
+            }
+        };
+
+        #include "DefaultUI.inl"
+
+        auto AssetBundle_LoadFromMemory = (function_ptr_t<UnityEngine::AssetBundle*,ArrayW<uint8_t>, uint32_t>)CRASH_UNLESS(il2cpp_functions::resolve_icall("UnityEngine.AssetBundle::LoadFromMemory"));
+        ArrayW<uint8_t> data(sizeof(default_ui));
+        memmove(data->begin(), default_ui, sizeof(default_ui));
+        try{
+            LoadAssetBundle(AssetBundle_LoadFromMemory(data, 0));
+        }catch(...){
+            getLogger().error("Can't load default ui");
+        }
+
+        if(std::filesystem::is_directory(ASSET_UI_PATH)){
+            std::filesystem::directory_iterator it(ASSET_UI_PATH);
+            if(it->is_regular_file() && endsWith(it->path().c_str(), ".bundle")){
+                try{
+                    LoadAssetBundle(UnityEngine::AssetBundle::LoadFromFile(it->path().c_str()));
+                }catch(...){
+                    getLogger().error("Can't load asset file {}", it->path().c_str());
+                }
+            }
+        }
+
+    }
+
+    bool AssetBundleManager::Instantiate(std::string name, UnityEngine::Transform * parent, AssetBundleInstinateInformation & result){
+        if(!loadedBundles.contains(name))
+            return false;
+        auto & assetUI = loadedBundles[name];
+        auto gameobject = UnityEngine::Object::Instantiate(UnityW<UnityEngine::GameObject>(assetUI.prefab.ptr()) /* This gameobject will not be GC if we use it, be careful. */);
+        auto FindAll = [&](UnityEngine::Transform * transform){
+            if(transform->get_tag()->Equals("heartrate")){
+                auto tm = transform->GetComponent<TMPro::TMP_Text *>();
+                if(tm){
+                    result.heartrateTexts.push_back(tm);
+                }
+            }
+        };
+
+        FindAll(gameobject->get_transform());
+        result.animator = gameobject->GetComponent<UnityEngine::Animator*>();
+        result.gameObject = gameobject;
+        return true;
+    }
+}
