@@ -1,0 +1,7 @@
+ManifestFileVersion: 0
+CRC: 118440173
+AssetBundleManifest:
+  AssetBundleInfos:
+    Info_0:
+      Name: defaultwidget
+      Dependencies: {}
