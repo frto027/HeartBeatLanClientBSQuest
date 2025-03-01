@@ -49,7 +49,8 @@ namespace SetthingUI{
     }
 
     void EnsurePreviewObject(){
-        if(MainMenuPreviewObject.ptr() == nullptr){
+        if(!MainMenuPreviewObject){
+            HeartBeat::assetBundleMgr.Init();
             auto obj = UnityEngine::GameObject::New_ctor();
             UnityEngine::Object::DontDestroyOnLoad(obj);
             auto canvas = obj->AddComponent<UnityEngine::Canvas*>();
@@ -79,7 +80,6 @@ namespace SetthingUI{
     void DidSetthingsActivate(HMUI::ViewController* self, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
         if(ModEnabled)
             EnsurePreviewObject();
-        
         if(firstActivation) {
             HeartBeat::assetBundleMgr.Init();
             setthings_controller = self;
@@ -105,7 +105,7 @@ namespace SetthingUI{
 
 
             self->add_didDeactivateEvent(custom_types::MakeDelegate<HMUI::ViewController::DidDeactivateDelegate*>(std::function([](bool removedFromHierarchy, bool screenSystemDisabling){
-                MainMenuPreviewObject->set_active(false);
+                if(MainMenuPreviewObject) MainMenuPreviewObject->set_active(false);
             })));
             std::vector<std::string_view> languages = {
                 "auto",
@@ -139,8 +139,10 @@ namespace SetthingUI{
                 LANG->select_ui, getModConfig().SelectedUI.GetValue(), ui_s, [](StringW v){
                     if(getModConfig().SelectedUI.GetValue() != v){
                         getModConfig().SelectedUI.SetValue(v);
-                        UnityEngine::Object::Destroy(MainMenuPreviewObject.ptr());
-                        MainMenuPreviewObject = nullptr;
+                        if(MainMenuPreviewObject){
+                            UnityEngine::Object::Destroy(MainMenuPreviewObject.ptr());
+                            MainMenuPreviewObject = nullptr;
+                        }
                         EnsurePreviewObject();
                     }
                 }
@@ -327,7 +329,7 @@ namespace SetthingUI{
             EnsurePreviewObject();
             if(firstActivation) {
                 self->add_didDeactivateEvent(custom_types::MakeDelegate<HMUI::ViewController::DidDeactivateDelegate*>(std::function([](bool removedFromHierarchy, bool screenSystemDisabling){
-                    MainMenuPreviewObject->set_active(false);
+                    if(MainMenuPreviewObject) MainMenuPreviewObject->set_active(false);
                 })));
                 servers_controller = self;
                 // Create a container that has a scroll bar
@@ -343,7 +345,7 @@ namespace SetthingUI{
             EnsurePreviewObject();
             if(firstActivation) {
                 self->add_didDeactivateEvent(custom_types::MakeDelegate<HMUI::ViewController::DidDeactivateDelegate*>(std::function([](bool removedFromHierarchy, bool screenSystemDisabling){
-                    MainMenuPreviewObject->set_active(false);
+                    if(MainMenuPreviewObject) MainMenuPreviewObject->set_active(false);
                 })));
                 devices_controller = self;
                 // Create a container that has a scroll bar
@@ -426,7 +428,7 @@ namespace SetthingUI{
             EnsurePreviewObject();
             if(firstActivation) {
                 self->add_didDeactivateEvent(custom_types::MakeDelegate<HMUI::ViewController::DidDeactivateDelegate*>(std::function([](bool removedFromHierarchy, bool screenSystemDisabling){
-                    MainMenuPreviewObject->set_active(false);
+                    if(MainMenuPreviewObject) MainMenuPreviewObject->set_active(false);
                 })));
                 devices_controller = self;
                 // Create a container that has a scroll bar
@@ -506,7 +508,7 @@ namespace SetthingUI{
             if(firstActivation) {
                 addrController = self;
                 self->add_didDeactivateEvent(custom_types::MakeDelegate<HMUI::ViewController::DidDeactivateDelegate*>(std::function([](bool removedFromHierarchy, bool screenSystemDisabling){
-                    MainMenuPreviewObject->set_active(false);
+                    if(MainMenuPreviewObject) MainMenuPreviewObject->set_active(false);
                 })));
                 devices_controller = self;
                 // Create a container that has a scroll bar

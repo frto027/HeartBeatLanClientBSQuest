@@ -50,7 +50,7 @@ Paper::ConstLoggerContext<21> & getLogger(){
     static Paper::ConstLoggerContext<21> logger = Paper::ConstLoggerContext("HeartBeatLanReceiver");
     return logger;
 }
-SafePtr<UnityEngine::GameObject> MainMenuPreviewObject = nullptr;
+SafePtrUnity<UnityEngine::GameObject> MainMenuPreviewObject = nullptr;
 MAKE_HOOK_MATCH(GameplayCoreHook, &GlobalNamespace::CoreGameHUDController::Initialize, void, GlobalNamespace::CoreGameHUDController * self, GlobalNamespace::CoreGameHUDController::InitData * data){
     GameplayCoreHook(self, data);
 

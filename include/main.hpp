@@ -16,4 +16,4 @@ class HeartBeatObj;
 Paper::ConstLoggerContext<21> & getLogger();
 
 extern bool ModEnabled;
-extern SafePtr<UnityEngine::GameObject> MainMenuPreviewObject;
+extern SafePtrUnity<UnityEngine::GameObject> MainMenuPreviewObject;

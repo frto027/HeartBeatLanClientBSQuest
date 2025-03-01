@@ -81,15 +81,16 @@ namespace HeartBeat{
         if(initialized)return;
         initialized = true;
 
-        auto LoadAssetBundle = [this](UnityW<UnityEngine::AssetBundle> bundle){
+        auto LoadAssetBundle = [this](UnityEngine::AssetBundle* bundle){
             for(auto name : bundle->GetAllAssetNames()){
-                auto gameObject = bundle->LoadAsset<UnityEngine::GameObject*>(name);
+                getLogger().info("Start load {}", name);
+                SafePtrUnity<UnityEngine::GameObject> gameObject = bundle->LoadAsset<UnityEngine::GameObject*>(name);
                 if(gameObject){
                     auto info = gameObject->get_transform()->Find("info");
                     if(!info)
                         continue;
                     
-                    AssetUI assetUI = {};
+                    std::map<std::string, std::string> infos = {};
 
                     for(int i=0;i<info->get_childCount();i++){
                         auto name = info->GetChild(i)->get_name();
@@ -98,14 +99,14 @@ namespace HeartBeat{
                             if(col > 0){
                                 auto key = name->Substring(0, col);
                                 auto val = name->Substring(col+1);
-                                assetUI.infos[std::string(key)] = std::string(val);
+                                infos[std::string(key)] = std::string(val);
                             }
                         }
                     }
                     
                     std::string name = "NoName";
-                    if(assetUI.infos.contains("name"))
-                        name = assetUI.infos["name"];
+                    if(infos.contains("name"))
+                        name = infos["name"];
                     if(loadedBundles.contains(name)){
                         size_t malloc_size = name.size() + 10;
                         char * buff = (char*)malloc(malloc_size);
@@ -120,20 +121,20 @@ namespace HeartBeat{
                     if(loadedBundles.contains(name)){
                         continue;
                     }
-                    assetUI.prefab = gameObject;
                     getLogger().info("Loaded UI {}", name);
-                    loadedBundles.insert({name, assetUI});
+                    loadedBundles.insert({name, {std::move(infos), std::move(gameObject)}});
+                    getLogger().info("Check {}", (void*)loadedBundles[name].prefab.ptr());
                 }
             }
         };
 
         #include "DefaultUI.inl"
-
-        auto AssetBundle_LoadFromMemory = (function_ptr_t<UnityEngine::AssetBundle*,ArrayW<uint8_t>, uint32_t>)CRASH_UNLESS(il2cpp_functions::resolve_icall("UnityEngine.AssetBundle::LoadFromMemory"));
+        auto AssetBundle_LoadFromMemory = (function_ptr_t<UnityEngine::AssetBundle*,ArrayW<uint8_t>, uint32_t>)CRASH_UNLESS(il2cpp_functions::resolve_icall("UnityEngine.AssetBundle::LoadFromMemory_Internal"));
         ArrayW<uint8_t> data(sizeof(default_ui));
-        memmove(data->begin(), default_ui, sizeof(default_ui));
+        memcpy(data->begin(), default_ui, sizeof(default_ui));
         try{
-            LoadAssetBundle(AssetBundle_LoadFromMemory(data, 0));
+            SafePtrUnity<UnityEngine::AssetBundle> bundle = AssetBundle_LoadFromMemory(data, 0);
+            LoadAssetBundle(bundle.ptr());
         }catch(...){
             getLogger().error("Can't load default ui");
         }
@@ -155,7 +156,8 @@ namespace HeartBeat{
         if(!loadedBundles.contains(name))
             return false;
         auto & assetUI = loadedBundles[name];
-        auto gameobject = UnityEngine::Object::Instantiate(UnityW<UnityEngine::GameObject>(assetUI.prefab.ptr()) /* This gameobject will not be GC if we use it, be careful. */);
+        getLogger().info("InstinateStart instinate {}", (void*)assetUI.prefab.ptr());
+        auto gameobject = UnityEngine::GameObject::Instantiate(assetUI.prefab.ptr(),parent);
         auto FindAll = [&](UnityEngine::Transform * transform){
             if(transform->get_tag()->Equals("heartrate")){
                 auto tm = transform->GetComponent<TMPro::TMP_Text *>();
@@ -164,7 +166,7 @@ namespace HeartBeat{
                 }
             }
         };
-
+        getLogger().info("InstinateDone");
         FindAll(gameobject->get_transform());
         result.animator = gameobject->GetComponent<UnityEngine::Animator*>();
         result.gameObject = gameobject;

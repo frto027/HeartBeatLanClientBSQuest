@@ -1,6 +1,7 @@
 #pragma once
 
 #include "TMPro/TextMeshProUGUI.hpp"
+#include "UnityEngine/AssetBundle.hpp"
 #include "UnityEngine/MonoBehaviour.hpp"
 #include "custom-types/shared/macros.hpp"
 #include "TMPro/TextMeshPro.hpp"
@@ -12,7 +13,7 @@ namespace HeartBeat{
 
 struct AssetUI{
     std::map<std::string, std::string> infos;
-    SafePtr<UnityEngine::GameObject> prefab;
+    SafePtrUnity<UnityEngine::GameObject> prefab = {nullptr};
 };
 
 struct AssetBundleInstinateInformation{
