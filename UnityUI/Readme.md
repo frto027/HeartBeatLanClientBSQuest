@@ -1,7 +1,7 @@
-# UI Customize Guide
+# UI Customize Guide (TL;DR)
 
 1. Open the `UnityUI/Scenes/SampleScene.unity` with `Unity 2021.3.16f1`, both PC and Android build should supported, and run the scene, you will see how default UI works.
-2. Edit the `Assets/DefaultWidget/DefaultWidget.prefab`.
+2. Edit the `Assets/DefaultWidget/DefaultWidget.prefab`. (btw. the color information is inside the `Assets/DefaultWidget/FlashAnim`)
 3. click `Assets > Build AssetBundles`, two files were generated. `AssetBundles/defaultwidget` is only for PC to preview, and `AssetBundlesAndroid/defaultwidget` is for quest use.
 4. copy the `AssetBundlesAndroid/defaultwidget` and rename it to your quest folder `/sdcard/ModData/com.beatgames.beatsaber/Mods/HeartBeatQuest/UI/<somename>.bundle`
 
