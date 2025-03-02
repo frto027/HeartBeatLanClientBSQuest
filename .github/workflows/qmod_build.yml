@@ -5,6 +5,7 @@ on:
     branches: [ "master" ]
     paths-ignore:
       - '*.md'
+      - 'UnityUI'
       - 'CHANGELOG'
   pull_request:
     branches: [ "master" ]
