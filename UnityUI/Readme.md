@@ -19,16 +19,16 @@ And with the following additional behavior:
 
 Avaliable `root` value:
 
--`energyPanelGo`
--`songProgressPanelGO`
--`relativeScoreGo`
--`immediateRankGo`
+-`energyPanelGo`  
+-`songProgressPanelGO`  
+-`relativeScoreGo`  
+-`immediateRankGo`  
 
 Animate Parameters:
 
-- `datacome`, trigger, triggered when heart rate date come
+- `datacome`, trigger, triggered when heart rate date come  
 - `heartrate`, integer, the heartrate
-- `heartpercent`, float, the value of `heartrate/maxheart`, it maybe larger than 1 if possible, you can use this to display heart zone informations.
+- `heartpercent`, float, the value of `heartrate/maxheart`, it maybe larger than 1 if possible, you can use this to display heart zone informations.  
 
 If you want another prefab, remember to change the AssetBundle options below.
 

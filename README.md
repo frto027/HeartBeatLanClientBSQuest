@@ -19,6 +19,32 @@ More accurately, it requires the game has the following permission
         android.permission.BLUETOOTH
         android.permission.BLUETOOTH_CONNECT
 
+# Default UI and DIY(not released yet)
+
+The color bar unter the number indicates your heart zone.
+
+![alt text](image.png)
+
+as a refer, here I lists what these color bar means.
+
+**This is not training advice, use at your own risk**
+
+
+**This is not training advice, use at your own risk**
+
+
+**This is not training advice, use at your own risk**
+
+- nothing: heart lower than 50%  
+- 1: heart 50% - 60%, very light  
+- 2：heart 60% - 70%, light  
+- 3: heart 70% - 80%, moderate  
+- 4: heart 80% - 90%, hard  
+- 5: heart more than 90%, maximum  
+
+
+This mod supports DIY Interface via Unity asset bundle, please refer to [UnityUI/Readme.md](UnityUI/Readme.md)
+
 # Alternative way
 
 > OSC Protocol is supported, bluetooth permission is not required
