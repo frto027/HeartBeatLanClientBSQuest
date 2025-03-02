@@ -7,14 +7,14 @@
 
 # How it works
 
-The quest mod uses the prefab just as `HeartController.cs`.
+The quest mod uses the prefab just as `HeartController.cs`. code says everything, read it if you need.
 
 And with the following additional behavior:
 
 - When loading asset bundle, every asset inside it will be scanned. And the game will only uses a prefab if it found a `name:xxxx` below `info` gameobject.
 - All TMP_Text fonts were replaced to the game fonts. If we don't do this, the font will invisible.
-- The mod will find a Animator for root gameobject. If found, the parameters will be set.
-- if a gameobject called `auto:heartrate` is found, their texts will be replaced to heart rate.
+- The mod will find a Animator for root gameobject. If found, the parameters will be set when data come.
+- if a gameobject called `auto:heartrate` is found, their texts will be replaced to heart rate when data come.
 - All gameobject name below `info` is used to record your information. The `name` will display in the mod menu. The `root` will indicate where your ui is been mounted.
 
 Avaliable `root` value:
@@ -40,7 +40,7 @@ I will describe how did I make the default prefab here, to make sure you missed 
 
 You can start with a empty unity 3d project.
 
-SampleScene is used to preview, it has a RootCanvas, and a Image called `energyGo` to simulate the internal game UI at the bottom. And energyGo added a `HeartController.cs` to simulate the mod does, code says everything, you can read it.
+SampleScene is used to preview, it has a RootCanvas, and a Image called `energyGo` to simulate the game UI at the bottom. And energyGo added a `HeartController.cs` to simulate the mod does.
 ![alt text](image-1.png)
 
  When UI loaded, our ui will attach to the energyGO as the parent, so just create a canvas below the energyGO and change it `RectTransform` to makesure it's at the right place.
@@ -55,7 +55,7 @@ The mod will search all `GameObject`, if they called `auto:heartrate`, it's cont
 
 ![alt text](image-4.png)
 
-You can't change the Font, because the mod will reset the font to the game used fond. If the mod not reset the font, all texts will be invisible. But you can use the font called `Teko-Medium SDF` to preview the effect in game, it's not a perfect preview, but mainly for word size preview.
+You can't change the Font, because the mod will reset the TMPs font to the game used fond. If the mod not reset the font, all texts will be invisible for some reason idk. But you can use the font called `Teko-Medium SDF` to preview the effect in game, it's not a perfect preview, but can be used to design the text size .
 
 The mod will find the Animator in the root prefab and control it, so add a Animator and animations to the root canvas. Do this with your Unity skills, we won't go into detail since this isn't a Unity tutorial.
 
@@ -71,7 +71,7 @@ You can add more information to the UI.
 The name is required, because the mod needs to display a name in the setthings UI. Please prevent duplicate name with other UI.
 
 ![alt text](image-9.png)
-Drag and drop the canvas to the assets, we got a prefab.
+Drag and drop the canvas to the assets, we got a prefab called Canvas.
 
 ![alt text](image-5.png)
 
@@ -79,4 +79,6 @@ Change the AssetBundle option to make sure it will be packed to the output.
 
 ![alt text](image-6.png)
 
-Then use `Assets > Build AssetBundles` to export the asset bundle. Remember to add a suffix `.bundle`, the game will filter
+You can set multiple prefabs to a same AssetBundle value, and they will be packed to a single file.
+
+Then use `Assets > Build AssetBundles` to export the asset bundle. Remember to add a suffix `.bundle`, the game will filter other files.
