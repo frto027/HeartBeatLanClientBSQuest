@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 
 //this is an example controller, it shows you how the mod uses the targetPrefab, which is in your asset bundle
@@ -22,39 +21,53 @@ public class HeartController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        var bundle = AssetBundle.LoadFromFile("Assets\\AssetBundles\\defaultwidget");
-        foreach ( var s in bundle.GetAllAssetNames())
+        if(targetPrefab != null)
         {
-            //Debug.Log(s);
-            var asset = bundle.LoadAsset<GameObject>(s);
-            var info = asset.transform.Find("info");
-            Debug.Log(info);
-            if (info != null)
+            target = Instantiate(targetPrefab, transform);
+        }
+        else
+        {
+            var bundle = AssetBundle.LoadFromFile("Assets\\AssetBundles\\defaultwidget");
+            foreach (var s in bundle.GetAllAssetNames())
             {
-                for(int i = 0; i < info.childCount; i++)
+                //Debug.Log(s);
+                var asset = bundle.LoadAsset<GameObject>(s);
+                var info = asset.transform.Find("info");
+                Debug.Log(info);
+                if (info != null)
                 {
-                    var child = info.GetChild(i);
-                    var comma = child.name.IndexOf(":");
-
-                    if(comma > 0)
+                    for (int i = 0; i < info.childCount; i++)
                     {
-                        var key = child.name.Substring(0, comma);
-                        var value = child.name.Substring(comma + 1);
-                        Debug.Log(key + ": " + value);
+                        var child = info.GetChild(i);
+                        var comma = child.name.IndexOf(":");
+
+                        if (comma > 0)
+                        {
+                            var key = child.name.Substring(0, comma);
+                            var value = child.name.Substring(comma + 1);
+                            Debug.Log(key + ": " + value);
+                        }
                     }
                 }
+                target = Instantiate(asset, transform);
+                break;
             }
-            target = Instantiate(asset, transform);
-            break;
         }
 
         void FindTag(Transform transform)
         {
-            if(transform.tag == "heartrate")
+            if(transform.name == "auto:heartrate")
             {
                 var tm = transform.GetComponent<TMP_Text>();
                 if (tm)
                     heartRateTexts.Add(tm);
+                
+                var font = tm.font;
+                Debug.Log(tm.font);
+                Debug.Log(font.material);
+                Debug.Log(font.material.shader);
+                var shader = tm.material.shader;
+                Debug.Log(shader);
             }
             for(int i = 0;i < transform.childCount; i++)
             {
@@ -62,7 +75,6 @@ public class HeartController : MonoBehaviour
             }
         }
 
-        //target = Instantiate(targetPrefab, transform);
         animator = target.GetComponent<Animator>();
         FindTag(target.transform);
     }
