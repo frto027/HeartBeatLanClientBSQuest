@@ -12,7 +12,7 @@ public class HeartController : MonoBehaviour
 
     GameObject target;
 
-    Animator animator;
+    List<Animator> animators = new List<Animator>();
 
     List<TMP_Text> heartRateTexts = new List<TMP_Text>();
 
@@ -69,13 +69,18 @@ public class HeartController : MonoBehaviour
                 var shader = tm.material.shader;
                 Debug.Log(shader);
             }
+
+            var anmt = transform.GetComponent<Animator>();
+            if (anmt)
+            {
+                animators.Add(anmt);
+            }
             for(int i = 0;i < transform.childCount; i++)
             {
                 FindTag(transform.GetChild(i));
             }
         }
 
-        animator = target.GetComponent<Animator>();
         FindTag(target.transform);
     }
 
@@ -87,11 +92,12 @@ public class HeartController : MonoBehaviour
 
         foreach (var tm in heartRateTexts)
             tm.text = "" + heart;
-        if (animator)
+        foreach (var anmt in animators)
         {
-            animator.SetFloat("heartpercent", precent);
-            animator.SetInteger("heartrate", heart);
-            animator.SetTrigger("datacome");
+            anmt.SetFloat("heartpercent", precent);
+            anmt.SetInteger("heartrate", heart);
+            anmt.SetTrigger("datacome");
+
         }
     }
 

@@ -2,6 +2,7 @@
 #include "TMPro/TextAlignmentOptions.hpp"
 #include "TMPro/TextMeshProUGUI.hpp"
 #include "TMPro/TextMeshPro.hpp"
+#include "UnityEngine/Animator.hpp"
 #include "UnityEngine/Color.hpp"
 #include "bsml/shared/BSML-Lite/Creation/Text.hpp"
 #include "main.hpp"
@@ -44,7 +45,7 @@ namespace HeartBeat{
 
         int data;
         if(HeartBeat::ApiInternal::GetData(&data)){
-            int Maximum = 220 - getModConfig().MaxHeart.GetValue();
+            int Maximum = getModConfig().MaxHeart.GetValue();
             float percent = ((float)data) / Maximum;
 
 
@@ -52,11 +53,11 @@ namespace HeartBeat{
             sprintf(buff, "%d", data);
             for(auto text : loadedComponents.heartrateTexts)
                 text->set_text(buff);
-            if(loadedComponents.animator){
+            for(auto anmt : loadedComponents.animators){
                 //loadedComponents.animator->SetInteger("age", 25);
-                loadedComponents.animator->SetInteger("heartrate", data);
-                loadedComponents.animator->SetFloat("heartpercent", percent);
-                loadedComponents.animator->SetTrigger("datacome");
+                anmt->SetInteger("heartrate", data);
+                anmt->SetFloat("heartpercent", percent);
+                anmt->SetTrigger("datacome");
             }
         }
     }
@@ -173,7 +174,10 @@ namespace HeartBeat{
                     result.heartrateTexts.push_back(tm);
                 }
             }
-
+            auto anmt = transform->GetComponent<UnityEngine::Animator*>();
+            if(anmt){
+                result.animators.push_back(anmt);
+            }
         }
         for(int i=0;i<transform->get_childCount();i++){
             HandleTransformsInBundle(result, transform->GetChild(i).ptr());
@@ -226,7 +230,6 @@ namespace HeartBeat{
         getLogger().info("InstinateDone");
         bundle->Unload(false);
         HandleTransformsInBundle(result, gameobject->get_transform());
-        result.animator = gameobject->GetComponent<UnityEngine::Animator*>();
         result.gameObject = gameobject;
         return true;
     }

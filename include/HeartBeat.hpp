@@ -19,7 +19,7 @@ struct AssetUI{
 
 struct AssetBundleInstinateInformation{
     std::vector<TMPro::TMP_Text*> heartrateTexts;
-    UnityEngine::Animator * animator;
+    std::vector<UnityEngine::Animator *> animators;
     UnityEngine::GameObject * gameObject;
 };
 struct AssetBundleManager{

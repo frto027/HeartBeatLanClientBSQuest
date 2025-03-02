@@ -13,7 +13,7 @@ And with the following additional behavior:
 
 - When loading asset bundle, every asset inside it will be scanned. And the game will only uses a prefab if it found a `name:xxxx` below `info` gameobject.
 - All TMP_Text fonts were replaced to the game fonts. If we don't do this, the font will invisible.
-- The mod will find a Animator for root gameobject. If found, the parameters will be set when data come.
+- The mod will find all Animator inside the prefab. If found, the parameters will be set when data come.
 - if a gameobject called `auto:heartrate` is found, their texts will be replaced to heart rate when data come.
 - All gameobject name below `info` is used to record your information. The `name` will display in the mod menu. The `root` will indicate where your ui is been mounted.
 
@@ -57,7 +57,7 @@ The mod will search all `GameObject`, if they called `auto:heartrate`, it's cont
 
 You can't change the Font, because the mod will reset the TMPs font to the game used fond. If the mod not reset the font, all texts will be invisible for some reason idk. But you can use the font called `Teko-Medium SDF` to preview the effect in game, it's not a perfect preview, but can be used to design the text size .
 
-The mod will find the Animator in the root prefab and control it, so add a Animator and animations to the root canvas. Do this with your Unity skills, we won't go into detail since this isn't a Unity tutorial.
+The mod will find every Animator in the prefab and control them. Do this with your Unity skills, we won't go into detail since this isn't a Unity tutorial.
 
 
 We could add more informathion to the scene. Create a empty GameObject called info. Disable it because we don't want it being rendered in the scene.
