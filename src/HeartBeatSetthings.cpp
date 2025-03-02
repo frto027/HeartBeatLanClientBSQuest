@@ -55,9 +55,11 @@ namespace SetthingUI{
             UnityEngine::Object::DontDestroyOnLoad(obj);
             auto canvas = obj->AddComponent<UnityEngine::Canvas*>();
             canvas->set_renderMode(UnityEngine::RenderMode::WorldSpace);
+            canvas->set_scaleFactor(0.001);
             auto crect = canvas->GetComponent<UnityEngine::RectTransform*>();
-            crect->position = {-0.5, 0.5, 3};
-            crect->sizeDelta = {1, 1};
+            crect->set_position({0, 1.5f, 3});
+            crect->set_anchoredPosition({0.5f,0.5f});
+            crect->set_localScale({0.01f,0.01f,0.01f});
 
             std::string SelectedUI = getModConfig().SelectedUI.GetValue();
             if(!HeartBeat::assetBundleMgr.loadedBundles.contains(SelectedUI))
@@ -87,7 +89,7 @@ namespace SetthingUI{
             auto *container = BSML::Lite::CreateScrollableSettingsContainer(self->get_transform());
 
 
-            BSML::Lite::CreateText(container->get_transform(),LANG->mod_version, 4, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4});
+            auto temp = BSML::Lite::CreateText(container->get_transform(),LANG->mod_version, 4, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4});
             
             BSML::Lite::CreateToggle(container->get_transform(), LANG->enabled, getModConfig().Enabled.GetValue(), [](bool v){
                 getModConfig().Enabled.SetValue(v);
@@ -140,7 +142,7 @@ namespace SetthingUI{
                     if(getModConfig().SelectedUI.GetValue() != v){
                         getModConfig().SelectedUI.SetValue(v);
                         if(MainMenuPreviewObject){
-                            UnityEngine::Object::Destroy(MainMenuPreviewObject.ptr());
+                            UnityEngine::Object::Destroy(MainMenuPreviewObject);
                             MainMenuPreviewObject = nullptr;
                         }
                         EnsurePreviewObject();

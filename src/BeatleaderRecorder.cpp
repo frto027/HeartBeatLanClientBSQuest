@@ -1,4 +1,5 @@
 #include "BeatLeaderRecorder.hpp"
+#include "HeartBeatDataSource.hpp"
 #include "conditional-dependencies/shared/main.hpp"
 #include <cstddef>
 #include <cstdint>
@@ -119,6 +120,13 @@ MAKE_HOOK_MATCH(SinglePlayerInstallBindings, &GlobalNamespace::GameplayCoreInsta
         isPaused = false;
         recordData.clear();
     };
+
+    if(dataSourceType == DS_RANDOM){
+        DisableRecord();
+        getLogger().info("random datasource will not enable record.");
+        return;
+
+    }
 
     if(UploadDisabledByReplay()){
         DisableRecord();

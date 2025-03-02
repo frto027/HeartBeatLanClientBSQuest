@@ -23,10 +23,11 @@
 #include "BeatLeaderRecorder.hpp"
 
 #include "UnityEngine/AssetBundle.hpp"
+#include "UnityEngine/Resources.hpp"
+#include "bsml/shared/Helpers/getters.hpp"
+
 #include "stdio.h"
 DEFINE_TYPE(HeartBeat, HeartBeatObj);
-
-#define GAMECORE_DEFAULT_TEXT "???\nbpm"
 
 namespace HeartBeat{
     void HeartBeatObj::Update(){
@@ -63,28 +64,31 @@ namespace HeartBeat{
 
 #define ASSET_UI_PATH "/sdcard/ModData/com.beatgames.beatsaber/Mods/HeartBeatQuest/UI/"
 
-bool endsWith(const char * a, const char *b){
-    size_t lena = strlen(a);
-    size_t lenb = strlen(b);
-    if(lena < lenb)
-        return false;
-    if(strcmp(a + lenb, b) == 0)
-        return true;
-    return false;
-}
-
 namespace HeartBeat{
     AssetBundleManager assetBundleMgr;
     
-    
+    #include "DefaultUI.inl"
+
+    void FixPrefab(UnityEngine::Transform * transform){
+        auto tm = transform->GetComponent<TMPro::TMP_Text *>();
+        if(tm){
+            tm->set_font(BSML::Helpers::GetMainTextFont());
+            tm->set_fontSharedMaterial(BSML::Helpers::GetMainUIFontMaterial());
+        }
+        for(int i=0;i<transform->get_childCount();i++){
+            FixPrefab(transform->GetChild(i).ptr());
+        }
+
+    }
+
     void AssetBundleManager::Init(){
         if(initialized)return;
         initialized = true;
 
-        auto LoadAssetBundle = [this](UnityEngine::AssetBundle* bundle){
-            for(auto name : bundle->GetAllAssetNames()){
-                getLogger().info("Start load {}", name);
-                SafePtrUnity<UnityEngine::GameObject> gameObject = bundle->LoadAsset<UnityEngine::GameObject*>(name);
+        auto LoadAssetBundle = [this](UnityEngine::AssetBundle* bundle, std::optional<std::string> filepath){
+            for(auto assetPath : bundle->GetAllAssetNames()){
+                getLogger().info("Start load {}", assetPath);
+                SafePtrUnity<UnityEngine::GameObject> gameObject = bundle->LoadAsset<UnityEngine::GameObject*>(assetPath);
                 if(gameObject){
                     auto info = gameObject->get_transform()->Find("info");
                     if(!info)
@@ -110,7 +114,7 @@ namespace HeartBeat{
                     if(loadedBundles.contains(name)){
                         size_t malloc_size = name.size() + 10;
                         char * buff = (char*)malloc(malloc_size);
-                        for(int i=0;i<100;i++){
+                        for(int i=2;i<100;i++){
                             sprintf(buff, "%s %d", name.c_str(), i);
                             if(!loadedBundles.contains(buff))
                                 break;
@@ -121,29 +125,32 @@ namespace HeartBeat{
                     if(loadedBundles.contains(name)){
                         continue;
                     }
-                    getLogger().info("Loaded UI {}", name);
-                    loadedBundles.insert({name, {std::move(infos), std::move(gameObject)}});
-                    getLogger().info("Check {}", (void*)loadedBundles[name].prefab.ptr());
+                    getLogger().info("Loaded UI, asset name: '{}'", name);
+                    loadedBundles.insert({name, {filepath, assetPath, std::move(infos)}});
                 }
             }
         };
 
-        #include "DefaultUI.inl"
         auto AssetBundle_LoadFromMemory = (function_ptr_t<UnityEngine::AssetBundle*,ArrayW<uint8_t>, uint32_t>)CRASH_UNLESS(il2cpp_functions::resolve_icall("UnityEngine.AssetBundle::LoadFromMemory_Internal"));
         ArrayW<uint8_t> data(sizeof(default_ui));
         memcpy(data->begin(), default_ui, sizeof(default_ui));
         try{
-            SafePtrUnity<UnityEngine::AssetBundle> bundle = AssetBundle_LoadFromMemory(data, 0);
-            LoadAssetBundle(bundle.ptr());
+            auto bundle = AssetBundle_LoadFromMemory(data, 0);
+            LoadAssetBundle(bundle, {});
+            bundle->Unload(true);
         }catch(...){
             getLogger().error("Can't load default ui");
         }
 
         if(std::filesystem::is_directory(ASSET_UI_PATH)){
             std::filesystem::directory_iterator it(ASSET_UI_PATH);
-            if(it->is_regular_file() && endsWith(it->path().c_str(), ".bundle")){
+            getLogger().info("Handling {}", it->path().c_str());
+            if(it->is_regular_file() && it->path().has_extension() && it->path().extension() == ".bundle"){
+                getLogger().info("GO!");
                 try{
-                    LoadAssetBundle(UnityEngine::AssetBundle::LoadFromFile(it->path().c_str()));
+                    auto bundle = UnityEngine::AssetBundle::LoadFromFile(it->path().c_str());
+                    LoadAssetBundle(bundle, it->path());
+                    bundle->Unload(true);
                 }catch(...){
                     getLogger().error("Can't load asset file {}", it->path().c_str());
                 }
@@ -152,22 +159,67 @@ namespace HeartBeat{
 
     }
 
+    void HandleTransformsInBundle(AssetBundleInstinateInformation & result, UnityEngine::Transform * transform){
+        {
+            auto tm = transform->GetComponent<TMPro::TMP_Text *>();
+            if(tm){
+                if(transform->get_name()->Equals("auto:heartrate")){
+                    result.heartrateTexts.push_back(tm);
+                }
+            }
+
+        }
+        for(int i=0;i<transform->get_childCount();i++){
+            HandleTransformsInBundle(result, transform->GetChild(i).ptr());
+        }
+    }
+
     bool AssetBundleManager::Instantiate(std::string name, UnityEngine::Transform * parent, AssetBundleInstinateInformation & result){
         if(!loadedBundles.contains(name))
             return false;
         auto & assetUI = loadedBundles[name];
-        getLogger().info("InstinateStart instinate {}", (void*)assetUI.prefab.ptr());
-        auto gameobject = UnityEngine::GameObject::Instantiate(assetUI.prefab.ptr(),parent);
-        auto FindAll = [&](UnityEngine::Transform * transform){
-            if(transform->get_tag()->Equals("heartrate")){
-                auto tm = transform->GetComponent<TMPro::TMP_Text *>();
-                if(tm){
-                    result.heartrateTexts.push_back(tm);
+
+        UnityEngine::AssetBundle * bundle = nullptr;
+        {
+            if(assetUI.filePath.has_value()){
+                try{
+                    bundle = UnityEngine::AssetBundle::LoadFromFile(assetUI.filePath.value());
+
+                }catch(...){
+                    getLogger().error("Can't load asset bundle {}", assetUI.filePath.value());
+                }
+            }else{
+                ArrayW<uint8_t> data(sizeof(default_ui));
+                memcpy(data->begin(), default_ui, sizeof(default_ui));
+                try{
+                    static std::optional<function_ptr_t<UnityEngine::AssetBundle*,ArrayW<uint8_t>, uint32_t>> AssetBundle_LoadFromMemory = {};
+                    if(!AssetBundle_LoadFromMemory.has_value())
+                        AssetBundle_LoadFromMemory = (function_ptr_t<UnityEngine::AssetBundle*,ArrayW<uint8_t>, uint32_t>)CRASH_UNLESS(il2cpp_functions::resolve_icall("UnityEngine.AssetBundle::LoadFromMemory_Internal"));
+
+                    bundle = AssetBundle_LoadFromMemory.value()(data, 0);
+                }catch(...){
+                    getLogger().error("Can't load default ui");
                 }
             }
-        };
+        }
+
+        if(bundle == nullptr){
+            getLogger().error("UI AssetBundle load failed");
+            return false;
+        }
+
+        UnityEngine::GameObject * prefab = bundle->LoadAsset<UnityEngine::GameObject *>(assetUI.AssetPath);
+        if(prefab == nullptr){
+            getLogger().error("Can't load prefab {}", assetUI.AssetPath);
+            bundle->Unload(true);
+            return false;
+        }
+
+        FixPrefab(prefab->get_transform());
+        auto gameobject = UnityEngine::GameObject::Instantiate(prefab, parent);
         getLogger().info("InstinateDone");
-        FindAll(gameobject->get_transform());
+        bundle->Unload(false);
+        HandleTransformsInBundle(result, gameobject->get_transform());
         result.animator = gameobject->GetComponent<UnityEngine::Animator*>();
         result.gameObject = gameobject;
         return true;

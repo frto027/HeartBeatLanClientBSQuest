@@ -50,7 +50,7 @@ Paper::ConstLoggerContext<21> & getLogger(){
     static Paper::ConstLoggerContext<21> logger = Paper::ConstLoggerContext("HeartBeatLanReceiver");
     return logger;
 }
-SafePtrUnity<UnityEngine::GameObject> MainMenuPreviewObject = nullptr;
+UnityEngine::GameObject* MainMenuPreviewObject = nullptr;
 MAKE_HOOK_MATCH(GameplayCoreHook, &GlobalNamespace::CoreGameHUDController::Initialize, void, GlobalNamespace::CoreGameHUDController * self, GlobalNamespace::CoreGameHUDController::InitData * data){
     GameplayCoreHook(self, data);
 
@@ -68,6 +68,8 @@ MAKE_HOOK_MATCH(GameplayCoreHook, &GlobalNamespace::CoreGameHUDController::Initi
         return;
     }
 
+    getLogger().info("Loading '{}' at game start", SelectedUI);
+
     UnityEngine::GameObject * parent = self->get_energyPanelGo();
     auto & assetUI = HeartBeat::assetBundleMgr.loadedBundles[SelectedUI];
     if(assetUI.infos.contains("root")){
@@ -78,10 +80,15 @@ MAKE_HOOK_MATCH(GameplayCoreHook, &GlobalNamespace::CoreGameHUDController::Initi
         else if(root_str == "immediateRankGo") parent = self->get_immediateRankGo();
         else getLogger().info("unknown position {}, attach it to energyPanelGo", root_str);
     }
-    HeartBeat::AssetBundleInstinateInformation result;
-    HeartBeat::assetBundleMgr.Instantiate(SelectedUI, parent->get_transform(), result);
-    result.gameObject->AddComponent<HeartBeat::HeartBeatObj*>()->loadedComponents = result;
+    getLogger().info("UI Mount position: {}", parent->get_name());
 
+    HeartBeat::AssetBundleInstinateInformation result;
+    if(!HeartBeat::assetBundleMgr.Instantiate(SelectedUI, parent->get_transform(), result)){
+        getLogger().error("The UI Can't loaded.");
+        return;
+    }
+    result.gameObject->AddComponent<HeartBeat::HeartBeatObj*>()->loadedComponents = result;
+    getLogger().info("The UI has been created");
     static int firstInitialize = true;
     if(firstInitialize){
         firstInitialize = false;

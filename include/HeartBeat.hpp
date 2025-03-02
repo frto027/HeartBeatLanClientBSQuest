@@ -12,8 +12,9 @@
 namespace HeartBeat{
 
 struct AssetUI{
+    std::optional<std::string> filePath;
+    std::string AssetPath;
     std::map<std::string, std::string> infos;
-    SafePtrUnity<UnityEngine::GameObject> prefab = {nullptr};
 };
 
 struct AssetBundleInstinateInformation{
