@@ -86,7 +86,9 @@ namespace HeartBeat{
         initialized = true;
 
         auto LoadAssetBundle = [this](UnityEngine::AssetBundle* bundle, std::optional<std::string> filepath){
-            for(auto assetPath : bundle->GetAllAssetNames()){
+            auto assetNamesUnity = bundle->GetAllAssetNames();
+            std::vector<std::string> assetPaths = {assetNamesUnity->begin(), assetNamesUnity->end()};
+            for(auto assetPath : assetPaths){
                 getLogger().info("Start load {}", assetPath);
                 SafePtrUnity<UnityEngine::GameObject> gameObject = bundle->LoadAsset<UnityEngine::GameObject*>(assetPath);
                 if(gameObject){
@@ -129,6 +131,7 @@ namespace HeartBeat{
                     loadedBundles.insert({name, {filepath, assetPath, std::move(infos)}});
                 }
             }
+            getLogger().info("bundle load over");
         };
 
         auto AssetBundle_LoadFromMemory = (function_ptr_t<UnityEngine::AssetBundle*,ArrayW<uint8_t>, uint32_t>)CRASH_UNLESS(il2cpp_functions::resolve_icall("UnityEngine.AssetBundle::LoadFromMemory_Internal"));
@@ -137,26 +140,29 @@ namespace HeartBeat{
         try{
             auto bundle = AssetBundle_LoadFromMemory(data, 0);
             LoadAssetBundle(bundle, {});
+            getLogger().info("Unload bundle {}", (void*)bundle);
             bundle->Unload(true);
+            getLogger().info("done");
         }catch(...){
             getLogger().error("Can't load default ui");
         }
-
+        getLogger().info("Start loading bundles from directory");
         if(std::filesystem::is_directory(ASSET_UI_PATH)){
-            std::filesystem::directory_iterator it(ASSET_UI_PATH);
-            getLogger().info("Handling {}", it->path().c_str());
-            if(it->is_regular_file() && it->path().has_extension() && it->path().extension() == ".bundle"){
-                getLogger().info("GO!");
-                try{
-                    auto bundle = UnityEngine::AssetBundle::LoadFromFile(it->path().c_str());
-                    LoadAssetBundle(bundle, it->path());
-                    bundle->Unload(true);
-                }catch(...){
-                    getLogger().error("Can't load asset file {}", it->path().c_str());
+
+            for(auto& entry :std::filesystem::directory_iterator(ASSET_UI_PATH)){
+                getLogger().info("Handling {}", entry.path().c_str());
+                if(entry.is_regular_file() && entry.path().has_extension() && entry.path().extension() == ".bundle"){
+                    try{
+                        auto bundle = UnityEngine::AssetBundle::LoadFromFile(entry.path().c_str());
+                        LoadAssetBundle(bundle, entry.path());
+                        bundle->Unload(true);
+                    }catch(...){
+                        getLogger().error("Can't load asset file {}", entry.path().c_str());
+                    }
                 }
             }
         }
-
+        getLogger().info("directory load over");
     }
 
     void HandleTransformsInBundle(AssetBundleInstinateInformation & result, UnityEngine::Transform * transform){
