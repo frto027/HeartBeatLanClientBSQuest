@@ -27,6 +27,8 @@ jobs:
       run: echo $env:ANDROID_NDK > ndkpath.txt
     - name: setup system path
       run: cmd /C cd | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+    - name: setup vcpkg
+      run: vcpkg install --triplet arm64-android
     - name: qpm restore
       run: qpm restore
     - name: build

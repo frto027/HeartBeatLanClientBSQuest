@@ -69,3 +69,5 @@ mod.json.schema
 .cache
 
 compile_commands.json
+
+vcpkg_installed

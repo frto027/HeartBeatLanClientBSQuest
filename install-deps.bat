@@ -1,0 +1,1 @@
+vcpkg install --triplet arm64-android
