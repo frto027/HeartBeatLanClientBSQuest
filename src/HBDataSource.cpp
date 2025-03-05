@@ -21,6 +21,9 @@ namespace HeartBeat{
                 case DS_OSC:
                     instance = getInstance<HeartBeatOSCDataSource>();
                     break;
+                case DS_HypeRate:
+                    instance = getInstance<HeartBeatHypeRateDataSource>();
+                    break;
             }
         }
         return instance;

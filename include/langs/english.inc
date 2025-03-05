@@ -41,6 +41,7 @@ V(data_source_random, "random")
 V(data_source_lan, "(deprecated)local network")
 V(data_source_bluetooth, "bluetooth")
 V(data_source_osc, "OSC")
+V(data_source_hyperate, "HypeRate")
 
 
 V(enable_record, "Enable Record")

@@ -157,6 +157,7 @@ namespace SetthingUI{
                 LANG->data_source_lan,
                 LANG->data_source_bluetooth,
                 LANG->data_source_osc,
+                LANG->data_source_hyperate
             };
             auto current_data_type = getModConfig().DataSourceType.GetValue();
             if(current_data_type >= data_sources.size()){

@@ -17,6 +17,7 @@ enum DataSourceType{
     DS_LAN,
     DS_BLE,
     DS_OSC,
+    DS_HypeRate,
 };
 
 extern DataSourceType dataSourceType;
@@ -117,6 +118,38 @@ private:
     //in background thread
     void parseOscMessage(char *&thebuff, ssize_t &sz);
 };
+
+class HeartBeatHypeRateDataSource:public DataSource{
+    private:
+        int recv_socket;
+        volatile int the_heart;
+        volatile bool has_unread_heart_data = false;
+        
+        bool closed = false; // set to true to close the thread
+
+        void CreateSocket();
+
+        bool needConnection = false;
+    public:
+        HeartBeatHypeRateDataSource();
+        bool GetData(int& heartbeat);
+    
+        static void * ServerThread(void *self);
+        std::mutex mutex;
+        
+        std::string id;
+        const std::string& GetId(){
+            std::lock_guard<std::mutex> g(mutex);
+            return id; 
+        }
+        const void SetId(const std::string& id){
+            std::lock_guard<std::mutex> g(mutex);
+            this->id = id;
+        }
+    
+    private:
+};
+    
 class HeartBeatBleDataSource:public DataSource{
 private:
     std::string selected_mac = "";

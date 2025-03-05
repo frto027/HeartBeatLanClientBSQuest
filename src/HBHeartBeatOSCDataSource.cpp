@@ -20,8 +20,6 @@
 #include "scotland2/shared/modloader.h"
 #include "BeatLeaderRecorder.hpp"
 
-#define DEX_PATH "/sdcard/ModData/com.beatgames.beatsaber/Mods/HeartBeatQuest/HeartBeatBLEReader.dex"
-
 namespace HeartBeat{
 
 DECLARE_DATA_SOURCE(HeartBeatOSCDataSource)
