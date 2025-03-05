@@ -31,4 +31,6 @@ DECLARE_CONFIG(ModConfig,
     CONFIG_VALUE(OSCPort, int, "OSC Port", 9000);
 
     CONFIG_VALUE(HypeRateId, std::string, "HypeRateID", "")
+
+    CONFIG_VALUE(HypeRateWebSocketIdentity, std::string, "HypeRateWebsocketIdentity", "")
 );

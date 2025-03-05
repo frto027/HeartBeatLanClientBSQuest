@@ -2,8 +2,13 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <cstdio>
+#include <cstring>
+#include <functional>
 #include <jni.h>
 #include <memory>
+#include <mutex>
+#include <stdlib.h>
 #include <string>
 #include <sys/endian.h>
 #include <sys/socket.h>
@@ -15,6 +20,11 @@
 #include <system_error>
 #include <unistd.h>
 #include "BeatLeaderRecorder.hpp"
+#include "ModConfig.hpp"
+#include "beatsaber-hook/shared/rapidjson/include/rapidjson/document.h"
+#include "beatsaber-hook/shared/rapidjson/include/rapidjson/stringbuffer.h"
+#include "beatsaber-hook/shared/rapidjson/include/rapidjson/writer.h"
+#include "i18n.hpp"
 #include "main.hpp"
 
 #include <websocketpp/config/asio_client.hpp>
@@ -22,6 +32,13 @@
 #include <websocketpp/client.hpp>
 #include <websocketpp/frame.hpp>
 
+/*
+
+You know you won't copy these code to get heart rate in other project
+because it uses a private server.
+If you have similar needs, please contact HypeRate official, they are kind people. heart. :) 
+
+*/
 namespace HeartBeat{
 
 DECLARE_DATA_SOURCE(HeartBeatHypeRateDataSource)
@@ -37,17 +54,61 @@ HeartBeatHypeRateDataSource::HeartBeatHypeRateDataSource(){
 
 client::connection_ptr con = nullptr;
 client::timer_ptr the_timer = nullptr;
+time_t last_ping_time = 0;
+bool con_opened = false;
 
+
+std::string CheckHypeRateWebSocketIdentity(){
+    std::string ret = getModConfig().HypeRateWebSocketIdentity.GetValue();
+    if(ret == ""){
+        char buff[33];
+        FILE * f = fopen("/dev/urandom", "rb");
+        bool handled = false;
+        const char * avaliable_chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()";
+        int char_len = strlen(avaliable_chars);
+        if(f){
+            getLogger().info("HypeRate Websocket random identity generrated from /dev/urandom");
+            uint8_t numbers[32];
+            if(32 == fread(numbers, 1, 32, f)){
+                handled = true;
+                for(int i=0;i<32;i++){
+                    buff[i] = avaliable_chars[numbers[i] % char_len];
+                }
+                buff[32] = '\0';
+            }
+        }
+
+        if(f){
+            fclose(f);
+            f = NULL;
+        }
+
+        if(!handled){
+            getLogger().warn("HypeRatee Websocket random identity not generated, fallback to random call");
+            for(int i=0;i<32;i++){
+                buff[i] = avaliable_chars[random() % char_len];
+            }
+            buff[32] = '\0';
+        }
+
+        getModConfig().HypeRateWebSocketIdentity.SetValue(buff);
+        ret = buff;
+    }
+    return ret;
+}
+
+std::function<void(std::error_code)> timer_impl;
 
 void HeartBeatHypeRateDataSource::CreateSocket(){
 
-    endpoint.set_access_channels(websocketpp::log::alevel::all);
-    endpoint.set_error_channels(websocketpp::log::elevel::all);
+    endpoint.set_access_channels(websocketpp::log::alevel::fail);
+    endpoint.set_error_channels(websocketpp::log::elevel::warn);
 
     // Initialize ASIO
     endpoint.init_asio();
 
-    the_timer = endpoint.set_timer(200, [this](std::error_code e){
+    timer_impl = [this](std::error_code e){
+        the_timer = endpoint.set_timer(3000, timer_impl);
         if(closed){
             if(the_timer)
                 the_timer->cancel(), the_timer = nullptr;
@@ -57,15 +118,17 @@ void HeartBeatHypeRateDataSource::CreateSocket(){
         }
 
         if(con == nullptr){
-            if(needConnection){
+            if(needConnection /* && getModConfig().HypeRateId.GetValue().length() > 0 */){
                 websocketpp::lib::error_code ec;
                 con = endpoint.get_connection("ws://heart.0xf7.top/ws", ec);
+                con_opened = false;
                 if(ec){
                     getLogger().error("HypeRate connection error: {}", ec.message());
                     con = nullptr;
                     sleep(10);
                     return;
                 }else{
+                    endpoint.connect(con);
                     getLogger().info("heart server has been connected");
                 }
         }else{
@@ -74,13 +137,27 @@ void HeartBeatHypeRateDataSource::CreateSocket(){
         }
 
         if(con){
-            if(con->send("i")){
-                //error
-                con->close(1002, "error");
+            if(resetRequest){
+                resetRequest = false;
+                con->close(1000, "reset requested");
                 con = nullptr;
-            };
+            }
+            time_t now = time(NULL);
+            if(now > last_ping_time + 3){
+                last_ping_time = now;
+                auto error = con->send("i");
+                if(error){
+
+                    //error
+                    con->close(1002, "error");
+                    con = nullptr;
+                };
+            }
         }
-    });
+
+    };
+
+    the_timer = endpoint.set_timer(200, timer_impl);
 
     // Register our handlers
     endpoint.set_socket_init_handler([](std::weak_ptr<void> a,
@@ -88,7 +165,7 @@ void HeartBeatHypeRateDataSource::CreateSocket(){
         
     });
     // endpoint.set_tls_init_handler();
-    endpoint.set_message_handler([](std::weak_ptr<void> a, 
+    endpoint.set_message_handler([this](std::weak_ptr<void> a, 
         std::shared_ptr<websocketpp::message_buffer::message<
         websocketpp::message_buffer::alloc::con_msg_manager>> b){
         if(b->get_opcode() != websocketpp::frame::opcode::text ){
@@ -100,11 +177,118 @@ void HeartBeatHypeRateDataSource::CreateSocket(){
             //this is a ping command
             return;
         }
+        try{
+            if(payload.length() > 1 && payload[0] == 'S'){
+                const char * json_str = payload.c_str() + 1;
+                rapidjson::Document d;
+                d.Parse(json_str);
+                if(!d.IsObject())
+                    return;
+                auto type_it = d.FindMember("type");
+                if(type_it == d.MemberEnd())
+                    return;
+                if(!type_it->value.IsString())
+                    return;
+                std::string type = type_it->value.GetString();
+                if(type == "message"){
+                    auto msg_it = d.FindMember("msg");
+                    auto actions_it = d.FindMember("actions");
+                    std::vector<std::string> actions;
 
+                    if(msg_it != d.MemberEnd() && msg_it->value.IsString()){
+                        size_t len = msg_it->value.GetStringLength();
+                        std::lock_guard<std::mutex> g(this->message_from_server_mutex);
+
+
+                        if(len + 10 >= sizeof(this->message_from_server)){
+                            size_t copy_len = sizeof(this->message_from_server) - 10;
+
+                            memcpy(this->message_from_server, msg_it->name.GetString(), copy_len);
+                            this->message_from_server[copy_len] = '.';
+                            this->message_from_server[copy_len+1] = '.';
+                            this->message_from_server[copy_len+2] = '.';
+                            this->message_from_server[copy_len+3] = '\0';
+                        }else{
+                            memcpy(this->message_from_server, msg_it->name.GetString(), len);
+                            this->message_from_server[len] = '\0';
+                        }
+                    }else{
+                        std::lock_guard<std::mutex> g(this->message_from_server_mutex);
+                        strcpy(this->message_from_server, "invalid server message");
+                    }
+
+                    if(actions_it != d.MemberEnd() && actions_it->value.IsArray()){
+                        for(auto & e : actions_it->value.GetArray()){
+                            if(e.IsString()){
+                                const char * action = e.GetString();
+                                //do the action here
+                                if(strcmp(action, "close") == 0){
+                                    closed = true;
+                                    con->close(1001, "server close, never open");
+                                    con = nullptr;
+                                }
+
+                                if(strcmp(action, "reset") == 0){
+                                    getModConfig().HypeRateWebSocketIdentity.SetValue("");
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            {
+                const char * json_str = payload.c_str();
+                rapidjson::Document d;
+                d.Parse(json_str);
+                if(!d.IsObject())
+                    return;
+
+                auto it = d.FindMember("payload");
+                if(it == d.MemberEnd())
+                    return;
+                auto & payload = it->value;
+
+                if(!payload.IsObject())
+                    return;
+                auto hr_it = payload.FindMember("hr");
+                if(hr_it == payload.MemberEnd())
+                    return;
+                if(!hr_it->value.IsInt())
+                    return;
+                int heart = hr_it->value.GetInt();
+                the_heart = heart;
+                has_unread_heart_data = true;
+            }
+    
+    
+        }catch(...){
+
+        }
         //TODO: json load payload
     });
     endpoint.set_open_handler([](std::weak_ptr<void> a){
-        //TODO: send connect json
+
+        std::string id = getModConfig().HypeRateId.GetValue();
+        id = "internal-testing";
+        rapidjson::Document dom;
+        dom.AddMember("_id", CheckHypeRateWebSocketIdentity(), dom.GetAllocator());
+        dom.AddMember("id", id, dom.GetAllocator());
+        dom.AddMember("lang", rapidjson::StringRef(LANG->lang_name), dom.GetAllocator());
+        dom.AddMember("ver", VERSION, dom.GetAllocator());
+
+        rapidjson::StringBuffer buffer;
+        rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+        dom.Accept(writer);
+
+        std::string toSend = std::string("C") + buffer.GetString();
+        if(con->send(toSend)){
+            getLogger().error("connection send failed.");
+            con->close(1000, "error");
+            con = nullptr;
+        }else{
+            con_opened = true;
+        }
     });
     endpoint.set_close_handler([](std::weak_ptr<void> b){
         con = nullptr;
@@ -133,6 +317,7 @@ void * HeartBeatHypeRateDataSource::ServerThread(void *self){
     while(!me->closed){
         try{
             endpoint.run();
+            timer_impl(std::error_code());
         } catch (websocketpp::exception const & e) {
             getLogger().error("websocketpp exception {}", e.what());
             retry();

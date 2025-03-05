@@ -3,6 +3,8 @@
 #endif
 V(enabled, "enabled(need restart)")
 
+V(lang_name, "english")
+
 V(heart_config, "HEART Config")
 V(heart_devices, "HEART Devices")
 V(heart_senders, "HEART Senders")

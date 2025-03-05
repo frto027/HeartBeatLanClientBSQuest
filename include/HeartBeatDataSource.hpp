@@ -129,7 +129,12 @@ class HeartBeatHypeRateDataSource:public DataSource{
 
         void CreateSocket();
 
-        bool needConnection = false;
+        bool resetRequest = false;
+
+
+        char message_from_server[256];
+        std::mutex message_from_server_mutex;
+
     public:
         HeartBeatHypeRateDataSource();
         bool GetData(int& heartbeat);
@@ -137,16 +142,11 @@ class HeartBeatHypeRateDataSource:public DataSource{
         static void * ServerThread(void *self);
         std::mutex mutex;
         
-        std::string id;
-        const std::string& GetId(){
-            std::lock_guard<std::mutex> g(mutex);
-            return id; 
+        bool needConnection = false;
+
+        void ResetConnection(){
+            resetRequest = true;
         }
-        const void SetId(const std::string& id){
-            std::lock_guard<std::mutex> g(mutex);
-            this->id = id;
-        }
-    
     private:
 };
     

@@ -39,6 +39,7 @@ extern AssetBundleManager assetBundleMgr;
 // parameters are (namespace, class name, parent class, contents)
 DECLARE_CLASS_CODEGEN(HeartBeat, HeartBeatObj, UnityEngine::MonoBehaviour,
     // DECLARE_INSTANCE_METHOD creates methods
+    DECLARE_INSTANCE_METHOD(void, Start);
     DECLARE_INSTANCE_METHOD(void, Update);
 public:
     AssetBundleInstinateInformation loadedComponents;

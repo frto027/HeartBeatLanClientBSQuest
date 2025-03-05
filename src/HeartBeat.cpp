@@ -31,8 +31,13 @@
 DEFINE_TYPE(HeartBeat, HeartBeatObj);
 
 namespace HeartBeat{
+    void HeartBeatObj::Start(){
+        if(dataSourceType == DS_HypeRate){
+            HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatHypeRateDataSource>()->needConnection = true;
+        }
+    }
     void HeartBeatObj::Update(){
-        if(this->gameObject->activeInHierarchy == false)
+            if(this->gameObject->activeInHierarchy == false)
             return;
         {
             static int slow_down = 0;
