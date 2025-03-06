@@ -28,11 +28,11 @@ jobs:
     - name: setup system path
       run: cmd /C cd | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
     - name: setup vcpkg
-      run: vcpkg install --triplet arm64-android
+      run: $env:VCPKG_ROOT = $env:VCPKG_INSTALLATION_ROOT; vcpkg install --triplet arm64-android
     - name: qpm restore
       run: qpm restore
     - name: build
-      run: $env:VCPKG_INSTALLATION_ROOT = $env:VCPKG_ROOT; qpm s build
+      run: qpm s build
     - name: make qmod
       run: .\scripts\createqmod.ps1
     - name: echo everything
