@@ -8,6 +8,7 @@ V(hyperate_reset, "重置")
 V(hyperate_save_and_connect, "保存并连接")
 V(hyperate_input_hint, "https://app.hyperate.io/???")
 V(hyperate_input_hint2, "输入???部分：")
+V(no_message_from_server, "")
 
 V(lang_name, "chinese")
 

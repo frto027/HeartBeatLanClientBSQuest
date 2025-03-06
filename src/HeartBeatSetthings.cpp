@@ -568,7 +568,7 @@ namespace SetthingUI{
                     HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatHypeRateDataSource>()->ResetConnection();
                 });
                 if(MainMenuPreviewObjectComp)
-                    MainMenuPreviewObjectComp->GetComponent<HeartBeat::HeartBeatObj *>()->serverMessageDisplayer = BSML::Lite::CreateText(container->get_transform(), "No message from server", 4, UnityEngine::Vector2{}, UnityEngine::Vector2{100, 32});
+                    MainMenuPreviewObjectComp->GetComponent<HeartBeat::HeartBeatObj *>()->serverMessageDisplayer = BSML::Lite::CreateText(container->get_transform(), LANG->no_message_from_server, 4, UnityEngine::Vector2{}, UnityEngine::Vector2{100, 32});
             }
         }
 
