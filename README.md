@@ -65,6 +65,11 @@ If you can't or don't want to patch your game with bluetooth permission, you can
 This mod uses [JNI](https://docs.oracle.com/javase/8/docs/technotes/guides/jni/spec/jniTOC.html) to load an external java library with [PathClassLoader](https://developer.android.com/reference/dalvik/system/PathClassLoader) to access bluetooth device.
 
 # Dev.
+
+install [vcpkg](https://github.com/microsoft/vcpkg), makesure environment variable `VCPKG_ROOT` exists.
+
+run `vcpkg install --triplet arm64-android` before you build this project.
+
 Use `qpm s build` to build
 Same goes for `qpm s copy` and `.\scripts\createqmod.ps1`
 
