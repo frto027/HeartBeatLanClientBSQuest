@@ -32,7 +32,7 @@ jobs:
     - name: qpm restore
       run: qpm restore
     - name: build
-      run: qpm s build
+      run: $env:VCPKG_ROOT = $env:VCPKG_INSTALLATION_ROOT; qpm s build
     - name: make qmod
       run: .\scripts\createqmod.ps1
     - name: echo everything
