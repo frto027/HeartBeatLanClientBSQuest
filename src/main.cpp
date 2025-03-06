@@ -51,14 +51,13 @@ Paper::ConstLoggerContext<21> & getLogger(){
     return logger;
 }
 UnityEngine::GameObject* MainMenuPreviewObject = nullptr;
+HeartBeat::HeartBeatObj *MainMenuPreviewObjectComp = nullptr;
 MAKE_HOOK_MATCH(GameplayCoreHook, &GlobalNamespace::CoreGameHUDController::Initialize, void, GlobalNamespace::CoreGameHUDController * self, GlobalNamespace::CoreGameHUDController::InitData * data){
     GameplayCoreHook(self, data);
-
     if(MainMenuPreviewObject)
         MainMenuPreviewObject->set_active(false);
 
     HeartBeat::assetBundleMgr.Init();
-
 
     std::string SelectedUI = getModConfig().SelectedUI.GetValue();
     if(!HeartBeat::assetBundleMgr.loadedBundles.contains(SelectedUI))

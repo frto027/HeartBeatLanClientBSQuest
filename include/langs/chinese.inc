@@ -2,6 +2,12 @@
 #define V(key, value)
 #endif
 V(enabled, "启用(重启生效)")
+V(hyperate, "HypeRate")
+
+V(hyperate_reset, "重置")
+V(hyperate_save_and_connect, "保存并连接")
+V(hyperate_input_hint, "https://app.hyperate.io/???")
+V(hyperate_input_hint2, "输入???部分：")
 
 V(lang_name, "chinese")
 
@@ -43,5 +49,5 @@ V(record_dev_name, "保存设备名到录像")
 
 V(age, "年龄")
 
-V(select_ui, "选择界面")
+V(select_ui, "界面选择")
 V(max_heart, "最大心率")

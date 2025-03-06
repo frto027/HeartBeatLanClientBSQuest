@@ -17,3 +17,4 @@ Paper::ConstLoggerContext<21> & getLogger();
 
 extern bool ModEnabled;
 extern UnityEngine::GameObject* MainMenuPreviewObject;
+extern HeartBeat::HeartBeatObj *MainMenuPreviewObjectComp;

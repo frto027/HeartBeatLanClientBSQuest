@@ -121,7 +121,6 @@ private:
 
 class HeartBeatHypeRateDataSource:public DataSource{
     private:
-        int recv_socket;
         volatile int the_heart;
         volatile bool has_unread_heart_data = false;
         
@@ -132,21 +131,22 @@ class HeartBeatHypeRateDataSource:public DataSource{
         bool resetRequest = false;
 
 
-        char message_from_server[256];
-        std::mutex message_from_server_mutex;
-
     public:
         HeartBeatHypeRateDataSource();
         bool GetData(int& heartbeat);
     
         static void * ServerThread(void *self);
-        std::mutex mutex;
         
         bool needConnection = false;
 
         void ResetConnection(){
             resetRequest = true;
         }
+
+        bool has_message_from_server = false;
+        char message_from_server[256];
+        std::mutex message_from_server_mutex;
+
     private:
 };
     

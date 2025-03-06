@@ -28,17 +28,41 @@
 #include "bsml/shared/Helpers/getters.hpp"
 
 #include "stdio.h"
+#include <mutex>
 DEFINE_TYPE(HeartBeat, HeartBeatObj);
 
 namespace HeartBeat{
     void HeartBeatObj::Start(){
-        if(dataSourceType == DS_HypeRate){
+        if(HeartBeat::dataSourceType == HeartBeat::DS_HypeRate){
             HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatHypeRateDataSource>()->needConnection = true;
-        }
+        }    
+    }
+
+    void HeartBeatObj::OnDestroy(){
+        getLogger().info("Destroy, we don't need heart in the future");
+        if(HeartBeat::dataSourceType == HeartBeat::DS_HypeRate){
+            HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatHypeRateDataSource>()->needConnection = false;
+        }    
     }
     void HeartBeatObj::Update(){
-            if(this->gameObject->activeInHierarchy == false)
+        if(this->gameObject->activeInHierarchy == false)
             return;
+        if(this->serverMessageDisplayer){
+            if(dataSourceType == DS_HypeRate){
+                std::string message;
+                bool has_message = false;
+                auto * instance = DataSource::getInstance<HeartBeatHypeRateDataSource>();
+                if(instance->has_message_from_server){
+                    std::lock_guard<std::mutex> lock(instance->message_from_server_mutex);
+                    if(instance->has_message_from_server){
+                        message = instance->message_from_server;
+                        has_message = true;
+                    }
+                }
+                if(has_message)
+                this->serverMessageDisplayer->set_text(message);
+            }
+        }
         {
             static int slow_down = 0;
             if(slow_down++ > 20){

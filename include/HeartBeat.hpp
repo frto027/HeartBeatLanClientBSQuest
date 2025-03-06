@@ -1,5 +1,6 @@
 #pragma once
 
+#include "HMUI/CurvedTextMeshPro.hpp"
 #include "TMPro/TextMeshProUGUI.hpp"
 #include "UnityEngine/AssetBundle.hpp"
 #include "UnityEngine/MonoBehaviour.hpp"
@@ -40,9 +41,11 @@ extern AssetBundleManager assetBundleMgr;
 DECLARE_CLASS_CODEGEN(HeartBeat, HeartBeatObj, UnityEngine::MonoBehaviour,
     // DECLARE_INSTANCE_METHOD creates methods
     DECLARE_INSTANCE_METHOD(void, Start);
+    DECLARE_INSTANCE_METHOD(void, OnDestroy);
     DECLARE_INSTANCE_METHOD(void, Update);
 public:
     AssetBundleInstinateInformation loadedComponents;
+    HMUI::CurvedTextMeshPro * serverMessageDisplayer = nullptr;
 );
 
 

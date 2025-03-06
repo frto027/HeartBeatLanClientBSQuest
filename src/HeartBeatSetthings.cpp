@@ -1,3 +1,4 @@
+#include "HMUI/InputFieldView.hpp"
 #include "HMUI/ViewController.hpp"
 #include "ModConfig.hpp"
 #include "TMPro/TextMeshProUGUI.hpp"
@@ -26,6 +27,7 @@
 #include "bsml/shared/BSML.hpp"
 #include "sys/socket.h"
 #include <cstddef>
+#include <mutex>
 #include <netinet/in.h>
 #include <netinet/ip.h>
 #include <string>
@@ -49,6 +51,7 @@ namespace SetthingUI{
     }
 
     void EnsurePreviewObject(){
+        HeartBeat::HeartBeatObj * ret = nullptr;
         if(!MainMenuPreviewObject){
             HeartBeat::assetBundleMgr.Init();
             auto obj = UnityEngine::GameObject::New_ctor();
@@ -66,17 +69,19 @@ namespace SetthingUI{
                 SelectedUI = "Default";
             if(!HeartBeat::assetBundleMgr.loadedBundles.contains(SelectedUI)){
                 getLogger().error("Can't find ui asset bundle '{}' to load!", SelectedUI);
-                return;
             }
 
             HeartBeat::AssetBundleInstinateInformation result;
             HeartBeat::assetBundleMgr.Instantiate(SelectedUI, canvas->get_transform(), result);
-            result.gameObject->AddComponent<HeartBeat::HeartBeatObj*>()->loadedComponents = result;
+            (MainMenuPreviewObjectComp = result.gameObject->AddComponent<HeartBeat::HeartBeatObj*>())->loadedComponents = result;
 
             MainMenuPreviewObject = obj;
         }
-        if(MainMenuPreviewObject->get_active() == false)
+        if(MainMenuPreviewObject->get_active() == false){
             MainMenuPreviewObject->set_active(true);
+            if(HeartBeat::dataSourceType == HeartBeat::DS_HypeRate)
+                HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatHypeRateDataSource>()->needConnection = true;
+        }
     }
 
     void DidSetthingsActivate(HMUI::ViewController* self, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
@@ -117,39 +122,7 @@ namespace SetthingUI{
                 "Language(need restart)",getModConfig().ModLang.GetValue(),languages,[](StringW v){
                     getModConfig().ModLang.SetValue(v);
                 } );
-
-            // the age is just used to provide a default value for maxheart
-            static BSML::IncrementSetting * MaxHeartIncr;
-            BSML::Lite::CreateIncrementSetting(container->get_transform(),
-                LANG->age, 0, 1, getModConfig().Age.GetValue(), [](float v){
-                    getModConfig().Age.SetValue(v);
-                    MaxHeartIncr->set_Value(220 - v);
-                    MaxHeartIncr->UpdateState();
-                    getModConfig().MaxHeart.SetValue(220 - v);
-                });
-            MaxHeartIncr = BSML::Lite::CreateIncrementSetting(container->get_transform(),
-                LANG->max_heart, 0, 1, getModConfig().MaxHeart.GetValue(), [](float v){
-                    getModConfig().MaxHeart.SetValue(v);
-                });
-
-            std::vector<std::string_view> ui_s;
-            for(auto& pair : HeartBeat::assetBundleMgr.loadedBundles){
-                ui_s.push_back(pair.first);
-            }
-
-            BSML::Lite::CreateDropdown(container->get_transform(),
-                LANG->select_ui, getModConfig().SelectedUI.GetValue(), ui_s, [](StringW v){
-                    if(getModConfig().SelectedUI.GetValue() != v){
-                        getModConfig().SelectedUI.SetValue(v);
-                        if(MainMenuPreviewObject){
-                            UnityEngine::Object::Destroy(MainMenuPreviewObject);
-                            MainMenuPreviewObject = nullptr;
-                        }
-                        EnsurePreviewObject();
-                    }
-                }
-            );
-
+                
             // A data source toggle
             static std::vector<std::string_view> data_sources;
             data_sources = {
@@ -177,6 +150,39 @@ namespace SetthingUI{
                     }
                     getLogger().debug("{} selected.", value);
                 });
+
+            // the age is just used to provide a default value for maxheart
+            static BSML::IncrementSetting * MaxHeartIncr;
+            BSML::Lite::CreateIncrementSetting(container->get_transform(),
+                LANG->age, 0, 1, getModConfig().Age.GetValue(), [](float v){
+                    getModConfig().Age.SetValue(v);
+                    MaxHeartIncr->set_Value(220 - v);
+                    MaxHeartIncr->UpdateState();
+                    getModConfig().MaxHeart.SetValue(220 - v);
+                });
+            MaxHeartIncr = BSML::Lite::CreateIncrementSetting(container->get_transform(),
+                LANG->max_heart, 0, 1, getModConfig().MaxHeart.GetValue(), [](float v){
+                    getModConfig().MaxHeart.SetValue(v);
+                });
+
+            std::vector<std::string_view> ui_s;
+            for(auto& pair : HeartBeat::assetBundleMgr.loadedBundles){
+                ui_s.push_back(pair.first);
+            }
+
+            BSML::Lite::CreateDropdown(container->get_transform(),
+                LANG->select_ui, getModConfig().SelectedUI.GetValue(), ui_s, [](StringW v){
+                    if(getModConfig().SelectedUI.GetValue() != v){
+                        getModConfig().SelectedUI.SetValue(v);
+                        if(MainMenuPreviewObject){
+                            UnityEngine::Object::Destroy(MainMenuPreviewObject);
+                            MainMenuPreviewObject = nullptr;
+                            MainMenuPreviewObjectComp = nullptr;
+                        }
+                        EnsurePreviewObject();
+                    }
+                }
+            );
 
             private_public_btn =  BSML::Lite::CreateUIButton(container->get_transform(), LANG->waiting, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 8}, PrivateNotPrivateBtnClick);
 
@@ -526,6 +532,48 @@ namespace SetthingUI{
         }
     }
 
+    namespace HypeRateSource{
+
+        std::string hyperate_id = "";
+
+        void DidDevicesActivate(HMUI::ViewController* self, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
+            EnsurePreviewObject();
+            if(firstActivation) {
+                self->add_didDeactivateEvent(custom_types::MakeDelegate<HMUI::ViewController::DidDeactivateDelegate*>(std::function([](bool removedFromHierarchy, bool screenSystemDisabling){
+                    if(MainMenuPreviewObject) MainMenuPreviewObject->set_active(false);
+                    HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatHypeRateDataSource>()->needConnection = false;
+                })));
+                devices_controller = self;
+                // Create a container that has a scroll bar
+                auto *container = BSML::Lite::CreateScrollableSettingsContainer(self->get_transform());
+
+                hyperate_id = getModConfig().HypeRateId.GetValue();
+                BSML::Lite::CreateText(container->get_transform(), LANG->hyperate_input_hint, 4, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4});
+                BSML::Lite::CreateText(container->get_transform(), LANG->hyperate_input_hint2, 4, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4});
+
+
+                static HMUI::InputFieldView * hyperate_id_input;
+                hyperate_id_input = BSML::Lite::CreateStringSetting(container->get_transform(), "HypeRate ID", hyperate_id, [](StringW v){
+                    hyperate_id = std::string(v);
+                });
+                BSML::Lite::CreateUIButton(container->get_transform(), LANG->hyperate_reset, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 8}, [](){
+                    {
+                        hyperate_id = getModConfig().HypeRateId.GetValue();
+                        hyperate_id_input->set_text(hyperate_id.c_str());
+                    }
+                    hyperate_id_input->set_text(hyperate_id);
+                });
+                BSML::Lite::CreateUIButton(container->get_transform(), LANG->hyperate_save_and_connect, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 8}, [](){
+                    getModConfig().HypeRateId.SetValue(hyperate_id);
+                    HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatHypeRateDataSource>()->ResetConnection();
+                });
+                if(MainMenuPreviewObjectComp)
+                    MainMenuPreviewObjectComp->GetComponent<HeartBeat::HeartBeatObj *>()->serverMessageDisplayer = BSML::Lite::CreateText(container->get_transform(), "No message from server", 4, UnityEngine::Vector2{}, UnityEngine::Vector2{100, 32});
+            }
+        }
+
+    }
+
     //Called from HeartBeat::Update
     void UpdateSetthingsUI(){
         if(HeartBeat::dataSourceType == HeartBeat::DS_LAN){
@@ -563,6 +611,11 @@ namespace SetthingUI{
             BSML::Register::RegisterMainMenuViewControllerMethod(
                 "HeartBeatLan", LANG->heart_osc_senders, "<3",
                 SetthingUI::OscDataSource::DidDevicesActivate);
+        }
+        if(HeartBeat::dataSourceType == HeartBeat::DS_HypeRate){
+            BSML::Register::RegisterMainMenuViewControllerMethod(
+                "HeartBeatLan", LANG->hyperate, "<3",
+                SetthingUI::HypeRateSource::DidDevicesActivate);
 
         }
     }

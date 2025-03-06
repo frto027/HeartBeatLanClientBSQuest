@@ -1,4 +1,5 @@
 #include "HeartBeatDataSource.hpp"
+#include <atomic>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -30,6 +31,7 @@
 #include <websocketpp/config/asio_client.hpp>
 
 #include <websocketpp/client.hpp>
+#include <websocketpp/connection.hpp>
 #include <websocketpp/frame.hpp>
 
 /*
@@ -58,6 +60,18 @@ time_t last_ping_time = 0;
 bool con_opened = false;
 
 
+int failed_count = 0;
+
+int retry_sleep_time(){
+    if(failed_count < 3){
+        return (1);
+    }else if(failed_count < 10){
+        return (10);
+    }else{
+        return (15);
+    }
+}
+
 std::string CheckHypeRateWebSocketIdentity(){
     std::string ret = getModConfig().HypeRateWebSocketIdentity.GetValue();
     if(ret == ""){
@@ -84,7 +98,7 @@ std::string CheckHypeRateWebSocketIdentity(){
         }
 
         if(!handled){
-            getLogger().warn("HypeRatee Websocket random identity not generated, fallback to random call");
+            getLogger().warn("HypeRate Websocket random identity not generated, fallback to random call");
             for(int i=0;i<32;i++){
                 buff[i] = avaliable_chars[random() % char_len];
             }
@@ -98,17 +112,34 @@ std::string CheckHypeRateWebSocketIdentity(){
 }
 
 std::function<void(std::error_code)> timer_impl;
-
+int current_retry_time_already = 0;
 void HeartBeatHypeRateDataSource::CreateSocket(){
 
-    endpoint.set_access_channels(websocketpp::log::alevel::fail);
-    endpoint.set_error_channels(websocketpp::log::elevel::warn);
+    endpoint.set_access_channels(websocketpp::log::alevel::all);
+    endpoint.set_error_channels(websocketpp::log::elevel::all);
 
     // Initialize ASIO
     endpoint.init_asio();
 
     timer_impl = [this](std::error_code e){
-        the_timer = endpoint.set_timer(3000, timer_impl);
+        the_timer = endpoint.set_timer(200, timer_impl);
+
+        current_retry_time_already += 200;
+
+        if(resetRequest){
+            resetRequest = false;
+            if(con && con->get_state() != websocketpp::session::state::closed)
+                con->close(1000, "reset requested");
+            con = nullptr;
+            failed_count = 0;
+            return;
+        }
+
+
+        if(current_retry_time_already <= retry_sleep_time() * 1000){
+            return;
+        }
+
         if(closed){
             if(the_timer)
                 the_timer->cancel(), the_timer = nullptr;
@@ -118,36 +149,33 @@ void HeartBeatHypeRateDataSource::CreateSocket(){
         }
 
         if(con == nullptr){
-            if(needConnection /* && getModConfig().HypeRateId.GetValue().length() > 0 */){
+            if(needConnection && getModConfig().HypeRateId.GetValue().length() > 0){
                 websocketpp::lib::error_code ec;
                 con = endpoint.get_connection("ws://heart.0xf7.top/ws", ec);
                 con_opened = false;
                 if(ec){
                     getLogger().error("HypeRate connection error: {}", ec.message());
                     con = nullptr;
-                    sleep(10);
+                    failed_count++;
                     return;
                 }else{
                     endpoint.connect(con);
                     getLogger().info("heart server has been connected");
+                    return;
                 }
-        }else{
-                return;
+            }else{
+                    return;
             }
         }
 
         if(con){
-            if(resetRequest){
-                resetRequest = false;
-                con->close(1000, "reset requested");
-                con = nullptr;
-            }
             time_t now = time(NULL);
-            if(now > last_ping_time + 3){
+            if(con_opened && now > last_ping_time + 3 && con->get_state() == websocketpp::session::state::open){
                 last_ping_time = now;
+                getLogger().info("ping");
                 auto error = con->send("i");
                 if(error){
-
+                    failed_count++;
                     //error
                     con->close(1002, "error");
                     con = nullptr;
@@ -172,12 +200,15 @@ void HeartBeatHypeRateDataSource::CreateSocket(){
             //we can only handle text opcode
             return;
         }
+        failed_count = 0;
         auto & payload = b->get_payload();
         if(payload == "o"){
             //this is a ping command
+            getLogger().info("pong");
             return;
         }
         try{
+            getLogger().info("{}", payload);
             if(payload.length() > 1 && payload[0] == 'S'){
                 const char * json_str = payload.c_str() + 1;
                 rapidjson::Document d;
@@ -203,15 +234,16 @@ void HeartBeatHypeRateDataSource::CreateSocket(){
                         if(len + 10 >= sizeof(this->message_from_server)){
                             size_t copy_len = sizeof(this->message_from_server) - 10;
 
-                            memcpy(this->message_from_server, msg_it->name.GetString(), copy_len);
+                            memcpy(this->message_from_server, msg_it->value.GetString(), copy_len);
                             this->message_from_server[copy_len] = '.';
                             this->message_from_server[copy_len+1] = '.';
                             this->message_from_server[copy_len+2] = '.';
                             this->message_from_server[copy_len+3] = '\0';
                         }else{
-                            memcpy(this->message_from_server, msg_it->name.GetString(), len);
+                            memcpy(this->message_from_server, msg_it->value.GetString(), len);
                             this->message_from_server[len] = '\0';
                         }
+                        this->has_message_from_server = true;
                     }else{
                         std::lock_guard<std::mutex> g(this->message_from_server_mutex);
                         strcpy(this->message_from_server, "invalid server message");
@@ -257,8 +289,11 @@ void HeartBeatHypeRateDataSource::CreateSocket(){
                 if(!hr_it->value.IsInt())
                     return;
                 int heart = hr_it->value.GetInt();
-                the_heart = heart;
-                has_unread_heart_data = true;
+                std::atomic_thread_fence(std::memory_order_acquire);
+                this->the_heart = heart;
+                std::atomic_thread_fence(std::memory_order_acquire);
+                this->has_unread_heart_data = true;
+                std::atomic_thread_fence(std::memory_order_acquire);
             }
     
     
@@ -268,10 +303,11 @@ void HeartBeatHypeRateDataSource::CreateSocket(){
         //TODO: json load payload
     });
     endpoint.set_open_handler([](std::weak_ptr<void> a){
-
+        getLogger().info("connection open_handler executed");
         std::string id = getModConfig().HypeRateId.GetValue();
-        id = "internal-testing";
+        // id = "internal-testing";
         rapidjson::Document dom;
+        dom.SetObject();
         dom.AddMember("_id", CheckHypeRateWebSocketIdentity(), dom.GetAllocator());
         dom.AddMember("id", id, dom.GetAllocator());
         dom.AddMember("lang", rapidjson::StringRef(LANG->lang_name), dom.GetAllocator());
@@ -282,19 +318,24 @@ void HeartBeatHypeRateDataSource::CreateSocket(){
         dom.Accept(writer);
 
         std::string toSend = std::string("C") + buffer.GetString();
-        if(con->send(toSend)){
+        getLogger().info("Send package to server: {}", toSend);
+        if(con->get_state() == websocketpp::session::state::open && con->send(toSend)){
             getLogger().error("connection send failed.");
             con->close(1000, "error");
             con = nullptr;
         }else{
             con_opened = true;
+            failed_count = 0;
         }
     });
     endpoint.set_close_handler([](std::weak_ptr<void> b){
+        getLogger().info("the connection has been closed");
         con = nullptr;
+        failed_count++;
     });
     endpoint.set_fail_handler([](auto f){
-        if(con) con->close(1007, "failed"),con = nullptr;
+        if(con && con->get_state() == websocketpp::session::state::open) con->close(1007, "failed"),con = nullptr;
+        failed_count++;
     });
 
 

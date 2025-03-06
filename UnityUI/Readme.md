@@ -11,7 +11,7 @@ The quest mod uses the prefab just as `HeartController.cs`. code says everything
 
 And with the following additional behavior:
 
-- When loading asset bundle, every asset inside it will be scanned. And the game will only uses a prefab if it found a `name:xxxx` below `info` gameobject.
+- When loading asset bundle, every asset inside it will be scanned. And all prefab will be added to game menu.
 - All TMP_Text fonts were replaced to the game fonts. If we don't do this, the font will invisible.
 - The mod will find all Animator inside the prefab. If found, the parameters will be set when data come.
 - if a gameobject called `auto:heartrate` is found, their texts will be replaced to heart rate when data come.
@@ -68,7 +68,7 @@ You can add more information to the UI.
 
 ![alt text](image-8.png)
 
-The name is required, because the mod needs to display a name in the setthings UI. Please prevent duplicate name with other UI.
+The name is required, because the mod needs to display a name in the setthings UI. Please prevent duplicate name with other UI, or the player will be confused.
 
 ![alt text](image-9.png)
 Drag and drop the canvas to the assets, we got a prefab called Canvas.

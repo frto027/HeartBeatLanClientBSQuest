@@ -9,6 +9,12 @@ V(heart_config, "HEART Config")
 V(heart_devices, "HEART Devices")
 V(heart_senders, "HEART Senders")
 V(heart_osc_senders, "HEART OSC Senders")
+V(hyperate, "HypeRate")
+
+V(hyperate_reset, "RESET")
+V(hyperate_save_and_connect, "SAVE AND CONNECT")
+V(hyperate_input_hint, "https://app.hyperate.io/???")
+V(hyperate_input_hint2, "Input the ??? part:")
 
 V(heart_osc_port, "OSC Port: %d")
 
