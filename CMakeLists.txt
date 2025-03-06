@@ -12,12 +12,12 @@ set(MOD_ID "HeartBeatLanReceiver")
 # set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 
 
-message("VCPKG $ENV{VCPKG_ROOT}")
+message("VCPKG $ENV{VCPKG_INSTALLATION_ROOT}")
 set(VCPKG_TARGET_TRIPLET arm64-android)
 set(VCPKG_CHAINLOAD_TOOLCHAIN_FILE ${CMAKE_ANDROID_NDK}/build/cmake/android.toolchain.cmake)
 set(VCPKG_MANIFEST_DIR ${CMAKE_SOURCE_DIR})
 set(VCPKG_INSTALLED_DIR ${CMAKE_SOURCE_DIR}/vcpkg_installed)
-string(REPLACE "\\" "/" VCPKG_ROOT_WINDOWS_FIX $ENV{VCPKG_ROOT})
+string(REPLACE "\\" "/" VCPKG_ROOT_WINDOWS_FIX $ENV{VCPKG_INSTALLATION_ROOT})
 set(CMAKE_TOOLCHAIN_FILE ${VCPKG_ROOT_WINDOWS_FIX}/scripts/buildsystems/vcpkg.cmake)
 
 set(websocketpp_DIR ${CMAKE_SOURCE_DIR}/vcpkg_installed/arm64-android/share/websocketpp)
