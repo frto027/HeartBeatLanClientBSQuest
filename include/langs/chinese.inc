@@ -12,6 +12,8 @@ V(no_message_from_server, "")
 
 V(lang_name, "chinese")
 
+V(unsupported_feature_udpatre_mod, "不支持UI,可能需要升级MOD")
+
 V(heart_config, "心率设置")
 V(heart_devices, "心率设备")
 V(heart_senders, "心率数据源")

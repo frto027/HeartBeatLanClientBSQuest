@@ -12,10 +12,14 @@
 
 namespace HeartBeat{
 
+extern const char *ui_features[];
+
 struct AssetUI{
     std::optional<std::string> filePath;
     std::string AssetPath;
     std::map<std::string, std::string> infos;
+    std::set<std::string> supported_features;
+    std::set<std::string> unsupported_features;
 };
 
 struct AssetBundleInstinateInformation{
@@ -30,6 +34,8 @@ struct AssetBundleManager{
     void Init();
 
     bool Instantiate(std::string name, UnityEngine::Transform * parent, AssetBundleInstinateInformation & result);
+
+    static std::set<std::string> GetFeatures(std::string feature);
 };
 
 extern AssetBundleManager assetBundleMgr;

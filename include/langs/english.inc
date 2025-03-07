@@ -16,6 +16,8 @@ V(hyperate_save_and_connect, "SAVE AND CONNECT")
 V(hyperate_input_hint, "https://app.hyperate.io/<color=\"green\">xxx</color><-input this")
 V(no_message_from_server, "")
 
+V(unsupported_feature_udpatre_mod, "unsupported UI, maybe update your mod")
+
 V(heart_osc_port, "OSC Port: %d")
 
 V(pairing, "Pairing.. click to stop.")

@@ -28,8 +28,13 @@
 #include "bsml/shared/Helpers/getters.hpp"
 
 #include "stdio.h"
+#include <cstddef>
 #include <mutex>
 DEFINE_TYPE(HeartBeat, HeartBeatObj);
+
+const char *HeartBeat::ui_features[] = {
+    NULL
+};
 
 namespace HeartBeat{
     void HeartBeatObj::Start(){
@@ -157,8 +162,28 @@ namespace HeartBeat{
                     if(loadedBundles.contains(name)){
                         continue;
                     }
+
+                    std::set<std::string> unsupported_features;
+                    std::set<std::string> supported_features;
+                    if(infos.contains("feature")){
+                        unsupported_features = GetFeatures(infos["feature"]);
+                    }
+                    
+                    for(const char ** feature = ui_features; *feature; feature++){
+                        auto it = unsupported_features.find(*feature);
+                        if(it != unsupported_features.end()){
+                            supported_features.insert(*feature);
+                            unsupported_features.erase(it);
+                        }
+                    }
                     getLogger().info("Loaded UI, asset name: '{}'", name);
-                    loadedBundles.insert({name, {filepath, assetPath, std::move(infos)}});
+                    if(unsupported_features.size() > 0){
+                        getLogger().info("  {} features are unsupported.", unsupported_features.size());
+                        for(auto & feature : unsupported_features){
+                            getLogger().info("    feature unsupported: {}", feature);
+                        }
+                    }
+                    loadedBundles.insert({name, {filepath, assetPath, std::move(infos), std::move(supported_features), std::move(unsupported_features)}});
                 }
             }
             getLogger().info("bundle load over");
@@ -261,5 +286,26 @@ namespace HeartBeat{
         HandleTransformsInBundle(result, gameobject->get_transform());
         result.gameObject = gameobject;
         return true;
+    }
+
+    std::set<std::string> AssetBundleManager::GetFeatures(std::string feature){
+        std::set<std::string> features;
+
+        size_t before = 0;
+        while(before < feature.size()){
+            size_t next = feature.find(',', before);
+            if(next == before){
+                before = next + 1;
+                continue;
+            }
+            if(next == std::string::npos){
+                features.insert(feature.substr(before));
+                break;
+            }else{
+                features.insert(feature.substr(before, next - before));
+                before = next + 1;
+            }
+        }
+        return std::move(features);
     }
 }

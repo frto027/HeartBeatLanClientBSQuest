@@ -1,3 +1,4 @@
+#include "HMUI/CurvedTextMeshPro.hpp"
 #include "HMUI/InputFieldView.hpp"
 #include "HMUI/ViewController.hpp"
 #include "ModConfig.hpp"
@@ -170,6 +171,8 @@ namespace SetthingUI{
                 ui_s.push_back(pair.first);
             }
 
+            static HMUI::CurvedTextMeshPro * feature_unsupport_hint_ui;
+
             BSML::Lite::CreateDropdown(container->get_transform(),
                 LANG->select_ui, getModConfig().SelectedUI.GetValue(), ui_s, [](StringW v){
                     if(getModConfig().SelectedUI.GetValue() != v){
@@ -179,10 +182,26 @@ namespace SetthingUI{
                             MainMenuPreviewObject = nullptr;
                             MainMenuPreviewObjectComp = nullptr;
                         }
+
+                        bool supported = true;
+                        {
+                            HeartBeat::assetBundleMgr.Init();
+                            auto it = HeartBeat::assetBundleMgr.loadedBundles.find(v);
+                            if(it != HeartBeat::assetBundleMgr.loadedBundles.end()){
+                                auto & features = it->second.unsupported_features;
+                                if(features.size() > 0)
+                                    supported = false;
+                            }
+                        }
+                        feature_unsupport_hint_ui->set_text(supported ? "" : LANG->unsupported_feature_udpatre_mod);
+
                         EnsurePreviewObject();
                     }
                 }
             );
+
+            feature_unsupport_hint_ui = BSML::Lite::CreateText(container->get_transform(), "", 4, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4});
+
 
             private_public_btn =  BSML::Lite::CreateUIButton(container->get_transform(), LANG->waiting, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 8}, PrivateNotPrivateBtnClick);
 
