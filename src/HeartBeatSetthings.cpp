@@ -549,7 +549,7 @@ namespace SetthingUI{
 
                 hyperate_id = getModConfig().HypeRateId.GetValue();
                 BSML::Lite::CreateText(container->get_transform(), LANG->hyperate_input_hint, 4, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4});
-                BSML::Lite::CreateText(container->get_transform(), LANG->hyperate_input_hint2, 4, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4});
+                // BSML::Lite::CreateText(container->get_transform(), LANG->hyperate_input_hint2, 4, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4});
 
 
                 static HMUI::InputFieldView * hyperate_id_input;

@@ -13,9 +13,9 @@ V(hyperate, "HypeRate")
 
 V(hyperate_reset, "RESET")
 V(hyperate_save_and_connect, "SAVE AND CONNECT")
-V(hyperate_input_hint, "https://app.hyperate.io/???")
-V(hyperate_input_hint2, "Input the ??? part:")
+V(hyperate_input_hint, "https://app.hyperate.io/<color=\"green\">xxx</color><-input this")
 V(no_message_from_server, "")
+
 V(heart_osc_port, "OSC Port: %d")
 
 V(pairing, "Pairing.. click to stop.")

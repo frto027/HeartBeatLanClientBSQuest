@@ -63,12 +63,12 @@ bool con_opened = false;
 int failed_count = 0;
 
 int retry_sleep_time(){
-    if(failed_count < 3){
+    if(failed_count < 5){
         return (1);
-    }else if(failed_count < 10){
+    }else if(failed_count < 15){
         return (10);
     }else{
-        return (15);
+        return (20);
     }
 }
 
@@ -125,7 +125,7 @@ void HeartBeatHypeRateDataSource::CreateSocket(){
         the_timer = endpoint.set_timer(200, timer_impl);
 
         current_retry_time_already += 200;
-
+        
         if(resetRequest){
             resetRequest = false;
             if(con && con->get_state() != websocketpp::session::state::closed)
@@ -146,6 +146,11 @@ void HeartBeatHypeRateDataSource::CreateSocket(){
             if(con)
                 con->close(1001, "closed"), con = nullptr;
             return;
+        }
+
+        if(con && con->get_state() == websocketpp::session::state::closed){
+            con = nullptr;
+            failed_count++;
         }
 
         if(con == nullptr){
@@ -170,16 +175,10 @@ void HeartBeatHypeRateDataSource::CreateSocket(){
 
         if(con){
             time_t now = time(NULL);
-            if(con_opened && now > last_ping_time + 3 && con->get_state() == websocketpp::session::state::open){
+            if(con_opened && now > last_ping_time + 5 && con->get_state() == websocketpp::session::state::open){
                 last_ping_time = now;
-                getLogger().info("ping");
-                auto error = con->send("i");
-                if(error){
-                    failed_count++;
-                    //error
-                    con->close(1002, "error");
-                    con = nullptr;
-                };
+                // getLogger().info("ping");
+                con->ping("");
             }
         }
 
@@ -191,6 +190,19 @@ void HeartBeatHypeRateDataSource::CreateSocket(){
     endpoint.set_socket_init_handler([](std::weak_ptr<void> a,
         boost::asio::basic_stream_socket<boost::asio::ip::tcp> &b){
         
+    });
+    endpoint.set_ping_handler([](auto r, auto m){
+        return true;
+    });
+    endpoint.set_pong_handler([](auto r, auto p){
+        failed_count = 0;
+    });
+    endpoint.set_pong_timeout_handler([](auto r, auto p){
+        if(con && con->get_state() == websocketpp::session::state::open){
+            con->close(1000, "pong timeout");
+        }
+        con = nullptr;
+        getLogger().warn("Network ping-pong timeout");
     });
     // endpoint.set_tls_init_handler();
     endpoint.set_message_handler([this](std::weak_ptr<void> a, 
