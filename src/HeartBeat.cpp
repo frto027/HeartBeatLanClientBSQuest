@@ -140,7 +140,12 @@ namespace HeartBeat{
                             if(col > 0){
                                 auto key = name->Substring(0, col);
                                 auto val = name->Substring(col+1);
-                                infos[std::string(key)] = std::string(val);
+                                std::string key_str = key;
+                                auto old_val_it = infos.find(key_str);
+                                if(old_val_it == infos.end())
+                                    infos[key_str] = std::string(val);
+                                else
+                                    infos[key_str] = old_val_it->second + "," + std::string(val);
                             }
                         }
                     }

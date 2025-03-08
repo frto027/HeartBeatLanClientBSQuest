@@ -45,7 +45,7 @@ public class HeartController : MonoBehaviour
                         {
                             var key = child.name.Substring(0, comma);
                             var value = child.name.Substring(comma + 1);
-                            Debug.Log(key + ": " + value);
+                            Debug.Log(key + ": " + value); // the mod will see all key value pair, and do something with these property if possible
                         }
                     }
                 }
@@ -68,6 +68,10 @@ public class HeartController : MonoBehaviour
                 Debug.Log(font.material.shader);
                 var shader = tm.material.shader;
                 Debug.Log(shader);
+            }
+            if(transform.GetComponent<TMP_Text>() != null)
+            {
+                //the mod will fix the font for this component
             }
 
             var anmt = transform.GetComponent<Animator>();

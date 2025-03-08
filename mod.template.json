@@ -7,7 +7,7 @@
   "version": "${version}",
   "packageId": "com.beatgames.beatsaber",
   "packageVersion": "1.37.0_9064817954",
-  "description": "Receive and display heart rate data. Need patch the game with bluetooth permission or install an external apk.",
+  "description": "This mod displays your heart rate in the quest game. Supported multiple data sources and Bluetooth data source requires a permission patch via ModsBeforeFriday.",
   "dependencies": [],
   "modFiles": [],
   "libraryFiles": [],
