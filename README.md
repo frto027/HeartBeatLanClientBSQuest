@@ -8,6 +8,12 @@ the latest version for beatsaber `1.37.0_9064817954`
 
 view your heartbeat inside the quest game
 
+# Usage
+
+After you patch the mod, you can configure it inside the game via a button on your left side. Change the data source and restart the game, and it works.
+
+# Bluetooth device as the data source
+
 1. patch the game with the `bluetooth` permission via [mbf](https://mbf.bsquest.xyz/), which is the recommand way to mod the beatsaber now.
 1. install this mod via mbf.
 2. In your quest bluetooth setthings, pair your heart rate BLE device with your quest.
@@ -19,7 +25,13 @@ More accurately, it requires the game has the following permission
         android.permission.BLUETOOTH
         android.permission.BLUETOOTH_CONNECT
 
-# Default UI and DIY(not released yet)
+The Bluetooth data source has minimum data latency.
+
+# HypeRate as the heart data source
+
+This mod supports the [HypeRate](https://www.hyperate.io/) as the data source, and Bluetooth permission is not required if you don't use it. Input your hyperate ID inside the game and it will works.
+
+# Default UI and DIY
 
 The color bar under the number indicates your heart zone.
 
@@ -39,9 +51,7 @@ as a refer, here I lists what these color bar means.
 
 This mod supports DIY Interface via Unity asset bundle, please refer to [UnityUI/Readme.md](UnityUI/Readme.md)
 
-# Alternative way
-
-> OSC Protocol is supported, bluetooth permission is not required
+# OSC as the heart data source
 
 Use your favorite heart rate OSC senders, send to the port 9000 for your quest device.**If your sender program is not supported by this mod, please [let me know](https://github.com/frto027/HeartBeatLanClientBSQuest/issues).**
 
