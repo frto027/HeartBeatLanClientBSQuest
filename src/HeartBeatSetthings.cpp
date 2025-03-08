@@ -104,14 +104,6 @@ namespace SetthingUI{
             if(ModEnabled == false)
                 return;
 
-            BSML::Lite::CreateToggle(container->get_transform(), LANG->enable_record, getModConfig().EnableRecord.GetValue(), [](bool v){
-                getModConfig().EnableRecord.SetValue(v);
-            });
-            BSML::Lite::CreateToggle(container->get_transform(), LANG->record_dev_name, getModConfig().RecordDevName.GetValue(), [](bool v){
-                getModConfig().RecordDevName.SetValue(v);
-            });
-
-
             self->add_didDeactivateEvent(custom_types::MakeDelegate<HMUI::ViewController::DidDeactivateDelegate*>(std::function([](bool removedFromHierarchy, bool screenSystemDisabling){
                 if(MainMenuPreviewObject) MainMenuPreviewObject->set_active(false);
             })));
@@ -161,6 +153,15 @@ namespace SetthingUI{
                     }
                     getLogger().debug("{} selected.", value);
                 });
+
+
+            BSML::Lite::CreateToggle(container->get_transform(), LANG->enable_record, getModConfig().EnableRecord.GetValue(), [](bool v){
+                getModConfig().EnableRecord.SetValue(v);
+            });
+            BSML::Lite::CreateToggle(container->get_transform(), LANG->record_dev_name, getModConfig().RecordDevName.GetValue(), [](bool v){
+                getModConfig().RecordDevName.SetValue(v);
+            });
+    
 
             // the age is just used to provide a default value for maxheart
             static BSML::IncrementSetting * MaxHeartIncr;
