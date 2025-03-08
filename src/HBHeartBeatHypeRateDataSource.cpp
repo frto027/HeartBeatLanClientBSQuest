@@ -63,13 +63,13 @@ bool con_opened = false;
 int failed_count = 0;
 
 int retry_sleep_time(){
-    if(failed_count < 5){
-        return (1);
-    }else if(failed_count < 15){
-        return (10);
-    }else{
-        return (20);
-    }
+    if(failed_count < 30)
+        return (3);
+    // }else if(failed_count < 15){
+    return (10);
+    // }else{
+        // return (20);
+    // }
 }
 
 std::string CheckHypeRateWebSocketIdentity(){
@@ -130,7 +130,6 @@ void HeartBeatHypeRateDataSource::CreateSocket(){
             resetRequest = false;
             if(con && con->get_state() != websocketpp::session::state::closed)
                 con->close(1000, "reset requested");
-            con = nullptr;
             failed_count = 0;
             return;
         }
@@ -139,12 +138,13 @@ void HeartBeatHypeRateDataSource::CreateSocket(){
         if(current_retry_time_already <= retry_sleep_time() * 1000){
             return;
         }
+        current_retry_time_already = 0;
 
         if(closed){
             if(the_timer)
                 the_timer->cancel(), the_timer = nullptr;
             if(con)
-                con->close(1001, "closed"), con = nullptr;
+                con->close(1000, "closed");
             return;
         }
 
@@ -160,10 +160,12 @@ void HeartBeatHypeRateDataSource::CreateSocket(){
                 con_opened = false;
                 if(ec){
                     getLogger().error("HypeRate connection error: {}", ec.message());
-                    con = nullptr;
                     failed_count++;
                     return;
                 }else{
+                    con->set_open_handshake_timeout(5000);
+                    con->set_close_handshake_timeout(1000);
+                    con->set_pong_timeout(3000);
                     endpoint.connect(con);
                     getLogger().info("heart server has been connected");
                     return;
@@ -201,7 +203,6 @@ void HeartBeatHypeRateDataSource::CreateSocket(){
         if(con && con->get_state() == websocketpp::session::state::open){
             con->close(1000, "pong timeout");
         }
-        con = nullptr;
         getLogger().warn("Network ping-pong timeout");
     });
     // endpoint.set_tls_init_handler();
@@ -212,6 +213,7 @@ void HeartBeatHypeRateDataSource::CreateSocket(){
             //we can only handle text opcode
             return;
         }
+        getLogger().info("we got a package");
         failed_count = 0;
         auto & payload = b->get_payload();
         if(payload == "o"){
@@ -268,8 +270,7 @@ void HeartBeatHypeRateDataSource::CreateSocket(){
                                 //do the action here
                                 if(strcmp(action, "close") == 0){
                                     closed = true;
-                                    con->close(1001, "server close, never open");
-                                    con = nullptr;
+                                    con->close(1000, "server close, never open");
                                 }
 
                                 if(strcmp(action, "reset") == 0){
@@ -335,7 +336,6 @@ void HeartBeatHypeRateDataSource::CreateSocket(){
         if(con->get_state() == websocketpp::session::state::open && con->send(toSend)){
             getLogger().error("connection send failed.");
             con->close(1000, "error");
-            con = nullptr;
         }else{
             con_opened = true;
             failed_count = 0;
@@ -344,11 +344,13 @@ void HeartBeatHypeRateDataSource::CreateSocket(){
     endpoint.set_close_handler([](std::weak_ptr<void> b){
         getLogger().info("the connection has been closed");
         con = nullptr;
-        failed_count++;
     });
+    
     endpoint.set_fail_handler([](auto f){
-        if(con && con->get_state() == websocketpp::session::state::open) con->close(1007, "failed"),con = nullptr;
+        getLogger().info("connection failed, retry later");
+        if(con && con->get_state() == websocketpp::session::state::open) con->close(1000, "failed");
         failed_count++;
+        con = nullptr;
     });
 
 
@@ -365,7 +367,7 @@ void * HeartBeatHypeRateDataSource::ServerThread(void *self){
         try{
             con->close(1004,"cpp exception");
         }catch(...){
-            con = nullptr;
+            // con = nullptr;
         }
     };
     while(!me->closed){
