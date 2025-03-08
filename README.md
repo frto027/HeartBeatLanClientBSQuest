@@ -31,6 +31,8 @@ The Bluetooth data source has minimum data latency.
 
 This mod supports the [HypeRate](https://www.hyperate.io/) as the data source, and Bluetooth permission is not required if you don't use it. Input your hyperate ID inside the game and it will works.
 
+I use cloudflare worker to handle the connection. If resources run out it may become unavailable that day, hopefully that won't happen.
+
 # Default UI and DIY
 
 The color bar under the number indicates your heart zone.
