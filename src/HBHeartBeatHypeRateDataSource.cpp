@@ -279,6 +279,7 @@ void HeartBeatHypeRateDataSource::CreateSocket(){
                         }
                     }
                 }
+                return;
             }
 
             {

@@ -212,6 +212,7 @@ namespace SetthingUI{
             );
 
             feature_unsupport_hint_ui = BSML::Lite::CreateText(container->get_transform(), "", 4, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4});
+            feature_unsupport_hint_ui->set_color(UnityEngine::Color::get_red());
 
 
             private_public_btn =  BSML::Lite::CreateUIButton(container->get_transform(), LANG->waiting, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 8}, PrivateNotPrivateBtnClick);
