@@ -133,6 +133,16 @@ namespace SetthingUI{
                 LANG->data_source_osc,
                 LANG->data_source_hyperate
             };
+
+            static std::vector<std::string_view> data_sources_in_ui;
+            data_sources_in_ui = {
+                LANG->data_source_bluetooth,
+                LANG->data_source_hyperate,
+                LANG->data_source_osc,
+                LANG->data_source_random,
+                LANG->data_source_lan,
+            };
+
             auto current_data_type = getModConfig().DataSourceType.GetValue();
             if(current_data_type >= data_sources.size()){
                 current_data_type = 2;
@@ -141,7 +151,7 @@ namespace SetthingUI{
                 current_data_type = 2;
             BSML::Lite::CreateDropdown(container->get_transform(),
                 LANG->data_source, 
-                data_sources[current_data_type], data_sources, [](::StringW value){
+                data_sources[current_data_type], data_sources_in_ui, [](::StringW value){
                     for(int i=0;i<data_sources.size();i++){
                         if(data_sources[i] == value){
                             getLogger().debug("{} selected", i);
