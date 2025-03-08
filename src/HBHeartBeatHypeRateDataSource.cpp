@@ -364,7 +364,7 @@ void * HeartBeatHypeRateDataSource::ServerThread(void *self){
     auto retry = [](){
         sleep(3);
         try{
-            if(con && con->get_state() == websocketpp::session::state::open)con->close(1004,"cpp exception");
+            if(con && con->get_state() == websocketpp::session::state::open)con->close(1000,"cpp exception");
         }catch(...){
             // con = nullptr;
         }
