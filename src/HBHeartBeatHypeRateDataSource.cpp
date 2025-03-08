@@ -213,7 +213,6 @@ void HeartBeatHypeRateDataSource::CreateSocket(){
             //we can only handle text opcode
             return;
         }
-        getLogger().info("we got a package");
         failed_count = 0;
         auto & payload = b->get_payload();
         if(payload == "o"){
@@ -332,7 +331,7 @@ void HeartBeatHypeRateDataSource::CreateSocket(){
         dom.Accept(writer);
 
         std::string toSend = std::string("C") + buffer.GetString();
-        getLogger().info("Send package to server: {}", toSend);
+        //getLogger().info("Send package to server: {}", toSend);
         if(con->get_state() == websocketpp::session::state::open && con->send(toSend)){
             getLogger().error("connection send failed.");
             con->close(1000, "error");
@@ -365,7 +364,7 @@ void * HeartBeatHypeRateDataSource::ServerThread(void *self){
     auto retry = [](){
         sleep(3);
         try{
-            con->close(1004,"cpp exception");
+            if(con && con->get_state() == websocketpp::session::state::open)con->close(1004,"cpp exception");
         }catch(...){
             // con = nullptr;
         }
