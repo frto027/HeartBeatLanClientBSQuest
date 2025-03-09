@@ -53,6 +53,8 @@ as a refer, here I lists what these color bar means.
 
 This mod supports DIY Interface via Unity asset bundle, please refer to [UnityUI/Readme.md](UnityUI/Readme.md)
 
+If you have any ideas about the UI, please open a issue. More customization capabilities can be added in the future, if someone needs it, such as binding the UI to the saber.
+
 # OSC as the heart data source
 
 Use your favorite heart rate OSC senders, send to the port 9000 for your quest device.**If your sender program is not supported by this mod, please [let me know](https://github.com/frto027/HeartBeatLanClientBSQuest/issues).**
