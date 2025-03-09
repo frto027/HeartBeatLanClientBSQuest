@@ -29,7 +29,7 @@ The Bluetooth data source has minimum data latency.
 
 # HypeRate as the heart data source
 
-This mod supports the [HypeRate](https://www.hyperate.io/) as the data source, and Bluetooth permission is not required if you don't use it. Input your hyperate ID inside the game and it will works.
+This mod supports the [HypeRate](https://www.hyperate.io/) as the data source, and Bluetooth permission is not required if you don't use it. Just install the mod and change the data source, then restart. Input your hyperate ID inside the game and it will works. (Special thanks to HypeRate for providing API support)
 
 I use cloudflare worker to handle the connection. If resources run out it may become unavailable that day, hopefully that won't happen.
 
@@ -61,7 +61,7 @@ After you change the data source to OSC in the setthings menu, the port will be 
 
 You can also use [this android apk](https://github.com/frto027/HeartbeatLanServer/releases/latest) to send osc data from your android phone, or install it on your quest device directly and send to `127.0.0.1:9000`. 
 
-This apk does not extend the device compatability, because it read bluetooth data just like what the mod does in game. If your heart monitor device is not supported, you may need some other program to convert their data to OSC protocol, or try to enable something like bluetooth broadcast in your monitor device. **I also have plan to support [gadgetbridge](https://gadgetbridge.org/), which may extend the device compatability. If you need it, please [let me know](https://github.com/frto027/HeartBeatLanClientBSQuest/issues).**
+This apk does not extend the device compatability, because it read bluetooth data just like what the mod does in game. If your heart monitor device is not supported, you may need some other program to convert their data to OSC protocol, or try to enable something like bluetooth broadcast in your monitor device.
 
 # Alternative way(don't use it if other way works for you)
 <details>
