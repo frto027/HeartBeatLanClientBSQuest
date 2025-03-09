@@ -4,6 +4,8 @@
 
 在quest游戏中显示心率数据。
 
+# 蓝牙设备数据源
+
 1. 使用[mbf](https://mbf.bsquest.xyz/)安装这个模组，同时需要给游戏打`bluetooth`权限补丁。
 2. 在quest的蓝牙中，将BLE心率设备进行配对（需要设备使用蓝牙广播）。
 3. 打开游戏，在左侧的设备列表中选择你的设备。（第一次扫描设备会提示申请蓝牙权限）
@@ -14,9 +16,13 @@
         android.permission.BLUETOOTH
         android.permission.BLUETOOTH_CONNECT
 
-# 备选方式
+# HypeRate数据源
 
-> 支持OSC协议，无需bluetooth权限
+此方式无需bluetooth权限。心率设备连接手机配置好[HypeRate](https://www.hyperate.io/)，在游戏左侧菜单选择HypeRate作为数据源后重启游戏，然后在HypeRate菜单中输入你的HypeRateID即可使用。
+
+# OSC数据源
+
+支持OSC协议，无需bluetooth权限。
 
 使用其它的OSC心率数据源，发送到你的quest设备9000端口。
 
