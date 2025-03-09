@@ -39,9 +39,9 @@
 
 </details>
 
-# 工作原理
+# 其它信息
 
-此模组使用[JNI](https://docs.oracle.com/javase/8/docs/technotes/guides/jni/spec/jniTOC.html)调用[PathClassLoader](https://developer.android.com/reference/dalvik/system/PathClassLoader)加载蓝牙驱动class文件。
+有关模组原理以及自定义界面等信息，请参考英文readme文件。
 
 # 作者信息
 
