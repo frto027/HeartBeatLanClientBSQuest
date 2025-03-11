@@ -221,7 +221,7 @@ void HeartBeatHypeRateDataSource::CreateSocket(){
             return;
         }
         try{
-            getLogger().info("{}", payload);
+            //getLogger().info("{}", payload);
             if(payload.length() > 1 && payload[0] == 'S'){
                 const char * json_str = payload.c_str() + 1;
                 rapidjson::Document d;
