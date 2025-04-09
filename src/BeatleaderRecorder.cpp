@@ -30,7 +30,7 @@ bool isPaused = false;
 bool needReplay = false;
 // the replay is not supported for this version
 bool replayStarted = false;
-int nextDataToReplay = 0;
+int currentDataToReplay = -1;
 
 //don't record too often
 float_t lastRecordSongTime = -1000;
@@ -101,9 +101,11 @@ void RecordCallback(std::string name, int* length, void** data){
 }
 //this callback is called by replay mod... what timing is it?
 void ReplayCallback(const char * buff, size_t length){
+    recordStarted = false;// just make sure we have no bugs, it's already true here.
     replayStarted = false;
 
     if(buff == nullptr || length == 0){
+        getLogger().info("no replay data detected, or length is zero.");
         return;
     }
 
@@ -142,13 +144,18 @@ void ReplayCallback(const char * buff, size_t length){
     unsigned int ver;
     if(!GetUInt32(ver))
         return;
-    if(ver != 1)
+    getLogger().info("replay data detected, version {}.", ver);
+
+    if(ver != 1){
+        getLogger().info("the replay data version is not supported.");
         return;
+    }
     unsigned int recordCount;
     if(!GetUInt32(recordCount))
         return;
     recordData.clear();
     replayStarted = true;
+    currentDataToReplay = -1;
     for(int i=0;i<recordCount;i++){
         float timestamp;
         unsigned int heartrate;
@@ -156,8 +163,11 @@ void ReplayCallback(const char * buff, size_t length){
             return;
         if(!GetUInt32(heartrate))
             return;
+        getLogger().info("timestamp {}, data {}", timestamp, heartrate);
         recordData.emplace_back(timestamp, heartrate);
     }
+    getLogger().info("{} heart rate data loaded.", recordData.size());
+
 
     //actually we don't care about it
     // std::string devName;
@@ -191,11 +201,18 @@ MAKE_HOOK_MATCH(SinglePlayerInstallBindings, &GlobalNamespace::GameplayCoreInsta
     };
 
     if(UploadDisabledByReplay()){
-        DisableRecord();
-        getLogger().info("this is a replay, don't start record.");
+        if(needReplay){
+            //don't clear the recordData, we need replay them
+            recordStarted = false;
+            isPaused = false;    
+        }else{
+            DisableRecord();
+        }
+        getLogger().info("this is a replay, don't start record. replaying = {}", replayStarted);
         // the replay data should have been loaded by replay callback now.
         return;
     }else{
+        recordData.clear();
         replayStarted = false;
     }
 
@@ -242,7 +259,7 @@ void Init(){
         AddReplayCustomDataProvider.value()("HeartBeatQuest", RecordCallback);
     }
 
-    auto AddReplayCustomDataCallback = CondDeps::FindUnsafe<void, std::string key, std::function<void(const char*, size_t)> >("replay", "AddReplayCustomDataCallback");
+    auto AddReplayCustomDataCallback = CondDeps::FindUnsafe<void, std::string, std::function<void(const char*, size_t)> >("replay", "AddReplayCustomDataCallback");
     if(AddReplayCustomDataCallback.has_value()){
         getLogger().info("replay mod is detected, enable replay support");
         needReplay = true;
@@ -274,10 +291,32 @@ bool isReplaying(){
     return replayStarted;
 }
 bool ReplayGetData(int &heartrate){
-    if(replayStarted && audioTimeSyncController && nextDataToReplay < recordData.size() && audioTimeSyncController->songTime >= recordData[nextDataToReplay].timestamp){
-        heartrate = recordData[nextDataToReplay].heartrate;
-        nextDataToReplay++;
-        return true;
+
+    auto isInSection = [](int index){
+        return index >= 0 && index < recordData.size() && recordData[index].timestamp <= audioTimeSyncController->songTime &&   
+            (index + 1 >= recordData.size() || recordData[index+1].timestamp > audioTimeSyncController->songTime);
+    };
+    if(replayStarted && audioTimeSyncController){
+        if(isInSection(currentDataToReplay)){
+            // getLogger().info("in section");
+            return false;
+        }
+        if(isInSection(currentDataToReplay+1)){
+            currentDataToReplay++;
+            heartrate = recordData[currentDataToReplay].heartrate;
+            return true;
+        }
+
+        //this only happens when player changes the replay progress
+        getLogger().info("search from {} datas", recordData.size());
+        for(int i=0;i<recordData.size();i++){
+            //we don't need a binary search  
+            if(isInSection(i)){
+                currentDataToReplay = i;
+                heartrate = recordData[currentDataToReplay].heartrate;
+                return true;    
+            }
+        }
     }
     return false;
 }

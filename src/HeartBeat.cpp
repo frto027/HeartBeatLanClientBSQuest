@@ -92,7 +92,7 @@ namespace HeartBeat{
                 anmt->SetInteger("heartrate", data);
                 anmt->SetFloat("heartpercent", percent);
                 anmt->SetTrigger("datacome");
-                anmt->setBool("replaying", HeartBeat::Recorder::isReplaying());
+                anmt->SetBool("replaying", HeartBeat::Recorder::isReplaying());
             }
         }
     }
