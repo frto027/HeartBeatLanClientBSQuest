@@ -15,6 +15,8 @@ bool ReplayGetData(int&heartrate);
 #define HEART_DEV_NAME_OSC "<osc>"     // the osc datasource has no device name supported
 #define HEART_DEV_NAME_HYPERATE "<hyperate>"
 extern std::string heartDeviceName;
+
+extern bool replayStarted;
 }
 }
 

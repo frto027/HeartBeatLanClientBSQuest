@@ -99,10 +99,19 @@ void RecordCallback(std::string name, int* length, void** data){
 
     recordData.clear();
 }
-//this callback is called by replay mod... what timing is it?
+
+// ReplayCallback(HeartBeatQuest) -> ReplayCallback(HRCounter) -> SinglePlayerInstallBindings(ReplayCallbackShouldCleanData=true) -> Play the replay in game play
+bool ReplayCallbackShouldCleanData = true;
+
+//this callback is called by replay mod
 void ReplayCallback(const char * buff, size_t length){
     recordStarted = false;// just make sure we have no bugs, it's already true here.
-    replayStarted = false;
+
+    if(ReplayCallbackShouldCleanData){
+        ReplayCallbackShouldCleanData = false;
+        replayStarted = false;
+        recordData.clear();
+    }
 
     if(buff == nullptr || length == 0){
         getLogger().info("no replay data detected, or length is zero.");
@@ -163,7 +172,7 @@ void ReplayCallback(const char * buff, size_t length){
             return;
         if(!GetUInt32(heartrate))
             return;
-        getLogger().info("timestamp {}, data {}", timestamp, heartrate);
+        // getLogger().info("timestamp {}, data {}", timestamp, heartrate);
         recordData.emplace_back(timestamp, heartrate);
     }
     getLogger().info("{} heart rate data loaded.", recordData.size());
@@ -193,6 +202,8 @@ inline bool UploadDisabledByReplay() {
 
 MAKE_HOOK_MATCH(SinglePlayerInstallBindings, &GlobalNamespace::GameplayCoreInstaller::InstallBindings, void, GlobalNamespace::GameplayCoreInstaller* self) {
     SinglePlayerInstallBindings(self);
+
+    ReplayCallbackShouldCleanData = true;
 
     auto DisableRecord = [](){
         recordStarted = false;
@@ -261,9 +272,10 @@ void Init(){
 
     auto AddReplayCustomDataCallback = CondDeps::FindUnsafe<void, std::string, std::function<void(const char*, size_t)> >("replay", "AddReplayCustomDataCallback");
     if(AddReplayCustomDataCallback.has_value()){
-        getLogger().info("replay mod is detected, enable replay support");
+        getLogger().info("Replay mod is detected, enable replay support");
         needReplay = true;
         AddReplayCustomDataCallback.value()("HeartBeatQuest", ReplayCallback);
+        AddReplayCustomDataCallback.value()("HRCounter", ReplayCallback);
     }
 
     if(needRecord || needReplay){

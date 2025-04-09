@@ -48,6 +48,10 @@ namespace HeartBeat{
         if(HeartBeat::dataSourceType == HeartBeat::DS_HypeRate){
             HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatHypeRateDataSource>()->needConnection = false;
         }    
+
+        // we will disable replay here (when the UI inside the game scene is destroyed), because I don't want hook a scene unload function.
+        HeartBeat::Recorder::replayStarted = false;
+
     }
     void HeartBeatObj::Update(){
         if(this->gameObject->activeInHierarchy == false)
