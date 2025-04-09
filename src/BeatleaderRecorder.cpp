@@ -27,6 +27,7 @@ bool needRecord = false;
 bool recordStarted = false;
 bool isPaused = false;
 
+bool needReplay = false;
 // the replay is not supported for this version
 bool replayStarted = false;
 int nextDataToReplay = 0;
@@ -42,7 +43,10 @@ struct RecordEntry{
 std::vector<RecordEntry> recordData;
 std::string heartDeviceName = HEART_DEV_NAME_UNK;
 
+//this callback is called by beatleader when game end
 void RecordCallback(std::string name, int* length, void** data){
+    if(recordStarted == false)
+        return;
     recordStarted = false;
 
     static std::vector<uint8_t> datas;
@@ -95,6 +99,71 @@ void RecordCallback(std::string name, int* length, void** data){
 
     recordData.clear();
 }
+//this callback is called by replay mod... what timing is it?
+void ReplayCallback(const char * buff, size_t length){
+    replayStarted = false;
+
+    if(buff == nullptr || length == 0){
+        return;
+    }
+
+    //feed the recordData
+    int i = 0;
+    auto GetUInt32 = [&](unsigned int &x){
+        uint8_t *d = (uint8_t *)&x;
+        if(i + 4 >= length) return false;
+        d[0] = buff[i++];
+        d[1] = buff[i++];
+        d[2] = buff[i++];
+        d[3] = buff[i++];
+        x = le32toh(x);
+        return true;
+    };
+    auto GetFloat = [&](float &x){
+        uint8_t *d = (uint8_t *)&x;
+        if(i + 4 >= length) return false;
+        d[0] = buff[i++];
+        d[1] = buff[i++];
+        d[2] = buff[i++];
+        d[3] = buff[i++];
+        return true;
+    };
+    auto GetStr = [&](std::string & ret){
+        unsigned int len;
+        if(!GetUInt32(len))
+            return false;
+        if(i + len >= length)
+            return false;
+        ret = std::string(&buff[i], len);
+        i += len;
+        return true;
+    };
+    
+    unsigned int ver;
+    if(!GetUInt32(ver))
+        return;
+    if(ver != 1)
+        return;
+    unsigned int recordCount;
+    if(!GetUInt32(recordCount))
+        return;
+    recordData.clear();
+    replayStarted = true;
+    for(int i=0;i<recordCount;i++){
+        float timestamp;
+        unsigned int heartrate;
+        if(!GetFloat(timestamp))
+            return;
+        if(!GetUInt32(heartrate))
+            return;
+        recordData.emplace_back(timestamp, heartrate);
+    }
+
+    //actually we don't care about it
+    // std::string devName;
+    // if(!GetStr(devName))
+    //     return;
+}
 
 GlobalNamespace::AudioTimeSyncController* audioTimeSyncController = NULL;
 MAKE_HOOK_MATCH(ScoreControllerStart, &GlobalNamespace::ScoreController::Start, void, GlobalNamespace::ScoreController* self) {
@@ -121,6 +190,18 @@ MAKE_HOOK_MATCH(SinglePlayerInstallBindings, &GlobalNamespace::GameplayCoreInsta
         recordData.clear();
     };
 
+    if(UploadDisabledByReplay()){
+        DisableRecord();
+        getLogger().info("this is a replay, don't start record.");
+        // the replay data should have been loaded by replay callback now.
+        return;
+    }else{
+        replayStarted = false;
+    }
+
+    if(!needRecord)
+        return;
+
     if(dataSourceType == DS_RANDOM){
         DisableRecord();
         getLogger().info("random datasource will not enable record.");
@@ -128,11 +209,6 @@ MAKE_HOOK_MATCH(SinglePlayerInstallBindings, &GlobalNamespace::GameplayCoreInsta
 
     }
 
-    if(UploadDisabledByReplay()){
-        DisableRecord();
-        getLogger().info("this is a replay, don't start record.");
-        return;
-    }
 
     if(!(getModConfig().EnableRecord.GetValue())){
         DisableRecord();
@@ -164,6 +240,16 @@ void Init(){
         getLogger().info("Beatleader is detected, enable record support");
         needRecord = true;
         AddReplayCustomDataProvider.value()("HeartBeatQuest", RecordCallback);
+    }
+
+    auto AddReplayCustomDataCallback = CondDeps::FindUnsafe<void, std::string key, std::function<void(const char*, size_t)> >("replay", "AddReplayCustomDataCallback");
+    if(AddReplayCustomDataCallback.has_value()){
+        getLogger().info("replay mod is detected, enable replay support");
+        needReplay = true;
+        AddReplayCustomDataCallback.value()("HeartBeatQuest", ReplayCallback);
+    }
+
+    if(needRecord || needReplay){
         INSTALL_HOOK(getLogger(), ScoreControllerStart);
         INSTALL_HOOK(getLogger(), SinglePlayerInstallBindings);
         INSTALL_HOOK(getLogger(), LevelPause);

@@ -29,6 +29,7 @@ Animate Parameters:
 - `datacome`, trigger, triggered when heart rate date come  
 - `heartrate`, integer, the heartrate
 - `heartpercent`, float, the value of `heartrate/maxheart`, it maybe larger than 1 if possible, you can use this to display heart zone informations.  
+- `replaying`, bool, if we are replaying from a replay file  
 
 If you want another prefab, remember to change the AssetBundle options below.
 
