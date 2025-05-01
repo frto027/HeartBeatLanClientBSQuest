@@ -16,7 +16,7 @@
 #include "UnityEngine/Time.hpp"
 #include "UnityEngine/Quaternion.hpp"
 
-#include "paper/shared/logger.hpp"
+#include "paper2_scotland2/shared/logger.hpp"
 
 #include "HeartBeatDataSource.hpp"
 #include "HeartBeatApiInternal.hpp"

@@ -6,7 +6,7 @@
 #include <string>
 
 // Declare the mod config as "ModConfiguration" and declare all its values and functions.
-DECLARE_CONFIG(ModConfig,
+DECLARE_CONFIG(ModConfig){
     // Declare "VariableA"
     //CONFIG_VALUE(VariableA, std::string, "Variable Name", "Variable Value");
 
@@ -33,4 +33,4 @@ DECLARE_CONFIG(ModConfig,
     CONFIG_VALUE(HypeRateId, std::string, "HypeRateID", "")
 
     CONFIG_VALUE(HypeRateWebSocketIdentity, std::string, "HypeRateWebsocketIdentity", "")
-);
+};
