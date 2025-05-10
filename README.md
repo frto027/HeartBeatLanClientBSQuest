@@ -4,7 +4,7 @@
 
 [中文说明](README.cn.md)
 
-the latest version for beatsaber `1.37.0_9064817954`
+the latest version for beatsaber `1.40.4_5283`
 
 view your heartbeat inside the quest game
 
