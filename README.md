@@ -12,6 +12,8 @@ view your heartbeat inside the quest game
 
 After you patch the mod, you can configure it inside the game via a button on your left side. Change the data source and restart the game, and it works.
 
+Please notice that the settings menu for each data source is on a **DIFFERENT** menu.
+
 # Bluetooth device as the data source
 
 1. patch the game with the `bluetooth` permission via [mbf](https://mbf.bsquest.xyz/), which is the recommand way to mod the beatsaber now.
