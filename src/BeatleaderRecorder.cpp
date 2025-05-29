@@ -271,7 +271,7 @@ void Init(){
     }
 
     auto AddReplayCustomDataCallback = CondDeps::FindUnsafe<void, std::string, std::function<void(const char*, size_t)> >("replay", "AddReplayCustomDataCallback");
-    if(false && AddReplayCustomDataCallback.has_value()){
+    if(AddReplayCustomDataCallback.has_value()){
         getLogger().info("Replay mod is detected, enable replay support");
         needReplay = true;
         AddReplayCustomDataCallback.value()("HeartBeatQuest", ReplayCallback);
