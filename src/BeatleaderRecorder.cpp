@@ -19,7 +19,17 @@
 #include "bs-utils/shared/utils.hpp"
 #include "main.hpp"
 #include "ModConfig.hpp"
+#include "metacore/shared/game.hpp"
 
+#include <time.h>
+
+inline double now_ms(void) {
+
+    struct timespec res;
+    clock_gettime(CLOCK_REALTIME, &res);
+    return 1000.0 * res.tv_sec + (double) res.tv_nsec / 1e6;
+
+}
 namespace HeartBeat{
 namespace Recorder{
 
@@ -111,6 +121,8 @@ void ReplayCallback(const char * buff, size_t length){
         ReplayCallbackShouldCleanData = false;
         replayStarted = false;
         recordData.clear();
+    }else{
+        ReplayCallbackShouldCleanData = true;
     }
 
     if(buff == nullptr || length == 0){
@@ -193,10 +205,17 @@ MAKE_HOOK_MATCH(ScoreControllerStart, &GlobalNamespace::ScoreController::Start, 
 // copy from beatleader mod
 inline bool UploadDisabledByReplay() {
     for (auto kv : bs_utils::Submission::getDisablingMods()) {
+        getLogger().info("Disabled by {}", kv.id);
         if (kv.id == "Replay") {
             return true;
         }
     }
+    for (auto kv : MetaCore::Game::GetScoreSubmissionDisablers()) {
+        if (kv == "Replay") {
+            return true;
+        }
+    }
+
     return false;
 }
 
@@ -211,7 +230,7 @@ MAKE_HOOK_MATCH(SinglePlayerInstallBindings, &GlobalNamespace::GameplayCoreInsta
         recordData.clear();
     };
 
-    if(UploadDisabledByReplay()){
+    if(UploadDisabledByReplay() || replayStarted){
         if(needReplay){
             //don't clear the recordData, we need replay them
             recordStarted = false;
@@ -303,6 +322,7 @@ bool isReplaying(){
     return replayStarted;
 }
 bool ReplayGetData(int &heartrate){
+    //auto beg_time = now_ms();
 
     auto isInSection = [](int index){
         return index >= 0 && index < recordData.size() && recordData[index].timestamp <= audioTimeSyncController->songTime &&   
@@ -326,6 +346,8 @@ bool ReplayGetData(int &heartrate){
             if(isInSection(i)){
                 currentDataToReplay = i;
                 heartrate = recordData[currentDataToReplay].heartrate;
+                //auto done_time = now_ms();
+                //getLogger().debug("search done in {}ms", done_time - beg_time);
                 return true;    
             }
         }
