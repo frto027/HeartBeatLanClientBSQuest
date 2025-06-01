@@ -50,8 +50,6 @@ jobs:
         key: extern-${{ hashFiles('qpm.json') }}
         restore-keys: |
           extern-
-    - name: dir vcpkg cache
-      run: dir ~/.cache/vcpkg/archives
     - name: setup vcpkg
       env: 
         VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
