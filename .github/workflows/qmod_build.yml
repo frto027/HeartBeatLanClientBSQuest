@@ -50,8 +50,14 @@ jobs:
         key: extern-${{ hashFiles('qpm.json') }}
         restore-keys: |
           extern-
+    - name: dir vcpkg cache
+      run: dir .cache/vcpkg/archives
     - name: setup vcpkg
+      env: 
+        VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
       run: $env:VCPKG_ROOT = $env:VCPKG_INSTALLATION_ROOT; vcpkg install --triplet arm64-android
+    - name: dir vcpkg cache again
+      run: dir .cache/vcpkg/archives
     - name: qpm restore
       run: qpm restore
     - name: build
