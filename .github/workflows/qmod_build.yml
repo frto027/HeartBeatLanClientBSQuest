@@ -48,8 +48,6 @@ jobs:
       env: 
         VCPKG_BINARY_SOURCES: "clear;files,\\\\remote\\shared\\vcpkg\\binary-cache,read;files,${{ github.workspace }}\\.vcpkg_cache,readwrite"
       run: $env:VCPKG_ROOT = $env:VCPKG_INSTALLATION_ROOT; vcpkg install --triplet arm64-android
-    - name: dir vcpkg cache again
-      run: dir .vcpkg_cache
     - name: qpm restore
       run: qpm restore
     - name: build
