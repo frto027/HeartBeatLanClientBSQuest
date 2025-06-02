@@ -38,7 +38,7 @@ jobs:
     - name: Cache qpm things
       uses: actions/cache@v4
       with:
-        path: ${{ env.USERPROFILE }}\AppData\Roaming\QPM-Rs
+        path: ~/AppData/Roaming/QPM-Rs
         key: extern-${{ hashFiles('qpm.json') }}
         restore-keys: |
           extern-
