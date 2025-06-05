@@ -32,6 +32,7 @@ jobs:
       with:
         path: |
           .vcpkg_cache
+          vcpkg_installed
         key: vcpkg-${{ runner.os }}-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json') }}
         restore-keys: |
           vcpkg-${{ runner.os }}-
