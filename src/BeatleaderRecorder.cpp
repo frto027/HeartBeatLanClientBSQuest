@@ -16,7 +16,6 @@
 #include "GlobalNamespace/AudioTimeSyncController.hpp"
 #include "GlobalNamespace/GameplayCoreInstaller.hpp"
 #include "GlobalNamespace/PauseMenuManager.hpp"
-#include "bs-utils/shared/utils.hpp"
 #include "main.hpp"
 #include "ModConfig.hpp"
 #include "metacore/shared/game.hpp"
