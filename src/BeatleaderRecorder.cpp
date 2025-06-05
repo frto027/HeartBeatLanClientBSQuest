@@ -281,9 +281,9 @@ void Init(){
         AddReplayCustomDataCallback.value()("HeartBeatQuest", ReplayCallback);
         AddReplayCustomDataCallback.value()("HRCounter", ReplayCallback);
 
-        IsInReplay = CondDeps::FindUnsafe<bool>("replay", "IsInReplay");
-        IsInRender = CondDeps::FindUnsafe<bool>("replay", "IsInRender");
     }
+    IsInReplay = CondDeps::FindUnsafe<bool>("replay", "IsInReplay");
+    IsInRender = CondDeps::FindUnsafe<bool>("replay", "IsInRender");
 
     if(needRecord || needReplay){
         INSTALL_HOOK(getLogger(), ScoreControllerStart);
