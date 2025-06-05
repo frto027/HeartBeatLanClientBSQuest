@@ -45,6 +45,9 @@ int currentDataToReplay = -1;
 float_t lastRecordSongTime = -1000;
 #define MIN_REDORD_TIME_INVERVAL 0.3f
 
+std::optional<bool(*)(void)> IsInReplay;
+std::optional<bool(*)(void)> IsInRender;
+
 struct RecordEntry{
     float timestamp;
     unsigned int heartrate;
@@ -261,9 +264,6 @@ MAKE_HOOK_MATCH(LevelUnpause, &GlobalNamespace::PauseMenuManager::HandleResumeFr
     LevelUnpause(self);
     isPaused = false;
 }
-
-std::optional<bool(*)(void)> IsInReplay;
-std::optional<bool(*)(void)> IsInRender;
 
 void Init(){
     auto AddReplayCustomDataProvider = CondDeps::FindUnsafe<void, std::string, std::function<void(std::string, int*, void**)> >("bl", "AddReplayCustomDataProvider");
