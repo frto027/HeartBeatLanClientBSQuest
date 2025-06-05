@@ -1,8 +1,6 @@
 # HeartBeatQuest - Quest一体机BeatSaber模组
 
-最新版本支持的游戏版本：1.40.4_5283
-
-在quest游戏中显示心率数据。
+在quest游戏中显示心率数据。本页面为简要使用方式，详细说明请参考英文Readme。
 
 # 蓝牙设备数据源
 
