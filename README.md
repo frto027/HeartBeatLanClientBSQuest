@@ -1,11 +1,9 @@
 # HeartBeatQuest (BeatSaber mod)
 
-[![QMOD BUILD](https://github.com/frto027/HeartBeatLanClientBSQuest/actions/workflows/qmod_build.yml/badge.svg)](https://github.com/frto027/HeartBeatLanClientBSQuest/actions/workflows/qmod_build.yml) ![GitHub Release](https://img.shields.io/github/v/release/Frto027/HeartBeatLanClientBSQuest?include_prereleases)
+[![QMOD BUILD](https://github.com/frto027/HeartBeatLanClientBSQuest/actions/workflows/qmod_build.yml/badge.svg)](https://github.com/frto027/HeartBeatLanClientBSQuest/actions/workflows/qmod_build.yml) ![GitHub Release](https://img.shields.io/github/v/release/Frto027/HeartBeatLanClientBSQuest?include_prereleases) ![Static Badge](https://img.shields.io/badge/BeatSaber-1.40.4_5283-gray?labelColor=blue)
 
 
 [中文说明](README.cn.md)
-
-the latest version for beatsaber `1.40.4_5283`
 
 view your heartbeat inside the quest game
 
