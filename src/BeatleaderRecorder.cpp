@@ -202,23 +202,6 @@ MAKE_HOOK_MATCH(ScoreControllerStart, &GlobalNamespace::ScoreController::Start, 
     audioTimeSyncController = self->_audioTimeSyncController;
 }
 
-// copy from beatleader mod
-inline bool UploadDisabledByReplay() {
-    for (auto kv : bs_utils::Submission::getDisablingMods()) {
-        getLogger().info("Disabled by {}", kv.id);
-        if (kv.id == "Replay") {
-            return true;
-        }
-    }
-    for (auto kv : MetaCore::Game::GetScoreSubmissionDisablers()) {
-        if (kv == "Replay") {
-            return true;
-        }
-    }
-
-    return false;
-}
-
 MAKE_HOOK_MATCH(SinglePlayerInstallBindings, &GlobalNamespace::GameplayCoreInstaller::InstallBindings, void, GlobalNamespace::GameplayCoreInstaller* self) {
     SinglePlayerInstallBindings(self);
 
@@ -230,7 +213,7 @@ MAKE_HOOK_MATCH(SinglePlayerInstallBindings, &GlobalNamespace::GameplayCoreInsta
         recordData.clear();
     };
 
-    if(UploadDisabledByReplay() || replayStarted){
+    if((IsInReplay.has_value() && IsInReplay.value()()) || (IsInRender.has_value() && IsInRender.value()()) || replayStarted){
         if(needReplay){
             //don't clear the recordData, we need replay them
             recordStarted = false;
@@ -280,6 +263,9 @@ MAKE_HOOK_MATCH(LevelUnpause, &GlobalNamespace::PauseMenuManager::HandleResumeFr
     isPaused = false;
 }
 
+std::optional<bool(*)(void)> IsInReplay;
+std::optional<bool(*)(void)> IsInRender;
+
 void Init(){
     auto AddReplayCustomDataProvider = CondDeps::FindUnsafe<void, std::string, std::function<void(std::string, int*, void**)> >("bl", "AddReplayCustomDataProvider");
 
@@ -295,6 +281,9 @@ void Init(){
         needReplay = true;
         AddReplayCustomDataCallback.value()("HeartBeatQuest", ReplayCallback);
         AddReplayCustomDataCallback.value()("HRCounter", ReplayCallback);
+
+        IsInReplay = CondDeps::FindUnsafe<bool>("replay", "IsInReplay");
+        IsInRender = CondDeps::FindUnsafe<bool>("replay", "IsInRender");
     }
 
     if(needRecord || needReplay){
