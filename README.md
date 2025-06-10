@@ -40,7 +40,7 @@ More accurately, mbf is not required, the mod requires the game has the followin
         android.permission.BLUETOOTH
         android.permission.BLUETOOTH_CONNECT
 
-The Bluetooth data source has minimum data latency.
+The Bluetooth data source has minimum data latency, but may be less compatibility because it uses a generic BLE protocol to access Bluetooth devices. Your device should support heart rate broadcase via BLE protocol.
 
 ## OSC as the heart data source
 
