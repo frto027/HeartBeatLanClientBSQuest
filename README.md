@@ -9,11 +9,25 @@ view your heartbeat inside the quest game
 
 # Usage
 
-After you patch the mod, you can configure it inside the game via a button on your left side. Change the data source and restart the game, and it works.
+After you patch the mod(e.g. with [mbf](https://mbf.bsquest.xyz/)), you can configure it inside the game via a button on your left side. Change the data source and restart the game, and it works.
 
 Please notice that the settings menu for each data source is on a **DIFFERENT** menu.
 
-# Bluetooth device as the data source
+It will automatically record your heart rate to beatleader's replay file if the beatleader-qmod is detected. You can disable this feature inside the mod setthings.
+
+# Data sources
+
+Currently, there are 3 data sources can be used for this mod.
+
+## HypeRate as the heart data source
+
+This mod supports the [HypeRate](https://www.hyperate.io/) as the data source, and Bluetooth permission is not required if you don't use it. Just install the mod and change the data source to HypeRate in the setthings menu, then restart the game. Input your hyperate ID in the HYPERATE menu and it will works. (Special thanks to HypeRate for providing API support)
+
+This is the easiest way to use this mod. But this is an online service, which means I need collect some game information to make sure the servce has no problem, such as [the version number](https://github.com/frto027/HeartBeatLanClientBSQuest/blob/4243eadcc4062ee619a6606da65a1ba4d50d91c8/src/HBHeartBeatHypeRateDataSource.cpp#L327). This data is only used to check for service errors and is usually automatically deleted within 3 days. If you don't want send these data to server, you can use other data sources.
+
+## Bluetooth device as the data source
+
+This mod can access Bluetooth directly. To use this, follow this instruction.
 
 1. patch the game with the `bluetooth` permission via [mbf](https://mbf.bsquest.xyz/), which is the recommand way to mod the beatsaber now.
 1. install this mod via mbf.
@@ -28,9 +42,24 @@ More accurately, it requires the game has the following permission
 
 The Bluetooth data source has minimum data latency.
 
-# HypeRate as the heart data source
+## OSC as the heart data source
 
-This mod supports the [HypeRate](https://www.hyperate.io/) as the data source, and Bluetooth permission is not required if you don't use it. Just install the mod and change the data source, then restart. Input your hyperate ID inside the game and it will works. (Special thanks to HypeRate for providing API support)
+Use your favorite heart rate OSC senders, send to the port 9000 for your quest device.**If your sender program is not supported by this mod, please [let me know](https://github.com/frto027/HeartBeatLanClientBSQuest/issues).**
+
+After you change the data source to OSC in the setthings menu, the port will be show at the menu, and can edit manually via config file if you need. 
+
+You can also use [this android apk](https://github.com/frto027/HeartbeatLanServer/releases/latest) to send osc data from your android phone, or install it on your quest device directly and send to `127.0.0.1:9000`. 
+
+This apk does not extend the device compatability, because it read bluetooth data just like what the mod does in game. If your heart monitor device is not supported, you may need some other program to convert their data to OSC protocol, or try to enable something like bluetooth broadcast in your monitor device.
+
+## Alternative way(Deprecated, do not use)
+<details>
+        
+> An android application to read heart rate data is also avaliable
+
+If you can't or don't want to patch your game with bluetooth permission, you can use [this android apk](https://github.com/frto027/HeartbeatLanServer/releases/latest) in your quest or android phone in same local network. After you use it, switch the data source toggle to `local network` inside the game at the mod menu in your left side.
+
+</details>
 
 # Default UI and DIY
 
@@ -54,46 +83,27 @@ This mod supports DIY Interface via Unity asset bundle, please refer to [UnityUI
 
 If you have any ideas about the UI, please open a issue. More customization capabilities can be added in the future, if someone needs it, such as binding the UI to the saber.
 
-# OSC as the heart data source
+# Development information
 
-Use your favorite heart rate OSC senders, send to the port 9000 for your quest device.**If your sender program is not supported by this mod, please [let me know](https://github.com/frto027/HeartBeatLanClientBSQuest/issues).**
-
-After you change the data source to OSC in the setthings menu, the port will be show at the menu, and can edit manually via config file if you need. 
-
-You can also use [this android apk](https://github.com/frto027/HeartbeatLanServer/releases/latest) to send osc data from your android phone, or install it on your quest device directly and send to `127.0.0.1:9000`. 
-
-This apk does not extend the device compatability, because it read bluetooth data just like what the mod does in game. If your heart monitor device is not supported, you may need some other program to convert their data to OSC protocol, or try to enable something like bluetooth broadcast in your monitor device.
-
-# Alternative way(don't use it if other way works for you)
-<details>
-        
-> An android application to read heart rate data is also avaliable
-
-If you can't or don't want to patch your game with bluetooth permission, you can use [this android apk](https://github.com/frto027/HeartbeatLanServer/releases/latest) in your quest or android phone in same local network. After you use it, switch the data source toggle to `local network` inside the game at the mod menu in your left side.
-
-</details>
-
-# How it works
+## How it works for Bluetooth device
 
 This mod uses [JNI](https://docs.oracle.com/javase/8/docs/technotes/guides/jni/spec/jniTOC.html) to load an external java library with [PathClassLoader](https://developer.android.com/reference/dalvik/system/PathClassLoader) to access bluetooth device.
 
-# Dev.
+The Bluetooth access code at `AndroidProject/HeartBeatNative` can be compiled with AndroidStudio and Android SDK 34.
+
+## How to build
 
 install [vcpkg](https://github.com/microsoft/vcpkg), makesure environment variable `VCPKG_ROOT` exists.
 
 run `vcpkg install --triplet arm64-android` before you build this project.
 
 Use `qpm s build` to build
+
 Same goes for `qpm s copy` and `.\scripts\createqmod.ps1`
 
-# Dev. Android Project
+## Mod api
 
-The Bluetooth access code at `AndroidProject/HeartBeatNative` can be compiled with AndroidStudio and Android SDK 34.
-
-# Mod api
-
-
-## Basic API Usage
+### Basic API Usage
 
 Copy `shared/HeartBeatApi.h` file to your mod
 
@@ -142,7 +152,7 @@ dataCount               - int, how many data we will have later
 bluetoothDeviceName     - string, a utf-8 format byte array directly from from Java VM
 ```
 
-## Credits
+# Credits
 
 This mod is created by frto027.
 
