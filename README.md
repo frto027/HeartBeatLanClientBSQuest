@@ -34,7 +34,7 @@ This mod can access Bluetooth directly. To use this, follow this instruction.
 2. In your quest bluetooth setthings, pair your heart rate BLE device with your quest.
 3. Open the game, scan and select your device at the device list menu.
 
-More accurately, it requires the game has the following permission
+More accurately, mbf is not required, the mod requires the game has the following permission
 
 
         android.permission.BLUETOOTH
