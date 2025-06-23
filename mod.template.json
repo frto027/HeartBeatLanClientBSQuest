@@ -6,7 +6,7 @@
   "author": "frto027",
   "version": "${version}",
   "packageId": "com.beatgames.beatsaber",
-  "packageVersion": "1.40.4_5283",
+  "packageVersion": "1.40.6_6407",
   "description": "This mod displays your heart rate in the quest game. Supported multiple data sources and Bluetooth data source requires a permission patch via ModsBeforeFriday.",
   "dependencies": [],
   "modFiles": [],
