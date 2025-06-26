@@ -28,4 +28,5 @@ if (($clean.IsPresent) -or (-not (Test-Path -Path "build"))) {
 } 
 
 & cmake -G "Ninja" -DCMAKE_BUILD_TYPE="RelWithDebInfo" -B build
+# & cmake -G "Ninja" -DCMAKE_BUILD_TYPE="RelWithDebInfo" -DWITH_REPLAY=ON -B build
 & cmake --build ./build

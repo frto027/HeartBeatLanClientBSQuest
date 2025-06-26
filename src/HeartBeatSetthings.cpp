@@ -95,8 +95,10 @@ namespace SetthingUI{
             auto *container = BSML::Lite::CreateScrollableSettingsContainer(self->get_transform());
 
 
-            auto temp = BSML::Lite::CreateText(container->get_transform(),LANG->mod_version, 4, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4});
-            
+            BSML::Lite::CreateText(container->get_transform(),LANG->mod_version, 4, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4});
+            #ifdef WITH_REPLAY
+            BSML::Lite::CreateText(container->get_transform(),"build-feature: replay", 4, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4});
+            #endif
             BSML::Lite::CreateToggle(container->get_transform(), LANG->enabled, getModConfig().Enabled.GetValue(), [](bool v){
                 getModConfig().Enabled.SetValue(v);
             });

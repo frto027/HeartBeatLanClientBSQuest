@@ -42,6 +42,12 @@ add_compile_options(-O3)
 add_compile_definitions(VERSION=\"${MOD_VERSION}\")
 add_compile_definitions(MOD_ID=\"${MOD_ID}\")
 
+# handle some custom commands
+option(WITH_REPLAY "Enable Replay mod support" OFF)
+if(WITH_REPLAY)
+  add_compile_definitions(WITH_REPLAY)
+endif()
+
 # recursively get all src files
 RECURSE_FILES(cpp_file_list ${SOURCE_DIR}/*.cpp)
 RECURSE_FILES(c_file_list ${SOURCE_DIR}/*.c)
