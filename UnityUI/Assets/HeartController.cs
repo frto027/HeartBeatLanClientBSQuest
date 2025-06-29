@@ -112,7 +112,7 @@ public class HeartController : MonoBehaviour
     {
         if(count++ % 70 == 0)
         {
-            DataCome(Random.Range(1, 180));
+            DataCome(130 + count / 50);
         }
     }
 }
