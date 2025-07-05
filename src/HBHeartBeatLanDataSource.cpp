@@ -1,7 +1,7 @@
 #include "main.hpp"
 #include "HeartBeatDataSource.hpp"
 
-#include "paper2_scotland2/shared/logger.hpp"
+#include "multi_version_compat.hpp"
 
 #include <unistd.h>
 #include <netinet/in.h>

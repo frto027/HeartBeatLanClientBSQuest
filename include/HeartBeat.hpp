@@ -44,7 +44,11 @@ extern AssetBundleManager assetBundleMgr;
 
 
 // parameters are (namespace, class name, parent class, contents)
+#ifdef GAME_VER_1_37_0
+DECLARE_CLASS_CODEGEN(HeartBeat, HeartBeatObj, UnityEngine::MonoBehaviour,
+#else
 DECLARE_CLASS_CODEGEN(HeartBeat, HeartBeatObj, UnityEngine::MonoBehaviour){
+#endif
     // DECLARE_INSTANCE_METHOD creates methods
     DECLARE_INSTANCE_METHOD(void, Start);
     DECLARE_INSTANCE_METHOD(void, OnDestroy);
@@ -52,6 +56,10 @@ DECLARE_CLASS_CODEGEN(HeartBeat, HeartBeatObj, UnityEngine::MonoBehaviour){
 public:
     AssetBundleInstinateInformation loadedComponents;
     HMUI::CurvedTextMeshPro * serverMessageDisplayer = nullptr;
+#ifdef GAME_VER_1_37_0
+);
+#else
 };
+#endif
 
 

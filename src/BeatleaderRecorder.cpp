@@ -18,8 +18,7 @@
 #include "GlobalNamespace/PauseMenuManager.hpp"
 #include "main.hpp"
 #include "ModConfig.hpp"
-#include "metacore/shared/game.hpp"
-
+#include "multi_version_compat.hpp"
 #include <time.h>
 
 inline double now_ms(void) {

@@ -2,7 +2,7 @@ from pathlib import Path
 import sys
 
 if not len(sys.argv) == 2:
-    print("usage: bump.py <version>\n\te.g.\n\t\tbump.py 0.3.3")
+    print("usage: bump.py <mod version>\n\te.g.\n\t\tbump.py 0.3.3")
 
 MOD_VERSION = sys.argv[1]
 
