@@ -1,0 +1,1 @@
+set(TARGET_GAME_VERSION "1_40_6")

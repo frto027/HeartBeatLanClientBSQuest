@@ -325,6 +325,7 @@ void HeartBeatHypeRateDataSource::CreateSocket(){
         dom.AddMember("id", id, dom.GetAllocator());
         dom.AddMember("lang", rapidjson::StringRef(LANG->lang_name), dom.GetAllocator());
         dom.AddMember("ver", VERSION, dom.GetAllocator());
+        dom.AddMember("forgame", GAME_VERSION, dom.GetAllocator());
 
         rapidjson::StringBuffer buffer;
         rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
