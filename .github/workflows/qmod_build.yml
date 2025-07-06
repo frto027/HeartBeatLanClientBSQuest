@@ -50,13 +50,13 @@ jobs:
         VCPKG_BINARY_SOURCES: "clear;files,\\\\remote\\shared\\vcpkg\\binary-cache,read;files,${{ github.workspace }}\\.vcpkg_cache,readwrite"
       run: $env:VCPKG_ROOT = $env:VCPKG_INSTALLATION_ROOT; vcpkg install --triplet arm64-android
     - name: build for 1.40.6
-      run: python multibuild\apply.py 1.40.6 && qpm restore && qpm s build && qpm qmod manifest && scripts\createqmod.ps1 -QmodName HeartBeatQuest_1.40.6
+      run: $env:VCPKG_ROOT = $env:VCPKG_INSTALLATION_ROOT; python multibuild\apply.py 1.40.6 && qpm restore && qpm s build && qpm qmod manifest && scripts\createqmod.ps1 -QmodName HeartBeatQuest_1.40.6
 
     - name: build for 1.40.4
-      run: python multibuild\apply.py 1.40.4 && qpm restore && qpm s build && qpm qmod manifest && scripts\createqmod.ps1 -QmodName HeartBeatQuest_1.40.4
+      run: $env:VCPKG_ROOT = $env:VCPKG_INSTALLATION_ROOT; python multibuild\apply.py 1.40.4 && qpm restore && qpm s build && qpm qmod manifest && scripts\createqmod.ps1 -QmodName HeartBeatQuest_1.40.4
 
     - name: build for 1.37.0
-      run: python multibuild\apply.py 1.37.0 && qpm restore && qpm s build && qpm qmod manifest && scripts\createqmod.ps1 -QmodName HeartBeatQuest_1.37.0
+      run: $env:VCPKG_ROOT = $env:VCPKG_INSTALLATION_ROOT; python multibuild\apply.py 1.37.0 && qpm restore && qpm s build && qpm qmod manifest && scripts\createqmod.ps1 -QmodName HeartBeatQuest_1.37.0
 
     - name: echo everything
       run: dir
