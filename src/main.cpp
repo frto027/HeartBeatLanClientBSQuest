@@ -6,7 +6,7 @@
 #include "GlobalNamespace/CoreGameHUDController.hpp"
 #include "UnityEngine/GameObject.hpp"
 #include "bsml/shared/BSML.hpp"
-#include "paper2_scotland2/shared/logger.hpp"
+#include "multi_version_compat.hpp"
 
 #include "HMUI/HierarchyManager.hpp"
 
