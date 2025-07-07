@@ -25,6 +25,7 @@ jobs:
 
     - name: Restore vcpkg binary
       uses: actions/cache/restore@v4
+      id: cache-vcpkg
       with:
         path: |
           .vcpkg_cache
@@ -33,7 +34,7 @@ jobs:
         restore-keys: |
           vcpkg-${{ runner.os }}-
     - name: create cache dir
-      if: steps.cache.outputs.cache-hit != 'true'
+      if: steps.cache-vcpkg.outputs.cache-hit != 'true'
       run: mkdir .vcpkg_cache
     - name: setup vcpkg
       env: 
