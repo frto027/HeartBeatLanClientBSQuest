@@ -22,25 +22,27 @@ if VERSION_FOLDER.parent != Path(__file__).parent:
 
 for f in VERSION_FOLDER.glob("*"):
     t = PROJECT_ROOT / f.name
-    if f.name == 'qpm.json':
-        with f.open('r') as f:
-            _tmp = json.load(f)
-        with t.open('r') as f:
-            _target = json.load(f)
-        _target["dependencies"] = _tmp["dependencies"]
-        with t.open('w') as f:
-            json.dump(_target, f)
+    if f.name.endswith(".json"):
+        with f.open('r') as fp:
+            _tmp = json.load(fp)
+        with t.open('r') as fp:
+            _target = json.load(fp)
+        print(f"overwriting keys from file: {f}")
+        for k in _tmp:
+            print(f"  key '{k}' overwritten")
+            keys = k.split(".")
+
+            #_target[k] = _tmp[k]
+            right = _tmp
+            left = _target
+            for kk in keys[:-1]:
+                left = left[kk]
+            left[keys[-1]] = right[k]
+            
+        with t.open('w') as fp:
+            json.dump(_target, fp)
         continue
 
-    if f.name == 'mod.template.json':
-        with f.open('r') as f:
-            _tmp = json.load(f)
-        with t.open('r') as f:
-            _target = json.load(f)
-        _target["packageVersion"] = _tmp["packageVersion"]
-        with t.open('w') as f:
-            json.dump(_target, f)
-        continue
     print(f"copy {f} to {t}")
     with t.open("wb") as _t:
         with f.open("rb") as _f:

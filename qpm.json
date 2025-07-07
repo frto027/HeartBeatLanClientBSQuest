@@ -37,11 +37,13 @@
         "pwsh ./scripts/pull-tombstone.ps1"
       ]
     },
-    "qmodIncludeDirs": [],
-    "qmodIncludeFiles": [
-      "HeartBeatBLEReader.dex"
+    "qmodIncludeDirs": [
+      "./build",
+      "./externs/libs",
+      "extra"
     ],
-    "qmodOutput": null
+    "qmodIncludeFiles": [],
+    "qmodOutput": "HeartBeatQuest.1_40_6"
   },
   "dependencies": [
     {

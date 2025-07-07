@@ -1,4 +1,5 @@
 {
+  "workspace.qmodOutput": "HeartBeatQuest.1_40_6",
   "dependencies": [
     {
       "id": "beatsaber-hook",
