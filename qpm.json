@@ -38,7 +38,9 @@
       ]
     },
     "qmodIncludeDirs": [],
-    "qmodIncludeFiles": [],
+    "qmodIncludeFiles": [
+      "HeartBeatBLEReader.dex"
+    ],
     "qmodOutput": null
   },
   "dependencies": [
