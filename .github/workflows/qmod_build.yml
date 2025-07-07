@@ -37,6 +37,8 @@ jobs:
     - name: build qmod
       run: |
           cd ${GITHUB_WORKSPACE}
+          ls -al
+          qpm restore
           pwsh ./scripts/build.ps1 && pwsh ./scripts/createqmod.ps1 -QmodName HeartBeatQuest_1.40.6
           
     - name: echo everything
