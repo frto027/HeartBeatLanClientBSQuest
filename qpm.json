@@ -39,7 +39,7 @@
     },
     "qmodIncludeDirs": [
       "./build",
-      "./externs/libs",
+      "./extern/libs",
       "extra"
     ],
     "qmodIncludeFiles": [],

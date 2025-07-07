@@ -12,6 +12,13 @@ on:
 
 jobs:
   build:
+    strategy:
+      matrix:
+        game-version: [
+          "1.40.6"
+          # "1.40.4", 
+          # "1.37.0"
+        ]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -45,6 +52,9 @@ jobs:
           vcpkg_installed
         key: vcpkg-${{ runner.os }}-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json') }}
         
+    - name: Apply game version
+      run: python multibuild/apply.py ${{ matrix.game-version }}
+
     - name: QPM Action
       uses: Fernthedev/qpm-action@v1
       with:
