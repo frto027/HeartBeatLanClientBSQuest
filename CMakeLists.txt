@@ -12,17 +12,15 @@ set(MOD_ID "HeartBeatLanReceiver")
 # - Fern
 # set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 
-if(VCPKG_ROOT)
-  message("VCPKG $ENV{VCPKG_ROOT}")
-  set(VCPKG_TARGET_TRIPLET arm64-android)
-  set(VCPKG_CHAINLOAD_TOOLCHAIN_FILE ${CMAKE_ANDROID_NDK}/build/cmake/android.toolchain.cmake)
-  set(VCPKG_MANIFEST_DIR ${CMAKE_SOURCE_DIR})
-  set(VCPKG_INSTALLED_DIR ${CMAKE_SOURCE_DIR}/vcpkg_installed)
-  string(REPLACE "\\" "/" VCPKG_ROOT_WINDOWS_FIX $ENV{VCPKG_ROOT})
-  set(CMAKE_TOOLCHAIN_FILE ${VCPKG_ROOT_WINDOWS_FIX}/scripts/buildsystems/vcpkg.cmake)
-  
-  set(websocketpp_DIR ${CMAKE_SOURCE_DIR}/vcpkg_installed/arm64-android/share/websocketpp)
-endif()
+message("VCPKG $ENV{VCPKG_ROOT}")
+set(VCPKG_TARGET_TRIPLET arm64-android)
+set(VCPKG_CHAINLOAD_TOOLCHAIN_FILE ${CMAKE_ANDROID_NDK}/build/cmake/android.toolchain.cmake)
+set(VCPKG_MANIFEST_DIR ${CMAKE_SOURCE_DIR})
+set(VCPKG_INSTALLED_DIR ${CMAKE_SOURCE_DIR}/vcpkg_installed)
+string(REPLACE "\\" "/" VCPKG_ROOT_WINDOWS_FIX $ENV{VCPKG_ROOT})
+set(CMAKE_TOOLCHAIN_FILE ${VCPKG_ROOT_WINDOWS_FIX}/scripts/buildsystems/vcpkg.cmake)
+
+set(websocketpp_DIR ${CMAKE_SOURCE_DIR}/vcpkg_installed/arm64-android/share/websocketpp)
 
 cmake_minimum_required(VERSION 3.21)
 project(${COMPILE_ID})
@@ -98,10 +96,8 @@ target_include_directories(${COMPILE_ID} PUBLIC ${SHARED_DIR})
 # codegen includes 
 target_include_directories(${COMPILE_ID} PRIVATE ${EXTERN_DIR}/includes/${CODEGEN_ID}/include)
 
-if(VCPKG_ROOT)
-  find_package(websocketpp CONFIG REQUIRED)
-  target_link_libraries(${COMPILE_ID} PRIVATE websocketpp::websocketpp)
-endif()
+find_package(websocketpp CONFIG REQUIRED)
+target_link_libraries(${COMPILE_ID} PRIVATE websocketpp::websocketpp)
 
 target_link_libraries(${COMPILE_ID} PRIVATE -llog)
 # add extern stuff like libs and other includes
