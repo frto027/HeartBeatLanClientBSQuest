@@ -24,7 +24,7 @@ jobs:
         cat ${GITHUB_WORKSPACE}/ndkpath.txt
 
     - name: Install Dependency without vcpkg
-      run: apt install -y libwebsocketpp-dev
+      run: sudo apt install -y libwebsocketpp-dev
 
     - name: QPM Action
       uses: Fernthedev/qpm-action@v1
