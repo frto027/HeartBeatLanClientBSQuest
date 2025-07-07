@@ -12,54 +12,35 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - name: setup qpm
-      run: Invoke-WebRequest https://github.com/QuestPackageManager/QPM.CLI/releases/download/v1.3.1/qpm-windows-x64.zip -OutFile qpm-windows-x64.zip 
-    - name: unzip qpm
-      run:  7z e qpm-windows-x64.zip
-    - name: setup ninja
-      run: Invoke-WebRequest https://github.com/ninja-build/ninja/releases/download/v1.12.1/ninja-win.zip -OutFile ninja-win.zip 
-    - name: unzip ninja
-      run:  7z e ninja-win.zip
-    - name: setup ndk
-      run: echo $env:ANDROID_NDK > ndkpath.txt
-    - name: setup system path
-      run: cmd /C cd | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-    - name: Cache vcpkg binaries
-      uses: actions/cache@v4
+    
+    - uses: seanmiddleditch/gha-setup-ninja@v3
+
+    - name: Create ndkpath.txt
+      run: |
+        echo "$ANDROID_NDK_LATEST_HOME" > ${GITHUB_WORKSPACE}/ndkpath.txt
+        cat ${GITHUB_WORKSPACE}/ndkpath.txt
+
+    - name: Install Dependency without vcpkg
+      run: apt install -y libwebsocketpp-dev
+
+    - name: QPM Action
+      uses: Fernthedev/qpm-action@v1
       with:
-        path: |
-          .vcpkg_cache
-          vcpkg_installed
-        key: vcpkg-${{ runner.os }}-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json') }}
-        restore-keys: |
-          vcpkg-${{ runner.os }}-
-    - name: Cache qpm things
-      uses: actions/cache@v4
-      with:
-        path: ~/AppData/Roaming/QPM-Rs
-        key: extern-${{ hashFiles('qpm.json') }}
-        restore-keys: |
-          extern-
-    - name: create cache dir
-      run: mkdir -Force .vcpkg_cache
-    - name: setup vcpkg
-      env: 
-        VCPKG_BINARY_SOURCES: "clear;files,\\\\remote\\shared\\vcpkg\\binary-cache,read;files,${{ github.workspace }}\\.vcpkg_cache,readwrite"
-      run: $env:VCPKG_ROOT = $env:VCPKG_INSTALLATION_ROOT; vcpkg install --triplet arm64-android
-    - name: build for 1.40.6
-      run: $env:VCPKG_ROOT = $env:VCPKG_INSTALLATION_ROOT; python multibuild\apply.py 1.40.6 && qpm restore && qpm s build && qpm qmod manifest && scripts\createqmod.ps1 -QmodName HeartBeatQuest_1.40.6
+        workflow_token: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: build for 1.40.4
-      run: $env:VCPKG_ROOT = $env:VCPKG_INSTALLATION_ROOT; python multibuild\apply.py 1.40.4 && qpm restore && qpm s build && qpm qmod manifest && scripts\createqmod.ps1 -QmodName HeartBeatQuest_1.40.4
+        restore: true
+        cache: true
 
-    - name: build for 1.37.0
-      run: $env:VCPKG_ROOT = $env:VCPKG_INSTALLATION_ROOT; python multibuild\apply.py 1.37.0 && qpm restore && qpm s build && qpm qmod manifest && scripts\createqmod.ps1 -QmodName HeartBeatQuest_1.37.0
-
+    - name: build qmod
+      run: |
+          cd ${GITHUB_WORKSPACE}
+          pwsh ./scripts/build.ps1 && pwsh ./scripts/createqmod.ps1 -QmodName HeartBeatQuest_1.40.6
+          
     - name: echo everything
-      run: dir
+      run: ls -al
     - uses: actions/upload-artifact@v4
       with:
         name: HeartBeatQuest.qmod
