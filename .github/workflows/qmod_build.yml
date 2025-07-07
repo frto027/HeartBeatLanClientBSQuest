@@ -56,9 +56,8 @@ jobs:
         cache: true
 
     - name: build qmod
-      env:
-        VCPKG_ROOT: ${{VCPKG_INSTALLATION_ROOT}}
       run: |
+          export VCPKG_ROOT=${VCPKG_INSTALLATION_ROOT}
           cd ${GITHUB_WORKSPACE}
           ls -al
           qpm restore
