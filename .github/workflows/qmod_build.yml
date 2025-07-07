@@ -63,10 +63,8 @@ jobs:
           ls -al
           qpm restore
           ls -l extern/libs/
-          pwsh ./scripts/build.ps1 && pwsh ./scripts/createqmod.ps1 -QmodName HeartBeatQuest_1.40.6
-          
-    - name: echo everything
-      run: ls -al
+          pwsh ./scripts/build.ps1 && qpm qmod zip
+          ls -al
     - uses: actions/upload-artifact@v4
       with:
         name: HeartBeatQuest.qmod
