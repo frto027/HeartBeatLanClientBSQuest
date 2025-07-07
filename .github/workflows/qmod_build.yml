@@ -40,12 +40,14 @@ jobs:
     - name: setup vcpkg
       env: 
         VCPKG_BINARY_SOURCES: "clear;files,\\\\remote\\shared\\vcpkg\\binary-cache,read;files,${{ github.workspace }}\\.vcpkg_cache,readwrite"
-      run: $env:VCPKG_ROOT = $env:VCPKG_INSTALLATION_ROOT; vcpkg install --triplet arm64-android
+        VCPKG_ROOT: ${{VCPKG_INSTALLATION_ROOT}}
+      run: vcpkg install --triplet arm64-android
 
     - name: setup vcpkg
       env: 
         VCPKG_BINARY_SOURCES: "clear;files,\\\\remote\\shared\\vcpkg\\binary-cache,read;files,${{ github.workspace }}\\.vcpkg_cache,readwrite"
-      run: $env:VCPKG_ROOT = $env:VCPKG_INSTALLATION_ROOT; vcpkg install --triplet arm64-android
+        VCPKG_ROOT: ${{VCPKG_INSTALLATION_ROOT}}
+      run: vcpkg install --triplet arm64-android
 
     - name: QPM Action
       uses: Fernthedev/qpm-action@v1
@@ -56,6 +58,8 @@ jobs:
         cache: true
 
     - name: build qmod
+      env:
+        VCPKG_ROOT: ${{VCPKG_INSTALLATION_ROOT}}
       run: |
           cd ${GITHUB_WORKSPACE}
           ls -al
