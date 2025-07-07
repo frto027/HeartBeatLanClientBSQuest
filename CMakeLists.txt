@@ -98,8 +98,10 @@ target_include_directories(${COMPILE_ID} PUBLIC ${SHARED_DIR})
 # codegen includes 
 target_include_directories(${COMPILE_ID} PRIVATE ${EXTERN_DIR}/includes/${CODEGEN_ID}/include)
 
-find_package(websocketpp CONFIG REQUIRED)
-target_link_libraries(${COMPILE_ID} PRIVATE websocketpp::websocketpp)
+if(VCPKG_ROOT)
+  find_package(websocketpp CONFIG REQUIRED)
+  target_link_libraries(${COMPILE_ID} PRIVATE websocketpp::websocketpp)
+endif()
 
 target_link_libraries(${COMPILE_ID} PRIVATE -llog)
 # add extern stuff like libs and other includes
