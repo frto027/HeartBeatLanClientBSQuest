@@ -89,6 +89,6 @@ jobs:
         merge-multiple: true
       
     - name: display all things
-      with:
+      run: |
         ls -al
         ls -al qmods
