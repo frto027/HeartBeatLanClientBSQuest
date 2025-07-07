@@ -23,8 +23,8 @@ jobs:
         echo "$ANDROID_NDK_LATEST_HOME" > ${GITHUB_WORKSPACE}/ndkpath.txt
         cat ${GITHUB_WORKSPACE}/ndkpath.txt
 
-    - name: Cache vcpkg binaries
-      uses: actions/cache@v4
+    - name: Restore vcpkg binary
+      uses: actions/cache/restore@v4
       with:
         path: |
           .vcpkg_cache
@@ -32,23 +32,21 @@ jobs:
         key: vcpkg-${{ runner.os }}-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json') }}
         restore-keys: |
           vcpkg-${{ runner.os }}-
-          
     - name: create cache dir
       if: steps.cache.outputs.cache-hit != 'true'
       run: mkdir .vcpkg_cache
-      
     - name: setup vcpkg
       env: 
-        VCPKG_BINARY_SOURCES: "clear;files,\\\\remote\\shared\\vcpkg\\binary-cache,read;files,${{ github.workspace }}\\.vcpkg_cache,readwrite"
-        VCPKG_ROOT: ${{VCPKG_INSTALLATION_ROOT}}
+        VCPKG_BINARY_SOURCES: "clear;files,//remote/shared/vcpkg/binary-cache,read;files,${{ github.workspace }}/.vcpkg_cache,readwrite"
       run: vcpkg install --triplet arm64-android
-
-    - name: setup vcpkg
-      env: 
-        VCPKG_BINARY_SOURCES: "clear;files,\\\\remote\\shared\\vcpkg\\binary-cache,read;files,${{ github.workspace }}\\.vcpkg_cache,readwrite"
-        VCPKG_ROOT: ${{VCPKG_INSTALLATION_ROOT}}
-      run: vcpkg install --triplet arm64-android
-
+    - name: save vcpkg cache
+      uses: actions/cache/save@v4
+      with:
+        path: |
+          .vcpkg_cache
+          vcpkg_installed
+        key: vcpkg-${{ runner.os }}-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json') }}
+        
     - name: QPM Action
       uses: Fernthedev/qpm-action@v1
       with:
