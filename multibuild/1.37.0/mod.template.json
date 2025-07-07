@@ -1,22 +1,3 @@
 {
-  "$schema": "https://raw.githubusercontent.com/Lauriethefish/QuestPatcher.QMod/main/QuestPatcher.QMod/Resources/qmod.schema.json",
-  "_QPVersion": "1.1.0",
-  "name": "${mod_name}",
-  "id": "${mod_id}",
-  "author": "frto027",
-  "version": "${version}",
-  "packageId": "com.beatgames.beatsaber",
-  "packageVersion": "1.37.0_9064817954",
-  "description": "This mod displays and records your heart rate in the quest game. Supports multiple data sources including HypeRate, Bluetooth and OSC. Bluetooth permition patch required if you use it.",
-  "dependencies": [],
-  "modFiles": [],
-  "libraryFiles": [],
-  "lateModFiles":[
-    "libHeartBeatLanClientQuest.so"
-  ],
-  "fileCopies": [{
-    "name": "HeartBeatBLEReader.dex",
-    "destination":"/sdcard/ModData/com.beatgames.beatsaber/Mods/HeartBeatQuest/HeartBeatBLEReader.dex"
-  }],
-  "coverImage": "cover.png"
+  "packageVersion": "1.37.0_9064817954"
 }

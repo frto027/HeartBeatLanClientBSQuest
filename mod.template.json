@@ -15,7 +15,7 @@
     "libHeartBeatLanClientQuest.so"
   ],
   "fileCopies": [{
-    "name": "HeartBeatBLEReader.dex",
+    "name": "extra/HeartBeatBLEReader.dex",
     "destination":"/sdcard/ModData/com.beatgames.beatsaber/Mods/HeartBeatQuest/HeartBeatBLEReader.dex"
   }],
   "coverImage": "cover.png"

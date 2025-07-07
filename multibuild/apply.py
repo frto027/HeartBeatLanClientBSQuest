@@ -1,7 +1,6 @@
 import sys
 from pathlib import Path
-
-MOD_VERSION = "0.3.2"
+import json
 
 PROJECT_ROOT = Path(__file__).parent.parent
 
@@ -23,6 +22,25 @@ if VERSION_FOLDER.parent != Path(__file__).parent:
 
 for f in VERSION_FOLDER.glob("*"):
     t = PROJECT_ROOT / f.name
+    if f.name == 'qpm.json':
+        with f.open('r') as f:
+            _tmp = json.load(f)
+        with t.open('r') as f:
+            _target = json.load(f)
+        _target["dependencies"] = _tmp["dependencies"]
+        with t.open('w') as f:
+            json.dump(_target, f)
+        continue
+
+    if f.name == 'mod.template.json':
+        with f.open('r') as f:
+            _tmp = json.load(f)
+        with t.open('r') as f:
+            _target = json.load(f)
+        _target["packageVersion"] = _tmp["packageVersion"]
+        with t.open('w') as f:
+            json.dump(_target, f)
+        continue
     print(f"copy {f} to {t}")
     with t.open("wb") as _t:
         with f.open("rb") as _f:
