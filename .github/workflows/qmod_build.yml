@@ -56,10 +56,10 @@ jobs:
       run: python multibuild/apply.py ${{ matrix.game-version }}
 
     - name: QPM Action
-      uses: Fernthedev/qpm-action@v2
+      uses: Fernthedev/qpm-action@v1
       with:
         workflow_token: ${{ secrets.GITHUB_TOKEN }}
-        qpm_version: 'ref@main'
+
         restore: true
         cache: true
 
