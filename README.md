@@ -1,7 +1,8 @@
 # HeartBeatQuest (BeatSaber mod)
 
-[![QMOD BUILD](https://github.com/frto027/HeartBeatLanClientBSQuest/actions/workflows/qmod_build.yml/badge.svg)](https://github.com/frto027/HeartBeatLanClientBSQuest/actions/workflows/qmod_build.yml) ![GitHub Release](https://img.shields.io/github/v/release/Frto027/HeartBeatLanClientBSQuest?include_prereleases) ![Static Badge](https://img.shields.io/badge/BeatSaber-1.40.6__6407-gray?labelColor=blue)
+[![QMOD BUILD](https://github.com/frto027/HeartBeatLanClientBSQuest/actions/workflows/qmod_build.yml/badge.svg)](https://github.com/frto027/HeartBeatLanClientBSQuest/actions/workflows/qmod_build.yml) ![GitHub Release](https://img.shields.io/github/v/release/Frto027/HeartBeatLanClientBSQuest?include_prereleases)
 
+![Static Badge](https://img.shields.io/badge/BeatSaber-1.40.6__6407-gray?labelColor=blue) ![Static Badge](https://img.shields.io/badge/BeatSaber-1.40.4__5283-gray?labelColor=blue) ![Static Badge](https://img.shields.io/badge/BeatSaber-1.37.0__9064817954-gray?labelColor=blue) ![Static Badge](https://img.shields.io/badge/BeatSaber-1.35.0__8016709773-gray?labelColor=blue)
 
 [中文说明](README.cn.md)
 
