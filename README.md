@@ -101,7 +101,7 @@ run `vcpkg install --triplet arm64-android` before you build this project.
 
 Use `qpm s build` to build
 
-Same goes for `qpm s copy` and `.\scripts\createqmod.ps1`
+Same goes for `qpm s copy` and `qpm qmod zip`
 
 ## Mod api
 

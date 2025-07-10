@@ -130,7 +130,12 @@ namespace HeartBeat{
             std::vector<std::string> assetPaths = {assetNamesUnity->begin(), assetNamesUnity->end()};
             for(auto assetPath : assetPaths){
                 getLogger().info("Start load {}", assetPath);
-                SafePtrUnity<UnityEngine::GameObject> gameObject = bundle->LoadAsset<UnityEngine::GameObject*>(assetPath);
+                #if defined(GAME_VER_1_35_0)
+                auto // SafePtrUnity not work here, just use auto for compat
+                #else
+                SafePtrUnity<UnityEngine::GameObject> 
+                #endif
+                    gameObject = bundle->LoadAsset<UnityEngine::GameObject*>(assetPath);
                 if(gameObject){
                     auto info = gameObject->get_transform()->Find("info");
                     if(!info)

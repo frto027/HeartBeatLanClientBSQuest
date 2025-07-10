@@ -57,10 +57,20 @@ RECURSE_FILES(cpp_file_list ${SOURCE_DIR}/*.cpp)
 RECURSE_FILES(c_file_list ${SOURCE_DIR}/*.c)
 
 if(
-        (TARGET_GAME_VERSION STREQUAL "1_40_4") OR
-        (TARGET_GAME_VERSION STREQUAL "1_40_6")
+        (TARGET_GAME_VERSION STREQUAL "1_35_0") OR
+        (TARGET_GAME_VERSION STREQUAL "1_37_0")
+        )
+        # add all src files to compile
+        add_library(
+                ${COMPILE_ID}
+                SHARED
+                ${cpp_file_list}
+                ${c_file_list}
         )
 
+
+
+else()
         RECURSE_FILES(src_inline_hook_beatsaber_hook_local_extra_c ${EXTERN_DIR}/includes/beatsaber-hook/shared/inline-hook/*.c)
         RECURSE_FILES(src_inline_hook_beatsaber_hook_local_extra_cpp ${EXTERN_DIR}/includes/beatsaber-hook/shared/inline-hook/*.cpp)
         # add all src files to compile
@@ -72,17 +82,6 @@ if(
                 ${src_inline_hook_beatsaber_hook_local_extra_c}
                 ${src_inline_hook_beatsaber_hook_local_extra_cpp}
         )
-
-else()
-
-        # add all src files to compile
-        add_library(
-                ${COMPILE_ID}
-                SHARED
-                ${cpp_file_list}
-                ${c_file_list}
-        )
-
 endif()
 
 target_include_directories(${COMPILE_ID} PRIVATE .)

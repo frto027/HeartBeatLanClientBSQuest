@@ -1,0 +1,45 @@
+{
+    "workspace.qmodOutput": "HeartBeatQuest.1_35_0.qmod",
+    "dependencies": [
+        {
+            "id": "beatsaber-hook",
+            "versionRange": "^5.1.6",
+            "additionalData": {}
+        },
+        {
+            "id": "scotland2",
+            "versionRange": "^0.1.4",
+            "additionalData": {}
+        },
+        {
+            "id": "custom-types",
+            "versionRange": "^0.17.6",
+            "additionalData": {}
+        },
+        {
+            "id": "bs-cordl",
+            "versionRange": "^3500.*",
+            "additionalData": {}
+        },
+        {
+            "id": "config-utils",
+            "versionRange": "^1.4.2",
+            "additionalData": {}
+        },
+        {
+            "id": "paper",
+            "versionRange": "^3.6.3",
+            "additionalData": {}
+        },
+        {
+            "id": "bsml",
+            "versionRange": "^0.4.22",
+            "additionalData": {}
+        },
+        {
+            "id": "conditional-dependencies",
+            "versionRange": "*",
+            "additionalData": {}
+        }
+    ]
+}

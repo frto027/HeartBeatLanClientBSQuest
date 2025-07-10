@@ -7,7 +7,7 @@
 
 // Declare the mod config as "ModConfiguration" and declare all its values and functions.
 
-#ifdef GAME_VER_1_37_0
+#if defined(GAME_VER_1_35_0) || defined(GAME_VER_1_37_0)
 DECLARE_CONFIG(ModConfig,
 #else
 DECLARE_CONFIG(ModConfig){
@@ -38,7 +38,7 @@ DECLARE_CONFIG(ModConfig){
     CONFIG_VALUE(HypeRateId, std::string, "HypeRateID", "")
 
     CONFIG_VALUE(HypeRateWebSocketIdentity, std::string, "HypeRateWebsocketIdentity", "")
-#ifdef GAME_VER_1_37_0
+#if defined(GAME_VER_1_35_0) || defined(GAME_VER_1_37_0)
 );
 #else
 };
