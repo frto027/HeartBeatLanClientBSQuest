@@ -57,6 +57,7 @@ RECURSE_FILES(cpp_file_list ${SOURCE_DIR}/*.cpp)
 RECURSE_FILES(c_file_list ${SOURCE_DIR}/*.c)
 
 if(
+        (TARGET_GAME_VERSION STREQUAL "1_28_0") OR
         (TARGET_GAME_VERSION STREQUAL "1_35_0") OR
         (TARGET_GAME_VERSION STREQUAL "1_37_0")
         )
