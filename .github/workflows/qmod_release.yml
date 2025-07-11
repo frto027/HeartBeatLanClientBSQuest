@@ -18,7 +18,7 @@ jobs:
       run: python .github/workflows/workflow_scripts/get_qpm_version.py > $GITHUB_OUTPUT
     - name: Output mod info
       run: |
-        echo mod version is ${{ steps.modinfo.version }}
+        echo mod version is ${{ steps.modinfo.outputs.version }}
     - name: Download qmods
       uses: actions/download-artifact@v4
       with:
@@ -29,5 +29,5 @@ jobs:
       uses: softprops/action-gh-release@v2
       with:
         draft: true
-        name: Release ${{ steps.modinfo.version }}
+        name: Release ${{ steps.modinfo.outputs.version }}
         files: qmods/*
