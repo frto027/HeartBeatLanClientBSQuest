@@ -1,0 +1,26 @@
+name: qmod_release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+    - name: GetModVersion
+      id: modinfo
+      run: python .github/workflows/workflow_scripts/get_qpm_version.py > $GITHUB_OUTPUT
+    - name: Output mod info
+      run: |
+        echo mod version is ${{ steps.modinfo.version }}
+    - name: Download qmods
+      uses: actions/download-artifact@v4
+      with:
+        path: qmods
+        pattern: qmod.*
+        merge-multiple: true
+    - name: Release
+      uses: softprops/action-gh-release@v2
+      draft: true
+      name: Release ${{ steps.modinfo.version }}
+      files: qmods/*

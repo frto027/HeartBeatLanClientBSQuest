@@ -52,7 +52,6 @@ jobs:
           .vcpkg_cache
           vcpkg_installed
         key: vcpkg-${{ runner.os }}-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json') }}
-        
     - name: Apply game version
       run: python multibuild/apply.py ${{ matrix.game-version }}
 
@@ -91,6 +90,6 @@ jobs:
       
     - uses: actions/upload-artifact@v4
       with:
-        name: qmods
+        name: packed
         path: qmods/HeartBeatQuest*.qmod
         overwrite: true
