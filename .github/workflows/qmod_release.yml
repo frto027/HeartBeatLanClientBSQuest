@@ -26,6 +26,7 @@ jobs:
         merge-multiple: true
     - name: Release
       uses: softprops/action-gh-release@v2
-      draft: true
-      name: Release ${{ steps.modinfo.version }}
-      files: qmods/*
+      with:
+        draft: true
+        name: Release ${{ steps.modinfo.version }}
+        files: qmods/*
