@@ -100,9 +100,11 @@ install [vcpkg](https://github.com/microsoft/vcpkg), makesure environment variab
 
 run `vcpkg install --triplet arm64-android` before you build this project.
 
-Use `qpm s build` to build
+Use `qpm restore && qpm s build` to build.
 
 Same goes for `qpm s copy` and `qpm qmod zip`
+
+See [multibuild](./multibuild) directory to build for old game version.
 
 ## Mod api
 
