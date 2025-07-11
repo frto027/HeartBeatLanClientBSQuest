@@ -12,6 +12,7 @@ jobs:
     permissions:
       contents: write
     steps:
+    - uses: actions/checkout@v4
     - name: GetModVersion
       id: modinfo
       run: python .github/workflows/workflow_scripts/get_qpm_version.py > $GITHUB_OUTPUT
