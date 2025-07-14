@@ -1,0 +1,35 @@
+{
+    "workspace.qmodOutput": "HeartBeatQuest.1_28_0.qmod",
+    "dependencies": [
+        {
+            "id": "beatsaber-hook",
+            "versionRange": "^3.8.0",
+            "additionalData": {}
+        },
+        {
+            "id": "modloader",
+            "versionRange": "=1.2.3",
+            "additionalData": {}
+        },
+        {
+            "id": "custom-types",
+            "versionRange": "^0.15.24",
+            "additionalData": {}
+        },
+        {
+            "id": "codegen",
+            "versionRange": "^0.33.0",
+            "additionalData": {}
+        },
+        {
+            "id": "config-utils",
+            "versionRange": "^1.1.0",
+            "additionalData": {}
+        },
+        {
+            "id": "bsml",
+            "versionRange": "^0.3.4",
+            "additionalData": {}
+        }
+    ]
+}
