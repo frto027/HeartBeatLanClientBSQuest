@@ -5,7 +5,7 @@ import json
 PROJECT_ROOT = Path(__file__).parent.parent
 
 def usage():
-    print("usage: ./multibuild/apply.py <game version, e.g. 1.40.6>")
+    print("usage: python ./multibuild/apply.py <game version, e.g. 1.40.6>")
 
 if not len(sys.argv) == 2:
     usage()
