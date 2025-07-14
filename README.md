@@ -2,15 +2,13 @@
 
 [![QMOD BUILD](https://github.com/frto027/HeartBeatLanClientBSQuest/actions/workflows/qmod_build.yml/badge.svg)](https://github.com/frto027/HeartBeatLanClientBSQuest/actions/workflows/qmod_build.yml) ![GitHub Release](https://img.shields.io/github/v/release/Frto027/HeartBeatLanClientBSQuest?include_prereleases)
 
-![Static Badge](https://img.shields.io/badge/BeatSaber-1.40.6__6407-gray?labelColor=blue) ![Static Badge](https://img.shields.io/badge/BeatSaber-1.40.4__5283-gray?labelColor=blue) ![Static Badge](https://img.shields.io/badge/BeatSaber-1.37.0__9064817954-gray?labelColor=blue) ![Static Badge](https://img.shields.io/badge/BeatSaber-1.35.0__8016709773-gray?labelColor=blue)
-
 [中文说明](README.cn.md)
 
 view your heart rate inside the quest game
 
 # Usage
 
-After you patch the mod(e.g. with [mbf](https://mbf.bsquest.xyz/)), you can configure it inside the game via a button on your left side. Change the data source and restart the game, and it works.
+After you patch the mod(e.g. with [mbf](https://mbf.bsquest.xyz/), with or without `bluetooth` permission), you can configure it inside the game via a button on your left side. Change the data source and restart the game, and it works.
 
 Please notice that the settings menu for each data source is on a **DIFFERENT** menu.
 
@@ -157,10 +155,38 @@ dataCount               - int, how many data we will have later
 bluetoothDeviceName     - string, a utf-8 format byte array directly from from Java VM
 ```
 
+## Game Version Support Matrix
+
+If you have trouble, you can download the developer tested mod of your game version, or report it at issue.
+
+ Mod Version |Compat Game Version | Developer Tested Game Version | Comment
+---|---|---|---
+`0.3.3`| `1.35.0` `1.37.0` `1.40.4` `1.40.6` `1.40.7` | | not tested, not released
+`0.3.2`| `1.40.6` | `1.40.6`
+`0.3.0`| `1.40.4`|`1.40.4`
+`0.2.3` - `0.2.6`| `1.37.0` | `1.37.0`
+`0.2.0` - `0.2.2`| `1.35.0`|`1.35.0`
+`0.1.0` - `0.1.1`| `1.28.0`|`1.28.0`| Very early version, hard to use, don't use it
+
+## Key Features
+
+Feature | Supported Version
+--|--
+HypeRate data source | `0.2.6` or higher version
+Beatleader record | `0.2.5` or higher version, with beatleader 0.8.63(for game 1.37.0) or higher version
+OSC data source | `0.2.2` or higher version
+Bluetooth inside the game|`0.2.1`
+
+
 # Credits
 
 This mod is created by frto027.
 
+And thanks to everyone who has directly or indirectly supported this mod.
+
 * [zoller27osu](https://github.com/zoller27osu), [Sc2ad](https://github.com/Sc2ad) and [jakibaki](https://github.com/jakibaki) - [beatsaber-hook](https://github.com/sc2ad/beatsaber-hook)
 * [raftario](https://github.com/raftario)
 * [Lauriethefish](https://github.com/Lauriethefish), [danrouse](https://github.com/danrouse) and [Bobby Shmurner](https://github.com/BobbyShmurner) for [this template](https://github.com/Lauriethefish/quest-mod-template)
+* NSGolova - [beatleader](https://github.com/BeatLeader/beatleader-qmod) for record  and webreplay support
+* And other developers is BSMG Discord channel.
+* [Hyperate](www.hyperate.io) provide api support. 
