@@ -13,7 +13,7 @@ def load_json(url:str):
             return json.loads(r.text)
         except:
             pass
-    raise "Can't download " + url
+    raise RuntimeError("Can't download " + url)
 
 def latest_build_config_folder()->Path:
     template = None
