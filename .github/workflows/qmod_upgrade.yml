@@ -21,7 +21,7 @@ jobs:
       uses: peter-evans/create-pull-request@v7
       with:
         token: ${{ secrets.PR_TOKEN }}
-        title: Add version support for ${{ steps.update.outputs.version }}
+        title: "[bot] Add version support for ${{ steps.update.outputs.version }}"
         body: Automated changes by `multibuild/auto_update_version.py`
         branch: auto-bump/${{ steps.update.outputs.version }}
         commit-message: auto bump for ${{ steps.update.outputs.version }}
