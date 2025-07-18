@@ -10,7 +10,7 @@ jobs:
     - uses: actions/checkout@v4
     - name: Update Dependency
       id: update
-      run: python multibuild/auto_update_verion.py
+      run: python multibuild/auto_update_version.py
     - name: commit changes
       if: steps.update.outputs.updated == 'true'
       run: git add multibuild/${{ steps.update.outputs.version }} && git commit -m "auto bump for ${{ steps.update.outputs.version }}"
