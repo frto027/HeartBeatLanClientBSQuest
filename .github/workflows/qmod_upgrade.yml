@@ -2,6 +2,8 @@ name: qmod_upgrade
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '0 0 */3 * *'
 
 jobs:
   update:
