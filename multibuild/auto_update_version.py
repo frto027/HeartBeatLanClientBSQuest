@@ -25,6 +25,17 @@ if local_latest != latest:
     ret = os.system(cmd)
     if ret != 0:
         exit(ret)
-    if "true" == os.environ["GITHUB_ACTIONS"]:
+    
+    # update workflow file
+    output = ""
+    with open(".github/workflows/qmod_build.yml",'r') as f:
+        for line in f.readlines():
+            output += line
+            if '__NEW_VERSION_INSERT_POINT__' in line:
+                output += f'          "{latest}",\n'
+    with open(".github/workflows/qmod_build.yml",'w') as f:
+        f.write(output)
+    
+    if "GITHUB_ACTIONS" in os.environ and "true" == os.environ["GITHUB_ACTIONS"]:
         with open(os.environ["GITHUB_OUTPUT"],'w') as f:
             f.write(f"updated=true\nversion={latest}\n")
