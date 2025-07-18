@@ -17,6 +17,7 @@ jobs:
       matrix:
         game-version: [
           # __NEW_VERSION_INSERT_POINT__
+          "1.40.7",
           "1.40.6",
           "1.40.4", 
           "1.37.0",
