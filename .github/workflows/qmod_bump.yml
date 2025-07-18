@@ -1,0 +1,22 @@
+name: qmod_bump
+
+on:
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Update Dependency
+      id: update
+      run: python ./multibuild/auto_update_verion.py
+    - name: commit changes
+      if: steps.update.outputs.updated == 'true'
+      run: git add ./multibuild/${{ steps.update.outputs.version }} && git commit -m "auto bump for ${{ steps.update.outputs.version }}"
+    - name: Create Pull Request
+      if: steps.update.outputs.updated == 'true'
+      uses: peter-evans/create-pull-request@v7
+      with:
+        title: Add version support for ${{ steps.update.outputs.version }}
+        body: Automated changes by `multibuild/auto_update_version.py`

@@ -16,7 +16,6 @@ jobs:
     strategy:
       matrix:
         game-version: [
-          "1.40.7",
           "1.40.6",
           "1.40.4", 
           "1.37.0",

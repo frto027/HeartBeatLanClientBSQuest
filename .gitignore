@@ -73,3 +73,5 @@ compile_commands.json
 vcpkg_installed
 
 qpm.shared.json
+
+multibuild/__pycache__

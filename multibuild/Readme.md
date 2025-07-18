@@ -15,3 +15,7 @@ All `.json` describe a replace rule for each json, and other files will be repla
 avaliable cpp macros:
 - some macro will be defined, e.g. `GAME_VER_1_35_0`
 - a macro string called `GAME_VERSION`, example value:`"1_35_0"`
+
+# auto update mod versions
+
+this folder contains some script that can auto update the mod dependency when the game has small changes that doesn't affect this mod.
