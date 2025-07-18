@@ -157,7 +157,9 @@ bluetoothDeviceName     - string, a utf-8 format byte array directly from from J
 
 ## Game Version Support Matrix
 
-If you have trouble, you can download the developer tested mod of your game version, or report it at issue.
+If you have trouble with the latest version, you can download the developer tested mod of your game version, or report it at issue.
+
+The latest not tested version can be found at the [github action](https://github.com/frto027/HeartBeatLanClientBSQuest/actions) page, or [pull request](https://github.com/frto027/HeartBeatLanClientBSQuest/pulls) page for the latest game version by an auto bump robot if avaliable.
 
  Mod Version |Compat Game Version | Developer Tested Game Version | Comment
 ---|---|---|---
