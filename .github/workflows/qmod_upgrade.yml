@@ -18,6 +18,7 @@ jobs:
       if: steps.update.outputs.updated == 'true'
       uses: peter-evans/create-pull-request@v7
       with:
+        token: ${{ secrets.PR_TOKEN }}
         title: Add version support for ${{ steps.update.outputs.version }}
         body: Automated changes by `multibuild/auto_update_version.py`
         branch: auto-bump/${{ steps.update.outputs.version }}
