@@ -1,3 +1,4 @@
+#include "BeatLeaderRecorder.hpp"
 #include "HMUI/CurvedTextMeshPro.hpp"
 #include "HMUI/InputFieldView.hpp"
 #include "HMUI/ViewController.hpp"
@@ -96,7 +97,7 @@ namespace SetthingUI{
 
 
             BSML::Lite::CreateText(container->get_transform(),LANG->mod_version, 4, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4});
-            BSML::Lite::CreateText(container->get_transform(),LANG->for_game, 4, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4});
+            BSML::Lite::CreateText(container->get_transform(),LANG->for_game, 4, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 8});
             #ifdef WITH_REPLAY
             BSML::Lite::CreateText(container->get_transform(),"build-feature: replay", 4, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4});
             #endif
@@ -158,13 +159,16 @@ namespace SetthingUI{
                 });
 
 
-            BSML::Lite::CreateToggle(container->get_transform(), LANG->enable_record, getModConfig().EnableRecord.GetValue(), [](bool v){
-                getModConfig().EnableRecord.SetValue(v);
-            });
-            BSML::Lite::CreateToggle(container->get_transform(), LANG->record_dev_name, getModConfig().RecordDevName.GetValue(), [](bool v){
-                getModConfig().RecordDevName.SetValue(v);
-            });
-    
+            if(HeartBeat::Recorder::BeatLeaderDetected()){
+                BSML::Lite::CreateToggle(container->get_transform(), LANG->enable_record, getModConfig().EnableRecord.GetValue(), [](bool v){
+                    getModConfig().EnableRecord.SetValue(v);
+                });
+                BSML::Lite::CreateToggle(container->get_transform(), LANG->record_dev_name, getModConfig().RecordDevName.GetValue(), [](bool v){
+                    getModConfig().RecordDevName.SetValue(v);
+                });
+            }else{
+                BSML::Lite::CreateText(container->get_transform(),LANG->no_beatleader, 4, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 8});
+            }
 
             // the age is just used to provide a default value for maxheart
             static BSML::IncrementSetting * MaxHeartIncr;

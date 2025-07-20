@@ -264,6 +264,10 @@ MAKE_HOOK_MATCH(LevelUnpause, &GlobalNamespace::PauseMenuManager::HandleResumeFr
     isPaused = false;
 }
 
+bool BeatLeaderDetected(){
+    return !!CondDeps::FindUnsafe<void, std::string, std::function<void(std::string, int*, void**)> >("bl", "AddReplayCustomDataProvider");
+}
+
 void Init(){
     auto AddReplayCustomDataProvider = CondDeps::FindUnsafe<void, std::string, std::function<void(std::string, int*, void**)> >("bl", "AddReplayCustomDataProvider");
 

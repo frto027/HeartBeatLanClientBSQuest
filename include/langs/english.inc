@@ -30,6 +30,7 @@ V(unknown_addr_server_fmt, "%s unknown addr.")
 V(heart_rate_lan_protocol_ver, "Heart Rate Lan Protocol Ver ")
 V(mod_version, "Mod version " VERSION)
 V(for_game, "For Game " GAME_VERSION)
+V(no_beatleader, "Beatleader not detected or supported, record is disabled")
 V(waiting, "Waiting...")
 
 V(config_adjust_speed, "Config Adjust Speed")
