@@ -98,7 +98,7 @@ MAKE_HOOK_MATCH(GameplayCoreHook, &GlobalNamespace::CoreGameHUDController::Initi
 }
 // Called later on in the game loading - a good time to install function hooks
 extern "C" void late_load() {
-    getLogger().info("Loading HeartbeatLan");
+    getLogger().info("Loading HeartBeatQuest(" VERSION ","  GAME_VERSION ")");
 
     il2cpp_functions::Init();
 

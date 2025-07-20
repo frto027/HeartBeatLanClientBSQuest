@@ -30,6 +30,7 @@ V(server_skip, "已跳过 ")
 V(unknown_addr_server_fmt, "%s 未知地址。")
 V(heart_rate_lan_protocol_ver, "Heart Rate Lan 协议版本：")
 V(mod_version, "模组版本 " VERSION)
+V(for_game, "适配游戏版本" GAME_VERSION)
 V(waiting, "等待中...")
 
 V(text_color, "文字颜色")
