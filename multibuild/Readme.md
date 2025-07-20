@@ -10,7 +10,7 @@ The main idea is release multiple `.qmod` with the same source code, to make sur
 
 All `.json` describe a replace rule for each json, and other files will be replaced directly.
 
-`qpm.shared.json` will not in the git, which means we always use the latest version of dependencies.
+`qpm.shared.json` will not in the git, let qpm decide which version should we use.
 
 avaliable cpp macros:
 - some macro will be defined, e.g. `GAME_VER_1_35_0`
