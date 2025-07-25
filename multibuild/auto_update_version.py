@@ -19,12 +19,13 @@ local_latest = latest_build_config_folder().name
 #### update if needed ####
 
 if local_latest != latest:
-    print("we need update")
+    print(f"we need update for version {latest}")
     cmd = f"python ./multibuild/create_manifest.py {latest}"
     import os
     ret = os.system(cmd)
     if ret != 0:
-        exit(ret)
+        print("manifest create failed.")
+        exit(0)
     
     # update workflow file
     output = ""
