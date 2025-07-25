@@ -38,7 +38,7 @@ for k in coremod_manifest:
         found_version = k
 
 if found_version == None:
-    print("version not found.")
+    print(f"can't found core mods for version {sys.argv[1]} ")
     exit(-1)
 
 ################ select an old config as dependency template to update ############
