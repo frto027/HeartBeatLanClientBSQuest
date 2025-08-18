@@ -47,29 +47,25 @@ DECLARE_DATA_SOURCE(HeartBeatHypeRateDataSource)
 
 typedef websocketpp::client<websocketpp::config::asio_client> client;
 
-client endpoint;
+static client endpoint;
 
 HeartBeatHypeRateDataSource::HeartBeatHypeRateDataSource(){
     Recorder::heartDeviceName = HEART_DEV_NAME_HYPERATE;
     this->CreateSocket();
 }
 
-client::connection_ptr con = nullptr;
-client::timer_ptr the_timer = nullptr;
-time_t last_ping_time = 0;
-bool con_opened = false;
+static client::connection_ptr con = nullptr;
+static client::timer_ptr the_timer = nullptr;
+static time_t last_ping_time = 0;
+static bool con_opened = false;
 
 
-int failed_count = 0;
+static int failed_count = 0;
 
-int retry_sleep_time(){
+inline int retry_sleep_time(){
     if(failed_count < 30)
-        return (3);
-    // }else if(failed_count < 15){
-    return (10);
-    // }else{
-        // return (20);
-    // }
+        return 3;
+    return 10;
 }
 
 std::string CheckHypeRateWebSocketIdentity(){
@@ -111,8 +107,8 @@ std::string CheckHypeRateWebSocketIdentity(){
     return ret;
 }
 
-std::function<void(std::error_code)> timer_impl;
-int current_retry_time_already = 0;
+static std::function<void(std::error_code)> timer_impl;
+static int current_retry_time_already = 0;
 void HeartBeatHypeRateDataSource::CreateSocket(){
 
     endpoint.set_access_channels(websocketpp::log::alevel::all);
@@ -154,7 +150,7 @@ void HeartBeatHypeRateDataSource::CreateSocket(){
         }
 
         if(con == nullptr){
-            if(needConnection && getModConfig().HypeRateId.GetValue().length() > 0){
+            if(displayWanted && getModConfig().HypeRateId.GetValue().length() > 0){
                 websocketpp::lib::error_code ec;
                 con = endpoint.get_connection("ws://heart.0xf7.top/hyperate", ec);
                 con_opened = false;

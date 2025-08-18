@@ -27,6 +27,7 @@
 #include "BeatLeaderRecorder.hpp"
 
 static modloader::ModInfo modInfo = {MOD_ID, VERSION, 0}; // Stores the ID and version of our mod, and is sent to the modloader upon startup
+std::string modConfigFilePath = "unk";
 
 bool ModEnabled;
 
@@ -37,6 +38,9 @@ extern "C" void setup(CModInfo& info) {
     modInfo.assign(info);
 	
     getModConfig().Init(modInfo);
+
+    modConfigFilePath = Configuration::getConfigFilePath(modInfo);
+
     getLogger().info("Completed setup!");
 
     ModEnabled = getModConfig().Enabled.GetValue();

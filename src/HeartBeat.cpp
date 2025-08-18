@@ -38,16 +38,12 @@ const char *HeartBeat::ui_features[] = {
 
 namespace HeartBeat{
     void HeartBeatObj::Start(){
-        if(HeartBeat::dataSourceType == HeartBeat::DS_HypeRate){
-            HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatHypeRateDataSource>()->needConnection = true;
-        }    
+        HeartBeat::DataSource::getInstance()->SetDisplayWanted(true);
     }
 
     void HeartBeatObj::OnDestroy(){
         getLogger().info("Destroy, we don't need heart in the future");
-        if(HeartBeat::dataSourceType == HeartBeat::DS_HypeRate){
-            HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatHypeRateDataSource>()->needConnection = false;
-        }    
+        HeartBeat::DataSource::getInstance()->SetDisplayWanted(false);
 
         // we will disable replay here (when the UI inside the game scene is destroyed), because I don't want hook a scene unload function.
         HeartBeat::Recorder::replayStarted = false;

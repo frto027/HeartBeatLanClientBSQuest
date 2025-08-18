@@ -81,8 +81,7 @@ namespace SetthingUI{
         }
         if(MainMenuPreviewObject->get_active() == false){
             MainMenuPreviewObject->set_active(true);
-            if(HeartBeat::dataSourceType == HeartBeat::DS_HypeRate)
-                HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatHypeRateDataSource>()->needConnection = true;
+            HeartBeat::DataSource::getInstance()->SetDisplayWanted(true);
         }
     }
 
@@ -122,18 +121,21 @@ namespace SetthingUI{
                 
             // A data source toggle
             static std::vector<std::string_view> data_sources;
+            //the value of data_sources MUST consist with the DS_*** enum
             data_sources = {
                 LANG->data_source_random,
                 LANG->data_source_lan,
                 LANG->data_source_bluetooth,
                 LANG->data_source_osc,
-                LANG->data_source_hyperate
+                LANG->data_source_hyperate,
+                LANG->data_source_pulsoid
             };
 
             static std::vector<std::string_view> data_sources_in_ui;
             data_sources_in_ui = {
                 LANG->data_source_bluetooth,
                 LANG->data_source_hyperate,
+                LANG->data_source_pulsoid,
                 LANG->data_source_osc,
                 LANG->data_source_random,
                 LANG->data_source_lan,
@@ -579,7 +581,7 @@ namespace SetthingUI{
             if(firstActivation) {
                 self->add_didDeactivateEvent(custom_types::MakeDelegate<HMUI::ViewController::DidDeactivateDelegate*>(std::function([](bool removedFromHierarchy, bool screenSystemDisabling){
                     if(MainMenuPreviewObject) MainMenuPreviewObject->set_active(false);
-                    HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatHypeRateDataSource>()->needConnection = false;
+                    HeartBeat::DataSource::getInstance()->SetDisplayWanted(false);
                 })));
                 devices_controller = self;
                 // Create a container that has a scroll bar
@@ -609,8 +611,50 @@ namespace SetthingUI{
                     MainMenuPreviewObjectComp->GetComponent<HeartBeat::HeartBeatObj *>()->serverMessageDisplayer = BSML::Lite::CreateText(container->get_transform(), LANG->no_message_from_server, 4, UnityEngine::Vector2{}, UnityEngine::Vector2{100, 32});
             }
         }
-
     }
+
+    namespace PulsoidSource{
+
+        std::string pulsoid_id = "";
+
+        void DidDevicesActivate(HMUI::ViewController* self, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
+            EnsurePreviewObject();
+            if(firstActivation) {
+                self->add_didDeactivateEvent(custom_types::MakeDelegate<HMUI::ViewController::DidDeactivateDelegate*>(std::function([](bool removedFromHierarchy, bool screenSystemDisabling){
+                    if(MainMenuPreviewObject) MainMenuPreviewObject->set_active(false);
+                    HeartBeat::DataSource::getInstance()->SetDisplayWanted(false);
+                })));
+                devices_controller = self;
+                // Create a container that has a scroll bar
+                auto *container = BSML::Lite::CreateScrollableSettingsContainer(self->get_transform());
+
+                pulsoid_id = getModConfig().PulsoidToken.GetValue();
+                BSML::Lite::CreateText(container->get_transform(), LANG->pulsoid_input_hint, 4, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4});
+
+                static HMUI::InputFieldView * pulsoid_token_input;
+                pulsoid_token_input = BSML::Lite::CreateStringSetting(container->get_transform(), "Pulsoid Token", pulsoid_id, [](StringW v){
+                    pulsoid_id = std::string(v);
+                });
+                BSML::Lite::CreateUIButton(container->get_transform(), LANG->hyperate_reset, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 8}, [](){
+                    {
+                        pulsoid_id = getModConfig().PulsoidToken.GetValue();
+                        pulsoid_token_input->set_text(pulsoid_id.c_str());
+                    }
+                    pulsoid_token_input->set_text(pulsoid_id);
+                });
+                BSML::Lite::CreateUIButton(container->get_transform(), LANG->pulsoid_save_and_connect, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 8}, [](){
+                    getModConfig().PulsoidToken.SetValue(pulsoid_id);
+                    HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatPulsoidDataSource>()->ResetConnection();
+                });
+
+                BSML::Lite::CreateText(container->get_transform(), LANG->pulsoid_edit_config_hint + modConfigFilePath, 4, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 8});
+
+                if(MainMenuPreviewObjectComp)
+                    MainMenuPreviewObjectComp->GetComponent<HeartBeat::HeartBeatObj *>()->serverMessageDisplayer = BSML::Lite::CreateText(container->get_transform(), LANG->no_message_from_server, 4, UnityEngine::Vector2{}, UnityEngine::Vector2{100, 32});
+            }
+        }
+    }
+
 
     //Called from HeartBeat::Update
     void UpdateSetthingsUI(){
@@ -654,6 +698,12 @@ namespace SetthingUI{
             BSML::Register::RegisterMainMenuViewControllerMethod(
                 "HeartBeatLan", LANG->hyperate, "<3",
                 SetthingUI::HypeRateSource::DidDevicesActivate);
+
+        }
+        if(HeartBeat::dataSourceType == HeartBeat::DS_Pulsoid){
+            BSML::Register::RegisterMainMenuViewControllerMethod(
+                "HeartBeatLan", LANG->pulsoid, "<3",
+                SetthingUI::PulsoidSource::DidDevicesActivate);
 
         }
     }

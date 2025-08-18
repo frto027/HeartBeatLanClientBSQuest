@@ -10,6 +10,7 @@ V(heart_devices, "HEART Devices")
 V(heart_senders, "HEART Senders")
 V(heart_osc_senders, "HEART OSC Senders")
 V(hyperate, "HypeRate")
+V(pulsoid, "Pulsoid")
 
 V(hyperate_reset, "RESET")
 V(hyperate_save_and_connect, "SAVE AND CONNECT")
@@ -54,7 +55,7 @@ V(data_source_lan, "(deprecated)local network")
 V(data_source_bluetooth, "bluetooth")
 V(data_source_osc, "OSC")
 V(data_source_hyperate, "HypeRate")
-
+V(data_source_pulsoid, "Pulsoid")
 
 V(enable_record, "Enable Record")
 V(record_dev_name, "Save Device Name To Record")
@@ -63,3 +64,7 @@ V(age, "Age")
 
 V(select_ui, "Select UI")
 V(max_heart, "Max Heartrate")
+
+V(pulsoid_input_hint, "00000000-0000-0000-0000-000000000000 <-input this token")
+V(pulsoid_save_and_connect, "SAVE AND CONNECT")
+V(pulsoid_edit_config_hint, "You can also edit file:")

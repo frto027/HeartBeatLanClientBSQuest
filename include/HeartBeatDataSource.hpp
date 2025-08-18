@@ -18,6 +18,7 @@ enum DataSourceType{
     DS_BLE,
     DS_OSC,
     DS_HypeRate,
+    DS_Pulsoid,
 };
 
 extern DataSourceType dataSourceType;
@@ -29,6 +30,9 @@ inline bool IsDatasourceAbleToRecord(){
 }
 
 class DataSource{
+protected:
+    bool displayWanted = false;
+
 public:
     virtual bool GetData(int& heartbeat);
     virtual long long GetEnergy();
@@ -36,6 +40,13 @@ public:
     static DataSource* getInstance();
     template<typename T>
     static T* getInstance();
+
+    //if the displayWanted is true, the server thread will try to connect network if it has one.
+    //network data source will not start new connections if the displayWanted is false.
+    // but will not kill the existing connection, because we want reuse it later.
+    void SetDisplayWanted(bool wanted){
+        displayWanted = wanted;
+    }
 };
 
 #define DECLARE_DATA_SOURCE(T) template<> T* DataSource::getInstance(){ static T* r = nullptr; if(!r) r = new T(); return r; }
@@ -119,6 +130,31 @@ private:
     void parseOscMessage(char *&thebuff, ssize_t &sz);
 };
 
+class HeartBeatPulsoidDataSource:public DataSource{
+    private:
+        volatile int the_heart;
+        volatile bool has_unread_heart_data = false;
+        
+        bool closed = false; // set to true to close the thread
+
+        void CreateSocket();
+
+        bool resetRequest = false;
+
+
+    public:
+        HeartBeatPulsoidDataSource();
+        bool GetData(int& heartbeat);
+    
+        static void * ServerThread(void *self);
+        
+        void ResetConnection(){
+            resetRequest = true;
+        }
+    private:
+};
+    
+
 class HeartBeatHypeRateDataSource:public DataSource{
     private:
         volatile int the_heart;
@@ -137,8 +173,6 @@ class HeartBeatHypeRateDataSource:public DataSource{
     
         static void * ServerThread(void *self);
         
-        bool needConnection = false;
-
         void ResetConnection(){
             resetRequest = true;
         }

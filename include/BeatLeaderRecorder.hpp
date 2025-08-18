@@ -16,6 +16,7 @@ bool BeatLeaderDetected();
 #define HEART_DEV_NAME_LAN "<lan>"     // the lan datasource has no device name supported
 #define HEART_DEV_NAME_OSC "<osc>"     // the osc datasource has no device name supported
 #define HEART_DEV_NAME_HYPERATE "<hyperate>"
+#define HEART_DEV_NAME_PULSOID "<pulsoid>"
 extern std::string heartDeviceName;
 
 extern bool replayStarted;
