@@ -4,7 +4,7 @@
 
 [中文说明](README.cn.md)
 
-view your heart rate inside the quest game
+view your heart rate inside the BeatSaber quest game
 
 # Usage
 
