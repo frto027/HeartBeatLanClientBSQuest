@@ -67,6 +67,8 @@ void HeartBeatPulsoidDataSource::CreateSocket(){
 
     endpoint.set_access_channels(websocketpp::log::alevel::all);
     endpoint.set_error_channels(websocketpp::log::elevel::all);
+    
+    endpoint.set_user_agent("HeartBeatQuest/" VERSION " BeatSaber/" GAME_VERSION)
 
     // Initialize ASIO
     endpoint.init_asio();
