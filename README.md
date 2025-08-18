@@ -16,7 +16,12 @@ It will automatically record your heart rate to beatleader's replay file if the 
 
 # Data sources
 
-Currently, there are 3 data sources can be used for this mod.
+Currently, there are 4 data sources can be used for this mod. Brief Introduction:
+
+- HypeRate, you need install their app somewhere to get the heart rate and send it to game. Internet required.
+- Pulsoid, same as HypeRate, but compat with difference heart device maybe...
+- Bluletooth, pair your heart device with your quest directly. maybe less compatable.
+- OSC, receive the heart data from `OSC protocol`.
 
 ## HypeRate as the heart data source
 
@@ -25,6 +30,10 @@ This mod supports the [HypeRate](https://www.hyperate.io/) as the data source, a
 This is the easiest way to use this mod. But this is an online service, which means I need collect some game information to make sure the service has no problem, such as [the version number](https://github.com/frto027/HeartBeatLanClientBSQuest/blob/4243eadcc4062ee619a6606da65a1ba4d50d91c8/src/HBHeartBeatHypeRateDataSource.cpp#L327). This data is only used to check for service errors and is usually automatically deleted within 3 days. If you don't want send these data to server, you can use other data sources. If you have trouble, please make sure your quest device is able to access [this website](https://heart.0xf7.top/).
 
 This mod use Cloudflare as the super cool and fast backend.
+
+## Pulsoid as the heart data source
+
+[Pulsoid](https://pulsoid.net/) is to be done...
 
 ## Bluetooth device as the data source
 
