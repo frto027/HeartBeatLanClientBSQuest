@@ -59,3 +59,5 @@ V(max_heart, "最大心率")
 
 V(pulsoid_save_and_connect, "保存并连接")
 V(pulsoid_edit_config_hint, "也可以直接编辑文件:")
+
+V(your_setthings_is_in_another_menu, "谢谢你玩家! 但数据源设置在另一个菜单里!")

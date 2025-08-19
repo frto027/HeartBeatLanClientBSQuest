@@ -232,6 +232,8 @@ namespace SetthingUI{
                 BSML::Lite::CreateText(container->get_transform(),osc_port, 4, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4});
             }
 
+            BSML::Lite::CreateText(container->get_transform(),LANG->your_setthings_is_in_other_menu, 4, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4});
+
             UpdateSetthingsContent();
         }
     }

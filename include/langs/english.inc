@@ -69,3 +69,5 @@ V(pulsoid_input_hint, "Click the button to pair")
 V(pulsoid_input_hint2, "or access heart.0xf7.top to get Code:")
 V(pulsoid_save_and_connect, "SAVE AND CONNECT")
 V(pulsoid_edit_config_hint, "You can also edit file:")
+
+V(your_setthings_is_in_another_menu, "Thank you Player! But data-source config is in another menu!")
