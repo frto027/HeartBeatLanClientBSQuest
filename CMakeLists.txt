@@ -95,8 +95,7 @@ add_compile_definitions("-DCURL_STATICLIB")
 target_include_directories(${COMPILE_ID} PRIVATE third_party/websocketpp)
 
 # asio (dep of websocketpp)
-target_include_directories(${COMPILE_ID} PRIVATE third_party/websocketpp)
-
+target_include_directories(${COMPILE_ID} PRIVATE third_party/asio/asio/include)
 
 target_link_libraries(${COMPILE_ID} PRIVATE -llog)
 # add extern stuff like libs and other includes

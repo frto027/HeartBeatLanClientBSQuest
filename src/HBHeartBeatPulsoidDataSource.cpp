@@ -29,7 +29,7 @@
 #include "main.hpp"
 
 #define ASIO_STANDALONE
-#include <websocketpp/config/asio_client.hpp>
+#include <websocketpp/config/asio_no_tls_client.hpp>
 
 #include <websocketpp/client.hpp>
 #include <websocketpp/connection.hpp>
@@ -193,7 +193,7 @@ void HeartBeatPulsoidDataSource::CreateSocket(){
 
     // Register our handlers
     endpoint.set_socket_init_handler([](std::weak_ptr<void> a,
-        boost::asio::basic_stream_socket<boost::asio::ip::tcp> &b){
+        asio::basic_stream_socket<asio::ip::tcp> &b){
         
     });
     endpoint.set_ping_handler([](auto r, auto m){

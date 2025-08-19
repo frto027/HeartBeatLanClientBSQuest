@@ -111,9 +111,7 @@ git submodule init
 git submodule update
 ```
 
-install [vcpkg](https://github.com/microsoft/vcpkg), makesure environment variable `VCPKG_ROOT` exists.
-
-run `vcpkg install --triplet arm64-android` before you build this project.
+you need a environment variable `ANDROID_NDK_HOME` with proper value. don't use `ndkpath.txt`.
 
 Use `qpm restore && qpm s build` to build.
 

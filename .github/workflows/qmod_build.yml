@@ -28,34 +28,6 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
-    - uses: seanmiddleditch/gha-setup-ninja@v3
-
-    - name: Create ndkpath.txt
-      run: |
-        echo "$ANDROID_NDK_LATEST_HOME" > ${GITHUB_WORKSPACE}/ndkpath.txt
-        cat ${GITHUB_WORKSPACE}/ndkpath.txt
-
-    - name: Restore vcpkg binary
-      uses: actions/cache/restore@v4
-      id: cache-vcpkg
-      with:
-        path: |
-          .vcpkg_cache
-          vcpkg_installed
-        key: vcpkg-${{ runner.os }}-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json') }}
-    - name: setup vcpkg
-      if: steps.cache-vcpkg.outputs.cache-hit != 'true'
-      env: 
-        VCPKG_BINARY_SOURCES: "clear;files,//remote/shared/vcpkg/binary-cache,read;files,${{ github.workspace }}/.vcpkg_cache,readwrite"
-      run: mkdir .vcpkg_cache && vcpkg install --triplet arm64-android
-    - name: save vcpkg cache
-      uses: actions/cache/save@v4
-      if: steps.cache-vcpkg.outputs.cache-hit != 'true'
-      with:
-        path: |
-          .vcpkg_cache
-          vcpkg_installed
-        key: vcpkg-${{ runner.os }}-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json') }}
     - name: Apply game version
       run: python multibuild/apply.py ${{ matrix.game-version }}
 
@@ -69,13 +41,13 @@ jobs:
 
     - name: build qmod
       run: |
-          export VCPKG_ROOT=${VCPKG_INSTALLATION_ROOT}
           cd ${GITHUB_WORKSPACE}
           ls -al
           qpm restore
           ls -l extern/libs/
           pwsh ./scripts/build.ps1 && qpm qmod zip
           ls -al
+
     - uses: actions/upload-artifact@v4
       with:
         name: qmod.${{ matrix.game-version }}
