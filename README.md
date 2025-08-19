@@ -19,7 +19,7 @@ It will automatically record your heart rate to beatleader's replay file if the 
 Currently, there are 4 data sources can be used for this mod. Brief Introduction:
 
 - HypeRate, you need install their app somewhere to get the heart rate and send it to game. Internet required.
-- Pulsoid, same as HypeRate, but compat with difference heart device maybe...
+- ~~Pulsoid, same as HypeRate, but compat with difference heart device maybe...~~ Not avaliable yet, maybe next version...
 - Bluletooth, pair your heart device with your quest directly. maybe less compatable.
 - OSC, receive the heart data from `OSC protocol`.
 
