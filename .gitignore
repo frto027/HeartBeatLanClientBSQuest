@@ -75,3 +75,5 @@ vcpkg_installed
 qpm.shared.json
 
 multibuild/__pycache__
+
+build_third_party

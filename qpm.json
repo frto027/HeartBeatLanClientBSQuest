@@ -14,7 +14,11 @@
     },
     "workspace": {
         "scripts": {
+            "thirdparty":[
+                "pwsh ./scripts/thirdparty.ps1"
+            ],
             "build": [
+                "pwsh ./scripts/thirdparty.ps1",
                 "pwsh ./scripts/build.ps1"
             ],
             "copy": [

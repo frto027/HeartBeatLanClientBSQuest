@@ -96,11 +96,14 @@ target_include_directories(${COMPILE_ID} PUBLIC ${SHARED_DIR})
 # codegen includes 
 target_include_directories(${COMPILE_ID} PRIVATE ${EXTERN_DIR}/includes/${CODEGEN_ID}/include)
 
+# curl includes
+target_include_directories(${COMPILE_ID} PRIVATE third_party/curl/include)
+target_link_libraries(${COMPILE_ID} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/build_third_party/curl/lib/libcurl.a)
+add_compile_definitions("-DCURL_STATICLIB")
+
 find_package(websocketpp CONFIG REQUIRED)
 target_link_libraries(${COMPILE_ID} PRIVATE websocketpp::websocketpp)
 
-find_package(CURL REQUIRED)
-target_link_libraries(${COMPILE_ID} PRIVATE CURL::libcurl)
 
 target_link_libraries(${COMPILE_ID} PRIVATE -llog)
 # add extern stuff like libs and other includes
