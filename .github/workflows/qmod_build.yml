@@ -42,11 +42,8 @@ jobs:
     - name: build qmod
       run: |
           cd ${GITHUB_WORKSPACE}
-          ls -al
           qpm restore
-          ls -l extern/libs/
-          pwsh ./scripts/build.ps1 && qpm qmod zip
-          ls -al
+          qpm s build && qpm qmod zip
 
     - uses: actions/upload-artifact@v4
       with:
