@@ -28,6 +28,7 @@
 #include "i18n.hpp"
 #include "main.hpp"
 
+#define ASIO_STANDALONE
 #include <websocketpp/config/asio_client.hpp>
 
 #include <websocketpp/client.hpp>
