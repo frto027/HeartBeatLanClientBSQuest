@@ -6,7 +6,7 @@
     "author": "frto027",
     "version": "${version}",
     "packageId": "com.beatgames.beatsaber",
-    "packageVersion": "1.40.6_6407",
+    "packageVersion": "1.40.8_7379",
     "description": "This mod displays and records your heart rate in the quest game. Supports multiple data sources including HypeRate, Bluetooth and OSC. Bluetooth permition patch required if you use it.",
     "dependencies": [],
     "modFiles": [],

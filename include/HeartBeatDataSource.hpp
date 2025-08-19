@@ -153,6 +153,7 @@ class HeartBeatPulsoidDataSource:public DataSource{
 
         bool safe_pair_wanted = false;
         bool safe_pairing = false;
+
     public:
         HeartBeatPulsoidDataSource();
         bool GetData(int& heartbeat);
@@ -165,6 +166,8 @@ class HeartBeatPulsoidDataSource:public DataSource{
 
         void RequestPair(std::string pair_str);
         void RequestSafePair();
+
+        bool modconfig_is_dirty = false;
     private:
 };
     

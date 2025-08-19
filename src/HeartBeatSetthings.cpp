@@ -618,9 +618,15 @@ namespace SetthingUI{
         std::string pulsoid_id = "";
         std::string pulsoid_pair_code = "";
 
+        HMUI::ViewController *controller;
+
+        HMUI::CurvedTextMeshPro* tokenText;
+        bool tokenTextIsDirty = false;
+
         void DidDevicesActivate(HMUI::ViewController* self, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
             EnsurePreviewObject();
             if(firstActivation) {
+                controller = self;
                 self->add_didDeactivateEvent(custom_types::MakeDelegate<HMUI::ViewController::DidDeactivateDelegate*>(std::function([](bool removedFromHierarchy, bool screenSystemDisabling){
                     if(MainMenuPreviewObject) MainMenuPreviewObject->set_active(false);
                     HeartBeat::DataSource::getInstance()->SetDisplayWanted(false);
@@ -629,7 +635,7 @@ namespace SetthingUI{
                 // Create a container that has a scroll bar
                 auto *container = BSML::Lite::CreateScrollableSettingsContainer(self->get_transform());
 
-                BSML::Lite::CreateUIButton(container->get_transform(), "Click to Reconnect", UnityEngine::Vector2{}, UnityEngine::Vector2{50, 8}, [](){
+                BSML::Lite::CreateUIButton(container->get_transform(), "Click to Reconnect", UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4}, [](){
                     // getModConfig().PulsoidToken.SetValue(pulsoid_id);
                     HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatPulsoidDataSource>()->ResetConnection();
                 });
@@ -652,10 +658,32 @@ namespace SetthingUI{
                     HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatPulsoidDataSource>()->RequestPair(pulsoid_pair_code);
                 });
 
+                BSML::Lite::CreateText(container->get_transform(), "Auth Token", 4, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4});
+                tokenText = BSML::Lite::CreateText(container->get_transform(), "", 4, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4});
+
+
                 BSML::Lite::CreateText(container->get_transform(), LANG->pulsoid_edit_config_hint + modConfigFilePath, 4, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 8});
+
+                HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatPulsoidDataSource>()->modconfig_is_dirty = true;
 
                 if(MainMenuPreviewObjectComp)
                     MainMenuPreviewObjectComp->GetComponent<HeartBeat::HeartBeatObj *>()->serverMessageDisplayer = BSML::Lite::CreateText(container->get_transform(), LANG->no_message_from_server, 4, UnityEngine::Vector2{}, UnityEngine::Vector2{100, 32});
+            }
+        }
+
+        void Update(){
+            auto * ds = HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatPulsoidDataSource>();
+            if(ds->modconfig_is_dirty){
+                ds->modconfig_is_dirty = false;
+                
+                {
+                    std::string token = getModConfig().PulsoidToken.GetValue();
+                    for(int i=token.size()/2;i<token.size();i++){
+                        if(token[i] != '-')
+                            token[i] = '*';
+                    }
+                    tokenText->set_text(token);
+                }
             }
         }
     }
@@ -673,6 +701,10 @@ namespace SetthingUI{
         if(HeartBeat::dataSourceType == HeartBeat::DS_OSC){
             if(OscDataSource::addrController && OscDataSource::addrController->get_isActivated())
                 OscDataSource::UpdateOscScrollList();
+        }
+        if(HeartBeat::dataSourceType == HeartBeat::DS_Pulsoid){
+            if(PulsoidSource::controller && PulsoidSource::controller->get_isActivated())
+                PulsoidSource::Update();
         }
     }
 

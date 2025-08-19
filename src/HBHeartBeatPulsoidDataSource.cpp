@@ -151,6 +151,7 @@ void HeartBeatPulsoidDataSource::CreateSocket(){
                         }
                         if(good){
                             getModConfig().PulsoidToken.SetValue(response_string.c_str());
+                            modconfig_is_dirty = true;
                         }
                     }
                 }
@@ -233,6 +234,7 @@ void HeartBeatPulsoidDataSource::CreateSocket(){
                                 ){
                                     getModConfig().PulsoidToken.SetValue(token);
                                     safe_pairing = false;
+                                    modconfig_is_dirty = true;
                                 }else{
                                     getLogger().error("Pair failed, invalid token: {}", token.c_str());
                                     safe_pairing = false;
@@ -247,7 +249,7 @@ void HeartBeatPulsoidDataSource::CreateSocket(){
                     }
             }
 
-            if(displayWanted && !safe_pair_wanted && getModConfig().PulsoidToken.GetValue() != "00000000-0000-0000-0000-000000000000"){
+            if(displayWanted && !safe_pair_wanted && getModConfig().PulsoidToken.GetValue() != "" && getModConfig().PulsoidToken.GetValue() != "00000000-0000-0000-0000-000000000000"){
                 websocketpp::lib::error_code ec;
                 std::string url = "ws://dev.pulsoid.net/api/v1/data/real_time?response_mode=text_plain_only_heart_rate&access_token=" + getModConfig().PulsoidToken.GetValue();
                 con = endpoint.get_connection(url, ec);
