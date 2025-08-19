@@ -153,7 +153,7 @@ void HeartBeatHypeRateDataSource::CreateSocket(){
         if(con == nullptr){
             if(displayWanted && getModConfig().HypeRateId.GetValue().length() > 0){
                 websocketpp::lib::error_code ec;
-                con = endpoint.get_connection("ws://heart.0xf7.top/hyperate", ec);
+                con = endpoint.get_connection(WS_SERVER_HOST "/hyperate", ec);
                 con_opened = false;
                 if(ec){
                     getLogger().error("HypeRate connection error: {}", ec.message());

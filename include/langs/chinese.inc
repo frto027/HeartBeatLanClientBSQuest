@@ -57,6 +57,5 @@ V(age, "年龄")
 V(select_ui, "界面选择")
 V(max_heart, "最大心率")
 
-V(pulsoid_input_hint, "00000000-0000-0000-0000-000000000000 <-输入这个")
 V(pulsoid_save_and_connect, "保存并连接")
 V(pulsoid_edit_config_hint, "也可以直接编辑文件:")

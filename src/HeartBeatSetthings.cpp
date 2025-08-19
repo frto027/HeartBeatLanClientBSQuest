@@ -629,33 +629,27 @@ namespace SetthingUI{
                 // Create a container that has a scroll bar
                 auto *container = BSML::Lite::CreateScrollableSettingsContainer(self->get_transform());
 
-                pulsoid_id = getModConfig().PulsoidToken.GetValue();
-                BSML::Lite::CreateText(container->get_transform(), LANG->pulsoid_input_hint, 4, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4});
-
-                // static HMUI::InputFieldView * pulsoid_token_input;
-                // pulsoid_token_input = BSML::Lite::CreateStringSetting(container->get_transform(), "Pulsoid Token", pulsoid_id, [](StringW v){
-                //     pulsoid_id = std::string(v);
-                // });
-                // BSML::Lite::CreateUIButton(container->get_transform(), LANG->hyperate_reset, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 8}, [](){
-                //     {
-                //         pulsoid_id = getModConfig().PulsoidToken.GetValue();
-                //         pulsoid_token_input->set_text(pulsoid_id.c_str());
-                //     }
-                //     pulsoid_token_input->set_text(pulsoid_id);
-                // });
-
-                BSML::Lite::CreateStringSetting(container->get_transform(), "Pulsoid Pair Code", pulsoid_pair_code, [](StringW v){
-                    pulsoid_pair_code = std::string(v);
-                });
-
-                
-                BSML::Lite::CreateUIButton(container->get_transform(), "Pair to pulsoid", UnityEngine::Vector2{}, UnityEngine::Vector2{50, 8}, [](){
-                    // getModConfig().PulsoidToken.SetValue(pulsoid_id);
-                    HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatPulsoidDataSource>()->RequestPair(pulsoid_pair_code);
-                });
-                BSML::Lite::CreateUIButton(container->get_transform(), "Reset Connection", UnityEngine::Vector2{}, UnityEngine::Vector2{50, 8}, [](){
+                BSML::Lite::CreateUIButton(container->get_transform(), "Click to Reconnect", UnityEngine::Vector2{}, UnityEngine::Vector2{50, 8}, [](){
                     // getModConfig().PulsoidToken.SetValue(pulsoid_id);
                     HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatPulsoidDataSource>()->ResetConnection();
+                });
+
+                pulsoid_id = getModConfig().PulsoidToken.GetValue();
+                BSML::Lite::CreateText(container->get_transform(), LANG->pulsoid_input_hint, 4, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4});
+                
+                BSML::Lite::CreateUIButton(container->get_transform(), "Pair in borwser", UnityEngine::Vector2{}, UnityEngine::Vector2{50, 8}, [](){
+                    // getModConfig().PulsoidToken.SetValue(pulsoid_id);
+                    HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatPulsoidDataSource>()->RequestSafePair();
+                });
+
+                BSML::Lite::CreateText(container->get_transform(), LANG->pulsoid_input_hint2, 4, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4});
+
+                BSML::Lite::CreateStringSetting(container->get_transform(), "Pair Code", pulsoid_pair_code, [](StringW v){
+                    pulsoid_pair_code = std::string(v);
+                });
+                BSML::Lite::CreateUIButton(container->get_transform(), "Pair with code", UnityEngine::Vector2{}, UnityEngine::Vector2{50, 8}, [](){
+                    // getModConfig().PulsoidToken.SetValue(pulsoid_id);
+                    HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatPulsoidDataSource>()->RequestPair(pulsoid_pair_code);
                 });
 
                 BSML::Lite::CreateText(container->get_transform(), LANG->pulsoid_edit_config_hint + modConfigFilePath, 4, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 8});

@@ -65,6 +65,7 @@ V(age, "Age")
 V(select_ui, "Select UI")
 V(max_heart, "Max Heartrate")
 
-V(pulsoid_input_hint, "00000000-0000-0000-0000-000000000000 <-input this token")
+V(pulsoid_input_hint, "Click the button to pair")
+V(pulsoid_input_hint2, "or access heart.0xf7.top to get Code:")
 V(pulsoid_save_and_connect, "SAVE AND CONNECT")
 V(pulsoid_edit_config_hint, "You can also edit file:")

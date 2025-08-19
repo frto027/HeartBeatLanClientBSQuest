@@ -10,6 +10,12 @@
 
 #include "ModConfig.hpp"
 
+#define SERVER_HOST "http://heart.0xf7.top"
+#define WS_SERVER_HOST "ws://heart.0xf7.top"
+
+// #define SERVER_HOST "http://dev.heart.0xf7.top"
+// #define WS_SERVER_HOST "ws://dev.heart.0xf7.top"
+
 namespace HeartBeat{
 
 enum DataSourceType{
@@ -144,6 +150,9 @@ class HeartBeatPulsoidDataSource:public DataSource{
         std::string pair_str = "";
         std::mutex pair_mutex;
         bool pair_wanted = false;
+
+        bool safe_pair_wanted = false;
+        bool safe_pairing = false;
     public:
         HeartBeatPulsoidDataSource();
         bool GetData(int& heartbeat);
@@ -155,6 +164,7 @@ class HeartBeatPulsoidDataSource:public DataSource{
         }
 
         void RequestPair(std::string pair_str);
+        void RequestSafePair();
     private:
 };
     
