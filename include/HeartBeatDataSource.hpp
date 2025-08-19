@@ -141,7 +141,9 @@ class HeartBeatPulsoidDataSource:public DataSource{
 
         bool resetRequest = false;
 
-
+        std::string pair_str = "";
+        std::mutex pair_mutex;
+        bool pair_wanted = false;
     public:
         HeartBeatPulsoidDataSource();
         bool GetData(int& heartbeat);
@@ -151,6 +153,8 @@ class HeartBeatPulsoidDataSource:public DataSource{
         void ResetConnection(){
             resetRequest = true;
         }
+
+        void RequestPair(std::string pair_str);
     private:
 };
     
@@ -209,4 +213,6 @@ public:
     void OnEnergyReset();
 
 };
+
+std::string CheckHypeRateWebSocketIdentity();
 };//namespace HeartBeat

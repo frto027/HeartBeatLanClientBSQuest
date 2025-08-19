@@ -99,6 +99,9 @@ target_include_directories(${COMPILE_ID} PRIVATE ${EXTERN_DIR}/includes/${CODEGE
 find_package(websocketpp CONFIG REQUIRED)
 target_link_libraries(${COMPILE_ID} PRIVATE websocketpp::websocketpp)
 
+find_package(CURL REQUIRED)
+target_link_libraries(${COMPILE_ID} PRIVATE CURL::libcurl)
+
 target_link_libraries(${COMPILE_ID} PRIVATE -llog)
 # add extern stuff like libs and other includes
 include(extern.cmake)

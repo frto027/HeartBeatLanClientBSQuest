@@ -34,6 +34,8 @@
 #include <websocketpp/connection.hpp>
 #include <websocketpp/frame.hpp>
 
+#include <curl/curl.h>
+
 namespace HeartBeat{
 
 DECLARE_DATA_SOURCE(HeartBeatPulsoidDataSource)
@@ -68,7 +70,7 @@ void HeartBeatPulsoidDataSource::CreateSocket(){
     endpoint.set_access_channels(websocketpp::log::alevel::all);
     endpoint.set_error_channels(websocketpp::log::elevel::all);
     
-    endpoint.set_user_agent("HeartBeatQuest/" VERSION " BeatSaber/" GAME_VERSION)
+    endpoint.set_user_agent("HeartBeatQuest/" VERSION " BeatSaber/" GAME_VERSION);
 
     // Initialize ASIO
     endpoint.init_asio();
@@ -106,6 +108,53 @@ void HeartBeatPulsoidDataSource::CreateSocket(){
         }
 
         if(con == nullptr){
+            if(pair_wanted){
+                std::string pair_str;
+                {
+                    std::lock_guard<std::mutex> g(this->pair_mutex);
+                    pair_str = this->pair_str;
+                }
+                if(pair_str != ""){
+                    auto curl = curl_easy_init();
+                    auto url = std::string("http://heart.0xf7.top/bs/ps/apply/") + pair_str;
+                    auto ua = "HBQ/" VERSION " BS/" GAME_VERSION " " + std::string(LANG->lang_name) + " " + CheckHypeRateWebSocketIdentity();
+                    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+                    curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1L);
+                    curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 10L);
+                    curl_easy_setopt(curl, CURLOPT_TCP_KEEPALIVE, 1L);
+                    curl_easy_setopt(curl, CURLOPT_USERAGENT, ua.c_str());
+                    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, [](void *ptr, size_t size, size_t nmemb, std::string* data){
+                        data->append((char*)ptr, size * nmemb);
+                        return size*nmemb;
+                    });
+                    std::string response_string, header_string;
+                    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_string);
+                    curl_easy_setopt(curl, CURLOPT_HEADERDATA, &header_string);
+                    curl_easy_perform(curl);
+                    curl_easy_cleanup(curl);
+
+                    if(response_string.size() > 0 && response_string.size() < 100){
+                        bool good = true;
+                        for(int i=0;i<response_string.size();i++){
+                            auto ch = response_string[i];
+                            if(ch >='0' && ch <= '9')
+                                continue;
+                            if(ch >= 'a' && ch <= 'z')
+                                continue;
+                            if(ch >= 'A' && ch <= 'Z')
+                                continue;
+                            if(ch == '-')
+                                continue;
+                            good = false;
+                            break;
+                        }
+                        if(good){
+                            getModConfig().PulsoidToken.SetValue(response_string.c_str());
+                        }
+                    }
+                }
+            }
+
             if(displayWanted && getModConfig().PulsoidToken.GetValue() != "00000000-0000-0000-0000-000000000000"){
                 websocketpp::lib::error_code ec;
                 std::string url = "ws://dev.pulsoid.net/api/v1/data/real_time?response_mode=text_plain_only_heart_rate&access_token=" + getModConfig().PulsoidToken.GetValue();
@@ -229,6 +278,15 @@ bool HeartBeatPulsoidDataSource::GetData(int&heartbeat){
         return true;
     }
     return false;
+}
+
+void HeartBeatPulsoidDataSource::RequestPair(std::string pair_str){
+    {
+        std::lock_guard<std::mutex> g(this->pair_mutex);
+        this->pair_str = pair_str;
+    }
+    pair_wanted = true;
+    ResetConnection();
 }
 
 }
