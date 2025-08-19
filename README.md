@@ -103,6 +103,14 @@ The Bluetooth access code at `AndroidProject/HeartBeatNative` can be compiled wi
 
 ## How to build
 
+you need clone the source code with submodules.
+```sh
+git clone git@github.com:frto027/HeartBeatLanClientBSQuest.git
+cd HeartBeatLanClientBSQuest
+git submodule init
+git submodule update
+```
+
 install [vcpkg](https://github.com/microsoft/vcpkg), makesure environment variable `VCPKG_ROOT` exists.
 
 run `vcpkg install --triplet arm64-android` before you build this project.
