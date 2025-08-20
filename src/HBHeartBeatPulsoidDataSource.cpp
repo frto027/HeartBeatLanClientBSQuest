@@ -187,9 +187,12 @@ void HeartBeatPulsoidDataSource::CreateSocket(){
                         //continue
                         auto login_url = SERVER_HOST "/pulsoid/safe/redir?token=" + pair_token;
 
-                        //TODO: open the login url in the quest browser
-                        static auto UnityEngine_Application_OpenURL = il2cpp_utils::resolve_icall<void, StringW>("UnityEngine.Application::OpenURL");
-                        UnityEngine_Application_OpenURL(login_url);
+                        {
+                            //we will open the url in the setthings thread
+                            std::lock_guard<std::mutex> g(this->url_mutex);
+                            this->url = login_url;
+                            this->url_open_wanted = true;
+                        }
 
                         //get token from server
                         auto tokenurl = std::string(SERVER_HOST "/pulsoid/safe/token") + pair_str;

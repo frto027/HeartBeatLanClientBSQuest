@@ -232,7 +232,7 @@ namespace SetthingUI{
                 BSML::Lite::CreateText(container->get_transform(),osc_port, 4, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4});
             }
 
-            BSML::Lite::CreateText(container->get_transform(),LANG->your_setthings_is_in_other_menu, 4, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4});
+            BSML::Lite::CreateText(container->get_transform(),LANG->your_setthings_is_in_another_menu, 4, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4});
 
             UpdateSetthingsContent();
         }
@@ -687,7 +687,19 @@ namespace SetthingUI{
                     tokenText->set_text(token);
                 }
             }
+            if(ds->url_open_wanted){
+                std::string url;
+                {
+                    std::lock_guard<std::mutex> g(ds->url_mutex);
+                    url = ds->url;
+                    ds->url_open_wanted = false;
+                }
+                //open the login url in the quest browser
+                static auto UnityEngine_Application_OpenURL = il2cpp_utils::resolve_icall<void, StringW>("UnityEngine.Application::OpenURL");
+                UnityEngine_Application_OpenURL(url);
+            }
         }
+        
     }
 
 
