@@ -183,7 +183,18 @@ class HeartBeatPulsoidDataSource:public DataSource{
         std::string url;
         std::mutex url_mutex;
 
+
+        bool err_message_dirty = false;
+        std::string err_message;
+        std::mutex err_message_mutex;
+
     private:
+
+        void err(std::string message){
+            std::lock_guard<std::mutex> g(err_message_mutex);
+            err_message = message;
+            err_message_dirty = true;
+        }
 };
     
 

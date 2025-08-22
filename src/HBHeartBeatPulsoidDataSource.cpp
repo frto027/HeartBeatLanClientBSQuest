@@ -66,6 +66,13 @@ inline int retry_sleep_time(){
 
 static std::function<void(std::error_code)> timer_impl;
 static int current_retry_time_already = 0;
+
+size_t curl_write_callback(char *ptr, size_t size, size_t nmemb, std::string * str){
+    if(str)
+        str->append((char*)ptr, size * nmemb);
+    return size * nmemb;
+}
+
 void HeartBeatPulsoidDataSource::CreateSocket(){
 
     endpoint.set_access_channels(websocketpp::log::alevel::all);
@@ -110,6 +117,7 @@ void HeartBeatPulsoidDataSource::CreateSocket(){
 
         if(con == nullptr){
             if(safe_pair_wanted){
+                    getLogger().info("Start safe pair");
                     safe_pairing = true;
                     safe_pair_wanted = false;
 
@@ -125,17 +133,22 @@ void HeartBeatPulsoidDataSource::CreateSocket(){
                         curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 10L);
                         curl_easy_setopt(curl, CURLOPT_TCP_KEEPALIVE, 1L);
                         curl_easy_setopt(curl, CURLOPT_USERAGENT, ua.c_str());
-                        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, [](void *ptr, size_t size, size_t nmemb, std::string* data){
-                            data->append((char*)ptr, size * nmemb);
-                            return size*nmemb;
-                        });
+                        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curl_write_callback);
                         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &pair_token);
                         curl_easy_setopt(curl, CURLOPT_HEADERDATA, &header_string);
                         curl_easy_perform(curl);
                         curl_easy_cleanup(curl);
                     }
+                    // getLogger().debug("Pair token is {}", pair_token);
 
                     if(pair_token.size() > 0 && pair_token.size() < 80){
+                        if(pair_token[0] == '?'){
+                            safe_pairing = false;
+                            safe_pair_wanted = false;
+                            err(pair_token.c_str() + 1);
+                            return;
+                        }
+                        err("");
                         //continue
                         // auto login_url = SERVER_HOST "/pulsoid/safe/redir?token=" + pair_token;
                         auto login_url = SERVER_HOST "/pulsoid/safe/redir?token=" + pair_token;
@@ -145,6 +158,8 @@ void HeartBeatPulsoidDataSource::CreateSocket(){
                             std::lock_guard<std::mutex> g(this->url_mutex);
                             this->url = login_url;
                             this->url_open_wanted = true;
+
+                            getLogger().info("open url {}", login_url);
                         }
 
                         //get token from server
@@ -166,12 +181,11 @@ void HeartBeatPulsoidDataSource::CreateSocket(){
                                 auto curl = curl_easy_init();
                                 curl_easy_setopt(curl, CURLOPT_URL, keep_alive_url.c_str());
                                 curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1L);
+                                curl_easy_setopt(curl, CURLOPT_POST, 1L);
                                 curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 10L);
                                 curl_easy_setopt(curl, CURLOPT_TCP_KEEPALIVE, 1L);
                                 curl_easy_setopt(curl, CURLOPT_USERAGENT, ua.c_str());
-                                curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, [](void *ptr, size_t size, size_t nmemb, std::string* data){
-                                    return size*nmemb;
-                                });
+                                curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curl_write_callback);
                                 curl_easy_setopt(curl, CURLOPT_WRITEDATA, NULL);
                                 curl_easy_setopt(curl, CURLOPT_HEADERDATA, NULL);
                                 curl_easy_perform(curl);
@@ -186,10 +200,7 @@ void HeartBeatPulsoidDataSource::CreateSocket(){
                                 curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 10L);
                                 curl_easy_setopt(curl, CURLOPT_TCP_KEEPALIVE, 1L);
                                 curl_easy_setopt(curl, CURLOPT_USERAGENT, ua.c_str());
-                                curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, [](void *ptr, size_t size, size_t nmemb, std::string* data){
-                                    data->append((char*)ptr, size * nmemb);
-                                    return size*nmemb;
-                                });
+                                curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curl_write_callback);
                                 curl_easy_setopt(curl, CURLOPT_WRITEDATA, &token);
                                 curl_easy_setopt(curl, CURLOPT_HEADERDATA, &header);
                                 curl_easy_perform(curl);
@@ -199,6 +210,7 @@ void HeartBeatPulsoidDataSource::CreateSocket(){
                                         if(token == "?authorization_pending")
                                             continue;
                                         getLogger().error("Pair failed: {}", token.c_str());
+                                        err(token);
                                         safe_pairing = false;
                                         continue;
                                     }
@@ -211,7 +223,9 @@ void HeartBeatPulsoidDataSource::CreateSocket(){
                                         getModConfig().PulsoidToken.SetValue(token);
                                         safe_pairing = false;
                                         modconfig_is_dirty = true;
+                                        err("");//succees
                                     }else{
+                                        err("Invalid token.");
                                         getLogger().error("Pair failed, invalid token: {}", token.c_str());
                                         safe_pairing = false;
                                     }
@@ -220,8 +234,12 @@ void HeartBeatPulsoidDataSource::CreateSocket(){
                                 }
                             }
                         }
+                        if(safe_pairing){
+                            err("Retry please. Timeout.");
+                        }
                         safe_pairing = false;
                     }else{
+                        err("Server error, check your Internet.");
                         safe_pairing = false;
                     }
             }
@@ -254,6 +272,7 @@ void HeartBeatPulsoidDataSource::CreateSocket(){
                 last_ping_time = now;
                 con->ping("");
             }
+            
         }
 
     };
@@ -313,7 +332,6 @@ void HeartBeatPulsoidDataSource::CreateSocket(){
 
 void * HeartBeatPulsoidDataSource::ServerThread(void *self){
     HeartBeatPulsoidDataSource * me = (decltype(me))self;
-
     auto retry = [](){
         sleep(3);
         try{

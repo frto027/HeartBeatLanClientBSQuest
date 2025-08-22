@@ -105,7 +105,7 @@ The Bluetooth access code at `AndroidProject/HeartBeatNative` can be compiled wi
 
 ## How to build
 
-you need clone the source code with submodules.
+**make sure you have cloned the submodules.**
 ```sh
 git clone git@github.com:frto027/HeartBeatLanClientBSQuest.git
 cd HeartBeatLanClientBSQuest

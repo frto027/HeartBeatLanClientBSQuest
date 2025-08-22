@@ -624,6 +624,8 @@ namespace SetthingUI{
 
         UnityEngine::UI::Button *PairInBrowserBtn, *BrowserCompleteBtn, *CancelBrowserPairBtn;
 
+        HMUI::CurvedTextMeshPro* errMsgText;
+
         void DidDevicesActivate(HMUI::ViewController* self, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
             EnsurePreviewObject();
             if(firstActivation) {
@@ -636,7 +638,7 @@ namespace SetthingUI{
                 // Create a container that has a scroll bar
                 auto *container = BSML::Lite::CreateScrollableSettingsContainer(self->get_transform());
 
-                BSML::Lite::CreateUIButton(container->get_transform(), "Click to Reconnect", UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4}, [](){
+                BSML::Lite::CreateUIButton(container->get_transform(), "Click to Reconnect", UnityEngine::Vector2{}, UnityEngine::Vector2{50, 8}, [](){
                     HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatPulsoidDataSource>()->ResetConnection();
                 });
 
@@ -644,7 +646,7 @@ namespace SetthingUI{
                 
                 {
                     auto * pair_container = BSML::Lite::CreateHorizontalLayoutGroup(container->get_transform());
-                    PairInBrowserBtn = BSML::Lite::CreateUIButton(pair_container->get_transform(), "Start", UnityEngine::Vector2{}, UnityEngine::Vector2{20, 8}, [](){
+                    PairInBrowserBtn = BSML::Lite::CreateUIButton(pair_container->get_transform(), "Connect", UnityEngine::Vector2{}, UnityEngine::Vector2{20, 8}, [](){
                         HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatPulsoidDataSource>()->RequestSafePair();
                     });
 
@@ -663,12 +665,32 @@ namespace SetthingUI{
                 tokenText = BSML::Lite::CreateText(container->get_transform(), "", 4, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4});
 
 
-                BSML::Lite::CreateText(container->get_transform(), LANG->pulsoid_edit_config_hint + modConfigFilePath, 4, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 8});
+                {
+                    std::string config_file_hint = LANG->pulsoid_edit_config_hint + modConfigFilePath;
+                    char buff[1024];
+                    bool break_wanted = false;
+                    int j = 0;
+                    for(int i=0, ch_count = 0;i<config_file_hint.size();i++){
+                        //please we are handling utf8 string
+                        if((config_file_hint[i] & 0xC0) != 0x80){
+                            ch_count++;
+                            if(ch_count > 50){
+                                buff[j++] = '\n';
+                                ch_count = 0;
+                            }
+                            if((config_file_hint[i] & 0x80))
+                                ch_count += 1;
+                        }
+                        buff[j++] = config_file_hint[i];
+                    }
+                    buff[j++] = '\0';
+                    BSML::Lite::CreateText(container->get_transform(), buff, 4, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 12});
+                }
 
                 HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatPulsoidDataSource>()->modconfig_is_dirty = true;
 
-                if(MainMenuPreviewObjectComp)
-                    MainMenuPreviewObjectComp->GetComponent<HeartBeat::HeartBeatObj *>()->serverMessageDisplayer = BSML::Lite::CreateText(container->get_transform(), LANG->no_message_from_server, 4, UnityEngine::Vector2{}, UnityEngine::Vector2{100, 32});
+                errMsgText = BSML::Lite::CreateText(container->get_transform(), "", 4, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4});
+                errMsgText->set_color(UnityEngine::Color::get_red());
             }
         }
 
@@ -685,6 +707,12 @@ namespace SetthingUI{
                     }
                     tokenText->set_text(token);
                 }
+            }
+
+            if(ds->err_message_dirty){
+                std::lock_guard<std::mutex> g(ds->err_message_mutex);
+                errMsgText->set_text(ds->err_message);
+                ds->err_message_dirty = false;
             }
             if(ds->url_open_wanted){
                 std::string url;
