@@ -18,24 +18,14 @@ It will automatically record your heart rate to beatleader's replay file if the 
 
 # Data sources
 
-Currently, there are 4 data sources can be used for this mod. Brief Introduction:
+> [!TIP]
+> The data sources on this page are sorted alphabetically and are not recommendations. Each data source has its own advantages, so you can try them all.
 
-- HypeRate, you need install their app somewhere to get the heart rate and send it to game. Internet required.
-- ~~Pulsoid, same as HypeRate, but compat with difference heart device maybe...~~ Not avaliable yet, maybe next version...
+Currently, there are 4 data sources can be used for this mod.  Brief Introduction:
+
 - Bluletooth, pair your heart device with your quest directly. maybe less compatable.
+- HypeRate and Pulsoid, you need install their app somewhere to get the heart rate and send it to game. Internet required.
 - OSC, receive the heart data from `OSC protocol`.
-
-## HypeRate as the heart data source
-
-This mod supports the [HypeRate](https://www.hyperate.io/) as the data source, and Bluetooth permission is not required if you don't use it. Just install the mod and change the data source to HypeRate in the setthings menu, then restart the game. Input your hyperate ID in the HYPERATE menu and it will works. (Special thanks to HypeRate for providing API support)
-
-This is the easiest way to use this mod. But this is an online service, which means I need collect some game information to make sure the service has no problem, such as [the version number](https://github.com/frto027/HeartBeatLanClientBSQuest/blob/4243eadcc4062ee619a6606da65a1ba4d50d91c8/src/HBHeartBeatHypeRateDataSource.cpp#L327). This data is only used to check for service errors and is usually automatically deleted within 3 days. If you don't want send these data to server, you can use other data sources. If you have trouble, please make sure your quest device is able to access [this website](https://heart.0xf7.top/).
-
-This mod use Cloudflare as the super cool and fast backend.
-
-## Pulsoid as the heart data source
-
-[Pulsoid](https://pulsoid.net/) is to be done...
 
 ## Bluetooth device as the data source
 
@@ -46,13 +36,33 @@ This mod can access Bluetooth directly. To use this, follow this instruction.
 2. In your quest bluetooth setthings, pair your heart rate BLE device with your quest.
 3. Open the game, scan and select your device at the device list menu.
 
-More accurately, mbf is not required, the mod requires the game has the following permission
-
-
-        android.permission.BLUETOOTH
-        android.permission.BLUETOOTH_CONNECT
+> [!INFO]
+> More accurately, mbf is not required, the mod requires the game has the following permission
+>
+>
+>        android.permission.BLUETOOTH
+>        android.permission.BLUETOOTH_CONNECT
 
 The Bluetooth data source has minimum data latency, but may be less compatibility because it uses a generic BLE protocol to access Bluetooth devices. Your device should support heart rate broadcast via BLE protocol.
+
+> [!TIP]
+> Bluetooth permission is not required if you don't use this data source.
+
+## HypeRate as the heart data source
+
+This mod supports the [HypeRate](https://www.hyperate.io/) as the data source. Just install the mod and change the data source to HypeRate in the setthings menu, then restart the game. Input your hyperate ID in the HYPERATE menu and it will works. (Special thanks to HypeRate for providing API support)
+
+> [!NOTE]
+> This is an online service, which means I need collect some game information to make sure the service has no problem, such as [the version number](https://github.com/frto027/HeartBeatLanClientBSQuest/blob/4243eadcc4062ee619a6606da65a1ba4d50d91c8/src/HBHeartBeatHypeRateDataSource.cpp#L327). This data is only used to check for service errors and is usually automatically deleted within 3 days. If you don't want send these data to server, you can use other data sources. If you have trouble, please make sure your quest device is able to access [this website](https://heart.0xf7.top/).
+>
+> This mod use Cloudflare as the super cool and fast backend.
+
+## Pulsoid as the heart data source
+
+This mod supports the [Pulsoid](https://pulsoid.net/) as the data source. In the mod config menu select Pulsoid as data source, then restart the game. Follow the guide inside the PULSOID menu, click Open and then connect to pulsoid inside your quest's webbrowser. Then click Done button.
+
+> [!NOTE]
+> You can also edit your mod config file directly to skip this step. Your game is directly connected to pulsoid server, nothing will be forwarded.
 
 ## OSC as the heart data source
 
@@ -60,9 +70,10 @@ Use your favorite heart rate OSC senders, send to the port 9000 for your quest d
 
 After you change the data source to OSC in the setthings menu, the port will be show at the menu, and can edit manually via config file if you need. 
 
-You can also use [this android apk](https://github.com/frto027/HeartbeatLanServer/releases/latest) to send osc data from your android phone, or install it on your quest device directly and send to `127.0.0.1:9000`. 
-
-This apk does not extend the device compatability, because it read bluetooth data just like what the mod does in game. If your heart monitor device is not supported, you may need some other program to convert their data to OSC protocol, or try to enable something like bluetooth broadcast in your monitor device.
+> [!TIP]
+>You can also use [this android apk](https://github.com/frto027/HeartbeatLanServer/releases/latest) to send osc data from your android phone, or install it on your quest device directly and send to `127.0.0.1:9000`. 
+>
+> This apk does not extend the device compatability, because it read bluetooth data just like what the mod does in game with bluetooth data source. If your heart monitor device is not supported, you may need some other program to convert their data to OSC protocol, or try to enable something like bluetooth broadcast in your monitor device.
 
 ## (Deprecated, do not use)UDP data source
 <details>
