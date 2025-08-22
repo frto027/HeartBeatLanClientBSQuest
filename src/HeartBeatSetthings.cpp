@@ -617,13 +617,12 @@ namespace SetthingUI{
 
     namespace PulsoidSource{
 
-        std::string pulsoid_id = "";
-        std::string pulsoid_pair_code = "";
-
         HMUI::ViewController *controller;
 
         HMUI::CurvedTextMeshPro* tokenText;
         bool tokenTextIsDirty = false;
+
+        UnityEngine::UI::Button *PairInBrowserBtn, *BrowserCompleteBtn, *CancelBrowserPairBtn;
 
         void DidDevicesActivate(HMUI::ViewController* self, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
             EnsurePreviewObject();
@@ -638,27 +637,27 @@ namespace SetthingUI{
                 auto *container = BSML::Lite::CreateScrollableSettingsContainer(self->get_transform());
 
                 BSML::Lite::CreateUIButton(container->get_transform(), "Click to Reconnect", UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4}, [](){
-                    // getModConfig().PulsoidToken.SetValue(pulsoid_id);
                     HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatPulsoidDataSource>()->ResetConnection();
                 });
 
-                pulsoid_id = getModConfig().PulsoidToken.GetValue();
                 BSML::Lite::CreateText(container->get_transform(), LANG->pulsoid_input_hint, 4, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4});
                 
-                BSML::Lite::CreateUIButton(container->get_transform(), "Pair in borwser", UnityEngine::Vector2{}, UnityEngine::Vector2{50, 8}, [](){
-                    // getModConfig().PulsoidToken.SetValue(pulsoid_id);
-                    HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatPulsoidDataSource>()->RequestSafePair();
-                });
+                {
+                    auto * pair_container = BSML::Lite::CreateHorizontalLayoutGroup(container->get_transform());
+                    PairInBrowserBtn = BSML::Lite::CreateUIButton(pair_container->get_transform(), "Start", UnityEngine::Vector2{}, UnityEngine::Vector2{20, 8}, [](){
+                        HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatPulsoidDataSource>()->RequestSafePair();
+                    });
 
-                BSML::Lite::CreateText(container->get_transform(), LANG->pulsoid_input_hint2, 4, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4});
+                    BrowserCompleteBtn = BSML::Lite::CreateUIButton(pair_container->get_transform(), "Done", UnityEngine::Vector2{}, UnityEngine::Vector2{20, 8}, [](){
+                        HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatPulsoidDataSource>()->SafePairDone();
+                    });
 
-                BSML::Lite::CreateStringSetting(container->get_transform(), "Pair Code", pulsoid_pair_code, [](StringW v){
-                    pulsoid_pair_code = std::string(v);
-                });
-                BSML::Lite::CreateUIButton(container->get_transform(), "Pair with code", UnityEngine::Vector2{}, UnityEngine::Vector2{50, 8}, [](){
-                    // getModConfig().PulsoidToken.SetValue(pulsoid_id);
-                    HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatPulsoidDataSource>()->RequestPair(pulsoid_pair_code);
-                });
+                    CancelBrowserPairBtn = BSML::Lite::CreateUIButton(pair_container->get_transform(), "Cancel", UnityEngine::Vector2{}, UnityEngine::Vector2{20, 8}, [](){
+                        HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatPulsoidDataSource>()->CancelSafePair();
+                    });
+                    BrowserCompleteBtn->set_interactable(false);
+                    CancelBrowserPairBtn->set_interactable(false);
+                }
 
                 BSML::Lite::CreateText(container->get_transform(), "Auth Token", 4, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4});
                 tokenText = BSML::Lite::CreateText(container->get_transform(), "", 4, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4});
@@ -698,6 +697,12 @@ namespace SetthingUI{
                 static auto UnityEngine_Application_OpenURL = il2cpp_utils::resolve_icall<void, StringW>("UnityEngine.Application::OpenURL");
                 UnityEngine_Application_OpenURL(url);
             }
+                if(PairInBrowserBtn){
+                    PairInBrowserBtn->set_interactable(!ds->IsSafePairing());
+                    BrowserCompleteBtn->set_interactable(ds->IsSafePairing());
+                    CancelBrowserPairBtn->set_interactable(ds->IsSafePairing());
+                }
+
         }
         
     }
@@ -719,6 +724,9 @@ namespace SetthingUI{
         if(HeartBeat::dataSourceType == HeartBeat::DS_Pulsoid){
             if(PulsoidSource::controller && PulsoidSource::controller->get_isActivated())
                 PulsoidSource::Update();
+            else{
+                HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatPulsoidDataSource>()->CancelSafePair();
+            }
         }
     }
 

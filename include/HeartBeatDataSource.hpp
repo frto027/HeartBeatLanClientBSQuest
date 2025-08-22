@@ -147,14 +147,10 @@ class HeartBeatPulsoidDataSource:public DataSource{
 
         bool resetRequest = false;
 
-        //message from main thread to service thread.
-        std::string pair_str = "";
-        std::mutex pair_mutex;
-        bool pair_wanted = false;
-
         bool safe_pair_wanted = false;
         bool safe_pairing = false;
 
+        bool safe_pair_done_wanted = false;
     public:
         HeartBeatPulsoidDataSource();
         bool GetData(int& heartbeat);
@@ -167,6 +163,17 @@ class HeartBeatPulsoidDataSource:public DataSource{
 
         void RequestPair(std::string pair_str);
         void RequestSafePair();
+        void CancelSafePair(){
+            safe_pair_wanted = false;
+            safe_pairing = false;
+        }
+        bool IsSafePairing(){
+            return safe_pairing;
+        }
+
+        void SafePairDone(){
+            safe_pair_done_wanted = true;
+        }
 
 
         bool modconfig_is_dirty = false;

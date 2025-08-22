@@ -31,6 +31,12 @@ Animate Parameters:
 - `heartpercent`, float, the value of `heartrate/maxheart`, it maybe larger than 1 if possible, you can use this to display heart zone informations.  
 - `replaying`, bool, if we are replaying from a replay file  
 
+- `hr_1`, integer, e.g. when heart is 123, this value is 3. Add a child called `feature:digit_anim` to your `info` object if you use this.  
+- `hr_10`, integer, e.g. when heart is 123, this value is 2. Add a child called `feature:digit_anim` to your `info` object if you use this.  
+- `hr_100`, integer, e.g. when heart is 123, this value is 1. Add a child called `feature:digit_anim` to your `info` object if you use this.  
+
+- `datasource`, integer, `0:random, 1:LAN, 2:BLE, 3:OSC, 4:HypeRate, 5:Pulsoid`. You can add child called `feature:datasource_anim` to your `info` object if you use this.  
+
 If you want another prefab, remember to change the AssetBundle options below.
 
 ![alt text](image.png)
@@ -56,7 +62,7 @@ The mod will search all `GameObject`, if they called `auto:heartrate`, it's cont
 
 ![alt text](image-4.png)
 
-You can't change the Font, because the mod will reset the TMPs font to the game used fond. If the mod not reset the font, all texts will be invisible for some reason idk. But you can use the font called `Teko-Medium SDF` to preview the effect in game, it's not a perfect preview, but can be used to design the text size .
+You can't change the Font, because the mod will reset the TMPs font to the game used font. If the mod not reset the font, all texts will be invisible for some reason idk. But you can use the font called `Teko-Medium SDF` to preview the effect in game, it's not a perfect preview, but can be used to design the text size.
 
 The mod will find every Animator in the prefab and control them. Do this with your Unity skills, we won't go into detail since this isn't a Unity tutorial.
 
@@ -83,3 +89,9 @@ Change the AssetBundle option to make sure it will be packed to the output.
 You can set multiple prefabs to a same AssetBundle value, and they will be packed to a single file.
 
 Then use `Assets > Build AssetBundles` to export the asset bundle. Remember to add a suffix `.bundle`, the game will filter other files.
+
+# About the `feature:xxx` object
+
+You don't have to do this but you are suggested to. This is for compatibility. For example, if your UI has a child info called `feature:abc`, the mod version that doesn't support the feature `abs` will shows a mod update warning to player when they are trying to load this UI.
+
+Nothing else will happen. Your UI will still be loaded in the old version mod. You can make it compatable to the old mod if you want, with your superb unity animator skill.

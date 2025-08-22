@@ -33,6 +33,8 @@
 DEFINE_TYPE(HeartBeat, HeartBeatObj);
 
 const char *HeartBeat::ui_features[] = {
+    "digit_anim",
+    "datasource_anim",
     NULL
 };
 
@@ -93,6 +95,12 @@ namespace HeartBeat{
                 anmt->SetFloat("heartpercent", percent);
                 anmt->SetTrigger("datacome");
                 anmt->SetBool("replaying", HeartBeat::Recorder::isReplaying());
+                
+                anmt->SetInteger("hr_1", data % 10);
+                anmt->SetInteger("hr_10", (data/10)%10);
+                anmt->SetInteger("hr_100", (data/100)%10);
+
+                anmt->SetInteger("datasource", HeartBeat::dataSourceType);
             }
         }
     }

@@ -109,65 +109,17 @@ void HeartBeatPulsoidDataSource::CreateSocket(){
         }
 
         if(con == nullptr){
-            if(pair_wanted){
-                std::string pair_str;
-                {
-                    std::lock_guard<std::mutex> g(this->pair_mutex);
-                    pair_str = this->pair_str;
-                }
-                if(pair_str != ""){
-                    auto curl = curl_easy_init();
-                    auto url = std::string(SERVER_HOST "/bs/ps/apply/") + pair_str;
-                    auto ua = "HBQ/" VERSION " BS/" GAME_VERSION " " + std::string(LANG->lang_name) + " " + CheckHypeRateWebSocketIdentity();
-                    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-                    curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1L);
-                    curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 10L);
-                    curl_easy_setopt(curl, CURLOPT_TCP_KEEPALIVE, 1L);
-                    curl_easy_setopt(curl, CURLOPT_USERAGENT, ua.c_str());
-                    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, [](void *ptr, size_t size, size_t nmemb, std::string* data){
-                        data->append((char*)ptr, size * nmemb);
-                        return size*nmemb;
-                    });
-                    std::string response_string, header_string;
-                    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_string);
-                    curl_easy_setopt(curl, CURLOPT_HEADERDATA, &header_string);
-                    curl_easy_perform(curl);
-                    curl_easy_cleanup(curl);
-
-                    if(response_string.size() > 0 && response_string.size() < 100){
-                        bool good = true;
-                        for(int i=0;i<response_string.size();i++){
-                            auto ch = response_string[i];
-                            if(ch >='0' && ch <= '9')
-                                continue;
-                            if(ch >= 'a' && ch <= 'z')
-                                continue;
-                            if(ch >= 'A' && ch <= 'Z')
-                                continue;
-                            if(ch == '-')
-                                continue;
-                            good = false;
-                            break;
-                        }
-                        if(good){
-                            getModConfig().PulsoidToken.SetValue(response_string.c_str());
-                            modconfig_is_dirty = true;
-                        }
-                    }
-                }
-            }
-
             if(safe_pair_wanted){
                     safe_pairing = true;
                     safe_pair_wanted = false;
 
                     std::string pair_token, header_string;
+                    auto ua = "HBQ/" VERSION " BS/" GAME_VERSION " " + std::string(LANG->lang_name) + " " + CheckHypeRateWebSocketIdentity();
 
                     //get pair token
                     {
                         auto curl = curl_easy_init();
-                        auto url = std::string(SERVER_HOST "/pulsoid/safe/start") + pair_str;
-                        auto ua = "HBQ/" VERSION " BS/" GAME_VERSION " " + std::string(LANG->lang_name) + " " + CheckHypeRateWebSocketIdentity();
+                        auto url = std::string(SERVER_HOST "/pulsoid/safe/start");
                         curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
                         curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1L);
                         curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 10L);
@@ -185,6 +137,7 @@ void HeartBeatPulsoidDataSource::CreateSocket(){
 
                     if(pair_token.size() > 0 && pair_token.size() < 80){
                         //continue
+                        // auto login_url = SERVER_HOST "/pulsoid/safe/redir?token=" + pair_token;
                         auto login_url = SERVER_HOST "/pulsoid/safe/redir?token=" + pair_token;
 
                         {
@@ -195,55 +148,76 @@ void HeartBeatPulsoidDataSource::CreateSocket(){
                         }
 
                         //get token from server
-                        auto tokenurl = std::string(SERVER_HOST "/pulsoid/safe/token") + pair_str;
+                        auto tokenurl = std::string(SERVER_HOST "/pulsoid/safe/token?token=") + pair_token;
 
-                        for(int i=0;i<10*60/3;i++){
-                            sleep(3);
+                        
+                        for(int i=0;i<15*60;i++){
+                            sleep(1);
                             if(safe_pairing == false)
                                 break;
                             if(safe_pair_wanted){
                                 safe_pairing = false;
                                 break;
                             }
-                            std::string token, header;
-                            auto curl = curl_easy_init();
-                            auto ua = "HBQ/" VERSION " BS/" GAME_VERSION " " + std::string(LANG->lang_name) + " " + CheckHypeRateWebSocketIdentity();
-                            curl_easy_setopt(curl, CURLOPT_URL, tokenurl.c_str());
-                            curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1L);
-                            curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 10L);
-                            curl_easy_setopt(curl, CURLOPT_TCP_KEEPALIVE, 1L);
-                            curl_easy_setopt(curl, CURLOPT_USERAGENT, ua.c_str());
-                            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, [](void *ptr, size_t size, size_t nmemb, std::string* data){
-                                data->append((char*)ptr, size * nmemb);
-                                return size*nmemb;
-                            });
-                            curl_easy_setopt(curl, CURLOPT_WRITEDATA, &token);
-                            curl_easy_setopt(curl, CURLOPT_HEADERDATA, &header);
-                            curl_easy_perform(curl);
-                            curl_easy_cleanup(curl);
-                            if(token.size() > 0){
-                                if(token[0] == '?'){
-                                    if(token == "?authorization_pending")
+
+                            if(i % 40 == 0){
+                                auto keep_alive_url = std::string(SERVER_HOST "/pulsoid/safe/keep_alive?token=") + pair_token;
+
+                                auto curl = curl_easy_init();
+                                curl_easy_setopt(curl, CURLOPT_URL, keep_alive_url.c_str());
+                                curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1L);
+                                curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 10L);
+                                curl_easy_setopt(curl, CURLOPT_TCP_KEEPALIVE, 1L);
+                                curl_easy_setopt(curl, CURLOPT_USERAGENT, ua.c_str());
+                                curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, [](void *ptr, size_t size, size_t nmemb, std::string* data){
+                                    return size*nmemb;
+                                });
+                                curl_easy_setopt(curl, CURLOPT_WRITEDATA, NULL);
+                                curl_easy_setopt(curl, CURLOPT_HEADERDATA, NULL);
+                                curl_easy_perform(curl);
+                                curl_easy_cleanup(curl);
+                            }
+
+                            if(safe_pair_done_wanted){
+                                std::string token, header;
+                                auto curl = curl_easy_init();
+                                curl_easy_setopt(curl, CURLOPT_URL, tokenurl.c_str());
+                                curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1L);
+                                curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 10L);
+                                curl_easy_setopt(curl, CURLOPT_TCP_KEEPALIVE, 1L);
+                                curl_easy_setopt(curl, CURLOPT_USERAGENT, ua.c_str());
+                                curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, [](void *ptr, size_t size, size_t nmemb, std::string* data){
+                                    data->append((char*)ptr, size * nmemb);
+                                    return size*nmemb;
+                                });
+                                curl_easy_setopt(curl, CURLOPT_WRITEDATA, &token);
+                                curl_easy_setopt(curl, CURLOPT_HEADERDATA, &header);
+                                curl_easy_perform(curl);
+                                curl_easy_cleanup(curl);
+                                if(token.size() > 0){
+                                    if(token[0] == '?'){
+                                        if(token == "?authorization_pending")
+                                            continue;
+                                        getLogger().error("Pair failed: {}", token.c_str());
+                                        safe_pairing = false;
                                         continue;
-                                    getLogger().error("Pair failed: {}", token.c_str());
-                                    safe_pairing = false;
-                                    continue;
-                                }
-                                if(
-                                    (token[0] >= 'a' && token[0] <= 'z')
-                                    || (token[0] >= 'A' && token[0] <= 'Z')
-                                    || (token[0] >= '0' && token[0] <= '9')
-                                    || token[0] == '-'
-                                ){
-                                    getModConfig().PulsoidToken.SetValue(token);
-                                    safe_pairing = false;
-                                    modconfig_is_dirty = true;
+                                    }
+                                    if(
+                                        (token[0] >= 'a' && token[0] <= 'z')
+                                        || (token[0] >= 'A' && token[0] <= 'Z')
+                                        || (token[0] >= '0' && token[0] <= '9')
+                                        || token[0] == '-'
+                                    ){
+                                        getModConfig().PulsoidToken.SetValue(token);
+                                        safe_pairing = false;
+                                        modconfig_is_dirty = true;
+                                    }else{
+                                        getLogger().error("Pair failed, invalid token: {}", token.c_str());
+                                        safe_pairing = false;
+                                    }
                                 }else{
-                                    getLogger().error("Pair failed, invalid token: {}", token.c_str());
                                     safe_pairing = false;
                                 }
-                            }else{
-                                safe_pairing = false;
                             }
                         }
                         safe_pairing = false;
@@ -278,7 +252,6 @@ void HeartBeatPulsoidDataSource::CreateSocket(){
             time_t now = time(NULL);
             if(con_opened && now > last_ping_time + 5 && con->get_state() == websocketpp::session::state::open){
                 last_ping_time = now;
-                // getLogger().info("ping");
                 con->ping("");
             }
         }
@@ -375,15 +348,6 @@ bool HeartBeatPulsoidDataSource::GetData(int&heartbeat){
         return true;
     }
     return false;
-}
-
-void HeartBeatPulsoidDataSource::RequestPair(std::string pair_str){
-    {
-        std::lock_guard<std::mutex> g(this->pair_mutex);
-        this->pair_str = pair_str;
-    }
-    pair_wanted = true;
-    ResetConnection();
 }
 
 void HeartBeatPulsoidDataSource::RequestSafePair(){
