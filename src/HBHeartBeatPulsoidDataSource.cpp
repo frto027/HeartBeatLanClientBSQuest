@@ -120,6 +120,7 @@ void HeartBeatPulsoidDataSource::CreateSocket(){
                     getLogger().info("Start safe pair");
                     safe_pairing = true;
                     safe_pair_wanted = false;
+                    safe_pair_done_wanted = false;
 
                     std::string pair_token, header_string;
                     auto ua = "HBQ/" VERSION " BS/" GAME_VERSION " " + std::string(LANG->lang_name) + " " + CheckHypeRateWebSocketIdentity();
@@ -193,6 +194,7 @@ void HeartBeatPulsoidDataSource::CreateSocket(){
                             }
 
                             if(safe_pair_done_wanted){
+                                safe_pair_done_wanted = false;
                                 std::string token, header;
                                 auto curl = curl_easy_init();
                                 curl_easy_setopt(curl, CURLOPT_URL, tokenurl.c_str());

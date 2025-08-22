@@ -646,51 +646,58 @@ namespace SetthingUI{
                 
                 {
                     auto * pair_container = BSML::Lite::CreateHorizontalLayoutGroup(container->get_transform());
-                    PairInBrowserBtn = BSML::Lite::CreateUIButton(pair_container->get_transform(), "Connect", UnityEngine::Vector2{}, UnityEngine::Vector2{20, 8}, [](){
+                    PairInBrowserBtn = BSML::Lite::CreateUIButton(pair_container->get_transform(), LANG->pulsoid_connect, UnityEngine::Vector2{}, UnityEngine::Vector2{20, 8}, [](){
                         HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatPulsoidDataSource>()->RequestSafePair();
                     });
 
-                    BrowserCompleteBtn = BSML::Lite::CreateUIButton(pair_container->get_transform(), "Done", UnityEngine::Vector2{}, UnityEngine::Vector2{20, 8}, [](){
+                    BrowserCompleteBtn = BSML::Lite::CreateUIButton(pair_container->get_transform(), LANG->pulsoid_done, UnityEngine::Vector2{}, UnityEngine::Vector2{20, 8}, [](){
                         HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatPulsoidDataSource>()->SafePairDone();
                     });
 
-                    CancelBrowserPairBtn = BSML::Lite::CreateUIButton(pair_container->get_transform(), "Cancel", UnityEngine::Vector2{}, UnityEngine::Vector2{20, 8}, [](){
+                    CancelBrowserPairBtn = BSML::Lite::CreateUIButton(pair_container->get_transform(), LANG->pulsoid_cancel, UnityEngine::Vector2{}, UnityEngine::Vector2{20, 8}, [](){
                         HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatPulsoidDataSource>()->CancelSafePair();
                     });
                     BrowserCompleteBtn->set_interactable(false);
                     CancelBrowserPairBtn->set_interactable(false);
                 }
 
-                BSML::Lite::CreateText(container->get_transform(), "Auth Token", 4, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4});
-                tokenText = BSML::Lite::CreateText(container->get_transform(), "", 4, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4});
+                errMsgText = BSML::Lite::CreateText(container->get_transform(), "", 4, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4});
+                errMsgText->set_color(UnityEngine::Color::get_red());
 
+                BSML::Lite::CreateText(container->get_transform(), LANG->pulsoid_token, 4, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4});
+                tokenText = BSML::Lite::CreateText(container->get_transform(), "", 4, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4});
+                BSML::Lite::CreateUIButton(container->get_transform(), LANG->pulsoid_clear_token, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 8}, [](){
+                    getModConfig().PulsoidToken.SetValue(getModConfig().PulsoidToken.GetDefaultValue());
+                    HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatPulsoidDataSource>()->modconfig_is_dirty = true;
+                    HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatPulsoidDataSource>()->ResetConnection();
+                });
 
                 {
                     std::string config_file_hint = LANG->pulsoid_edit_config_hint + modConfigFilePath;
                     char buff[1024];
-                    bool break_wanted = false;
                     int j = 0;
                     for(int i=0, ch_count = 0;i<config_file_hint.size();i++){
                         //please we are handling utf8 string
                         if((config_file_hint[i] & 0xC0) != 0x80){
                             ch_count++;
-                            if(ch_count > 50){
+                            auto ch = config_file_hint[i];
+                            if(ch_count > 40 && (ch == ' ' || ch == '/' || ch == '\\')){
                                 buff[j++] = '\n';
                                 ch_count = 0;
                             }
                             if((config_file_hint[i] & 0x80))
                                 ch_count += 1;
+
+                            if(config_file_hint[i] == '\n')
+                                ch_count = 0;
                         }
                         buff[j++] = config_file_hint[i];
                     }
                     buff[j++] = '\0';
-                    BSML::Lite::CreateText(container->get_transform(), buff, 4, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 12});
+                    BSML::Lite::CreateText(container->get_transform(), buff, 4, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 18});
                 }
 
                 HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatPulsoidDataSource>()->modconfig_is_dirty = true;
-
-                errMsgText = BSML::Lite::CreateText(container->get_transform(), "", 4, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 4});
-                errMsgText->set_color(UnityEngine::Color::get_red());
             }
         }
 
@@ -701,7 +708,7 @@ namespace SetthingUI{
                 
                 {
                     std::string token = getModConfig().PulsoidToken.GetValue();
-                    for(int i=token.size()/2;i<token.size();i++){
+                    for(int i=8;i<token.size();i++){
                         if(token[i] != '-')
                             token[i] = '*';
                     }

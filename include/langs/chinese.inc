@@ -57,6 +57,12 @@ V(age, "年龄")
 V(select_ui, "界面选择")
 V(max_heart, "最大心率")
 
-V(pulsoid_edit_config_hint, "也可以直接编辑文件:")
+V(pulsoid_input_hint, "点击连接启动浏览器")
+V(pulsoid_edit_config_hint, "也可以直接编辑文件: ")
+V(pulsoid_connect, "连接")
+V(pulsoid_done, "完成")
+V(pulsoid_cancel, "取消")
+V(pulsoid_token, "Pulsoid令牌")
+V(pulsoid_clear_token, "清除并重置")
 
 V(your_setthings_is_in_another_menu, "谢谢你玩家! 但数据源设置在另一个菜单里!")

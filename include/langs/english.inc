@@ -65,7 +65,12 @@ V(age, "Age")
 V(select_ui, "Select UI")
 V(max_heart, "Max Heartrate")
 
-V(pulsoid_input_hint, "Click start connect in browser")
+V(pulsoid_input_hint, "Click Connect to open browser")
 V(pulsoid_edit_config_hint, "You can also edit config file to input pulsoid token manually:")
+V(pulsoid_connect, "Connect")
+V(pulsoid_done, "Done")
+V(pulsoid_cancel, "Cancel")
+V(pulsoid_token, "Pulsoid Token")
+V(pulsoid_clear_token, "Clear and Reset")
 
 V(your_setthings_is_in_another_menu, "Thank you Player! But data-source config is in another menu!")
