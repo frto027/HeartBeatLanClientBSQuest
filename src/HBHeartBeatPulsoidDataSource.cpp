@@ -59,9 +59,9 @@ static bool con_opened = false;
 static int failed_count = 0;
 
 inline int retry_sleep_time(){
-    if(failed_count < 30)
-        return 3;
-    return 10;
+    if(failed_count < 20)
+        return 6;
+    return 12;
 }
 
 static std::function<void(std::error_code)> timer_impl;
