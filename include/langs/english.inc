@@ -65,6 +65,7 @@ V(age, "Age")
 V(select_ui, "Select UI")
 V(max_heart, "Max Heartrate")
 
+V(pulsoid_reconnect, "Click to Reconnect")
 V(pulsoid_input_hint, "Click Connect to open browser")
 V(pulsoid_edit_config_hint, "You can also edit config file to input pulsoid token manually:")
 V(pulsoid_connect, "Connect")

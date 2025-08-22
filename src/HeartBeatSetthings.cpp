@@ -638,7 +638,7 @@ namespace SetthingUI{
                 // Create a container that has a scroll bar
                 auto *container = BSML::Lite::CreateScrollableSettingsContainer(self->get_transform());
 
-                BSML::Lite::CreateUIButton(container->get_transform(), "Click to Reconnect", UnityEngine::Vector2{}, UnityEngine::Vector2{50, 8}, [](){
+                BSML::Lite::CreateUIButton(container->get_transform(), LANG->pulsoid_reconnect, UnityEngine::Vector2{}, UnityEngine::Vector2{50, 8}, [](){
                     HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatPulsoidDataSource>()->ResetConnection();
                 });
 

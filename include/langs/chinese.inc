@@ -57,6 +57,7 @@ V(age, "年龄")
 V(select_ui, "界面选择")
 V(max_heart, "最大心率")
 
+V(pulsoid_reconnect, "点击重置当前连接")
 V(pulsoid_input_hint, "点击连接启动浏览器")
 V(pulsoid_edit_config_hint, "也可以直接编辑文件: ")
 V(pulsoid_connect, "连接")
