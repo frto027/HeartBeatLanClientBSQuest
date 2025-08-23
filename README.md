@@ -118,10 +118,7 @@ The Bluetooth access code at `AndroidProject/HeartBeatNative` can be compiled wi
 
 **make sure you have cloned the submodules.**
 ```sh
-git clone git@github.com:frto027/HeartBeatLanClientBSQuest.git
-cd HeartBeatLanClientBSQuest
-git submodule init
-git submodule update
+git clone --recursive git@github.com:frto027/HeartBeatLanClientBSQuest.git
 ```
 
 you need a environment variable `ANDROID_NDK_HOME` with proper value. don't use `ndkpath.txt`.
