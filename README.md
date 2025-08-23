@@ -221,4 +221,4 @@ And thanks to everyone who has directly or indirectly supported this mod.
 * [Lauriethefish](https://github.com/Lauriethefish), [danrouse](https://github.com/danrouse) and [Bobby Shmurner](https://github.com/BobbyShmurner) for [this template](https://github.com/Lauriethefish/quest-mod-template)
 * NSGolova - [beatleader](https://github.com/BeatLeader/beatleader-qmod) for record  and webreplay support
 * And other developers is BSMG Discord channel.
-* [Hyperate](www.hyperate.io) provide api support. 
+* [Hyperate](https://www.hyperate.io) provide api support. 
