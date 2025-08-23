@@ -102,6 +102,9 @@ public class HeartController : MonoBehaviour
             anmt.SetInteger("heartrate", heart);
             anmt.SetTrigger("datacome");
 
+            anmt.SetInteger("hr_1", heart % 10);
+            anmt.SetInteger("hr_10", (heart / 10) % 10);
+            anmt.SetInteger("hr_100", (heart / 100) % 10);
         }
     }
 
