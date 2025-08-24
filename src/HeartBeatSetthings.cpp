@@ -135,18 +135,17 @@ namespace SetthingUI{
             data_sources_in_ui = {
                 LANG->data_source_bluetooth,
                 LANG->data_source_hyperate,
-                LANG->data_source_pulsoid,
                 LANG->data_source_osc,
+                LANG->data_source_pulsoid,
                 LANG->data_source_random,
-                LANG->data_source_lan,
             };
 
             auto current_data_type = getModConfig().DataSourceType.GetValue();
-            if(current_data_type >= data_sources.size()){
-                current_data_type = 2;
+            if(current_data_type >= data_sources.size() || current_data_type == HeartBeat::DS_LAN){
+                current_data_type = HeartBeat::DS_BLE, getModConfig().DataSourceType.SetValue(current_data_type);
             }
             if(current_data_type < 0)
-                current_data_type = 2;
+                current_data_type = HeartBeat::DS_BLE, getModConfig().DataSourceType.SetValue(current_data_type);
             BSML::Lite::CreateDropdown(container->get_transform(),
                 LANG->data_source, 
                 data_sources[current_data_type], data_sources_in_ui, [](::StringW value){
