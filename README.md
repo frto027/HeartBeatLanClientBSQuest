@@ -11,8 +11,6 @@ View your heart rate inside the BeatSaber quest game.
 
 # Usage
 
-**This mod is designed to be easy to use. Take it easy, every thing is ready for you.**
-
 After you patch the mod(e.g. with [mbf](https://mbf.bsquest.xyz/), with or without `bluetooth` permission), you can configure it inside the game via a button on your left side. Change the data source and restart the game, and it works.
 
 > [!NOTE]
