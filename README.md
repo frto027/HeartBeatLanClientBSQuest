@@ -3,7 +3,7 @@
 [![QMOD BUILD](https://github.com/frto027/HeartBeatLanClientBSQuest/actions/workflows/qmod_build.yml/badge.svg)](https://github.com/frto027/HeartBeatLanClientBSQuest/actions/workflows/qmod_build.yml) ![GitHub Release](https://img.shields.io/github/v/release/Frto027/HeartBeatLanClientBSQuest?include_prereleases)
 
 > [!TIP]
-> This mod is for quest platform. In PC platform you should use [HRCounter](https://github.com/qe201020335/HRCounter).
+> This mod is for the quest platform. For PC platform you should use [HRCounter](https://github.com/qe201020335/HRCounter).
 
 [中文简要说明](README.cn.md)
 
@@ -45,7 +45,7 @@ This mod can access Bluetooth directly. To use this, follow this instruction.
 1. patch the game with the `bluetooth` permission via [mbf](https://mbf.bsquest.xyz/), which is the recommand way to mod the beatsaber now.
 1. install this mod via mbf.
 2. In your quest bluetooth setthings, pair your heart rate BLE device with your quest.
-3. Open the game, scan and select your device at the device list menu.
+3. Open the game, scan and select your device in the device list menu.
 
 The Bluetooth data source has minimum data latency, but may be less compatibility because it uses a generic BLE protocol to access Bluetooth devices. Your device should support heart rate broadcast via BLE protocol.
 
@@ -83,14 +83,14 @@ This mod supports the [Pulsoid](https://pulsoid.net/) as the data source. In the
 
 Use your favorite heart rate OSC senders, send to the port 9000 for your quest device.**If your sender program is not supported by this mod, please [let me know](https://github.com/frto027/HeartBeatLanClientBSQuest/issues).**
 
-After you change the data source to OSC in the setthings menu, the port will be show at the menu, and can edit manually via config file if you need. 
+After you change the data source to OSC in the setthings menu, the port will be show in the menu, and can edit manually via config file if you need. 
 
 ## (Deprecated, do not use)UDP data source
 <details>
         
 > An android application to read heart rate data is also avaliable
 
-If you can't or don't want to patch your game with bluetooth permission, you can use [this android apk](https://github.com/frto027/HeartbeatLanServer/releases/latest) in your quest or android phone in same local network. After you use it, switch the data source toggle to `local network` inside the game at the mod menu in your left side.
+If you can't or don't want to patch your game with bluetooth permission, you can use [this android apk](https://github.com/frto027/HeartbeatLanServer/releases/latest) in your quest or android phone in same local network. After you use it, switch the data source toggle to `local network` inside the game in the mod menu at your left side.
 
 </details>
 
