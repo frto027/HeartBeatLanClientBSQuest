@@ -85,15 +85,6 @@ Use your favorite heart rate OSC senders, send to the port 9000 for your quest d
 
 After you change the data source to OSC in the setthings menu, the port will be show in the menu, and can edit manually via config file if you need. 
 
-## (Deprecated, do not use)UDP data source
-<details>
-        
-> An android application to read heart rate data is also avaliable
-
-If you can't or don't want to patch your game with bluetooth permission, you can use [this android apk](https://github.com/frto027/HeartbeatLanServer/releases/latest) in your quest or android phone in same local network. After you use it, switch the data source toggle to `local network` inside the game in the mod menu at your left side.
-
-</details>
-
 # Default UI and DIY
 
 > [!TIP]
