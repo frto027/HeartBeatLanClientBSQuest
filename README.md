@@ -7,7 +7,7 @@
 
 [中文简要说明](README.cn.md)
 
-view your heart rate inside the BeatSaber quest game.  
+View your heart rate inside the BeatSaber quest game.  
 
 # Usage
 
@@ -139,7 +139,7 @@ The Bluetooth access code at `AndroidProject/HeartBeatNative` can be compiled wi
 git clone --recursive git@github.com:frto027/HeartBeatLanClientBSQuest.git
 ```
 
-you need a environment variable `ANDROID_NDK_HOME` with proper value. don't use `ndkpath.txt`.
+You need an environment variable `ANDROID_NDK_HOME` with proper value. Do NOT use `ndkpath.txt`.
 
 Use `qpm restore && qpm s build` to build.
 
