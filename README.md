@@ -76,7 +76,7 @@ This mod supports the [HypeRate](https://www.hyperate.io/) as the data source. J
 This mod supports the [Pulsoid](https://pulsoid.net/) as the data source. In the mod config menu select Pulsoid as data source, then restart the game. Follow the guide inside the PULSOID menu, click Open and then connect to pulsoid inside your quest's webbrowser. Then click Done button.
 
 > [!NOTE]
-> **PULSOID WITHOUT ONLINE SERVER**  
+> **PULSOID WITH PULSOID SERVER ONLY**  
 > You can also edit your mod config file directly to skip this step. Your game is directly connected to pulsoid server, nothing will be forwarded.
 
 ## OSC as the heart data source
