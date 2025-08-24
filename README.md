@@ -34,9 +34,9 @@ After you patch the mod(e.g. with [mbf](https://mbf.bsquest.xyz/), with or witho
 
 Currently, there are 4 data sources can be used for this mod.  Brief Introduction:
 
-- Bluletooth, pair your heart device with your quest directly. maybe less compatable.
-- HypeRate and Pulsoid, you need install their app somewhere to get the heart rate and send it to game. Internet required.
-- OSC, receive the heart data from `OSC protocol`.
+- Bluletooth[*](#bluetooth-device-as-the-data-source), pair your heart device with your quest directly. maybe less compatable.
+- HypeRate[*](#hyperate-as-the-heart-data-source) and Pulsoid[*](#pulsoid-as-the-heart-data-source), you need install their app somewhere to get the heart rate and send it to game. Internet required.
+- OSC[*](#osc-as-the-heart-data-source), receive the heart data from `OSC protocol`.
 
 ## Bluetooth device as the data source
 
@@ -71,6 +71,12 @@ This mod supports the [HypeRate](https://www.hyperate.io/) as the data source. J
 >
 > This mod use Cloudflare as the super cool and fast backend.
 
+## OSC as the heart data source
+
+Use your favorite heart rate OSC senders, send to the port 9000 for your quest device.**If your sender program is not supported by this mod, please [let me know](https://github.com/frto027/HeartBeatLanClientBSQuest/issues).**
+
+After you change the data source to OSC in the setthings menu, the port will be show in the menu, and can edit manually via config file if you need. 
+
 ## Pulsoid as the heart data source
 
 This mod supports the [Pulsoid](https://pulsoid.net/) as the data source. In the mod config menu select Pulsoid as data source, then restart the game. Follow the guide inside the PULSOID menu, click Open and then connect to pulsoid inside your quest's webbrowser. Then click Done button.
@@ -78,12 +84,6 @@ This mod supports the [Pulsoid](https://pulsoid.net/) as the data source. In the
 > [!NOTE]
 > **PULSOID WITH PULSOID SERVER ONLY**  
 > You can also edit your mod config file directly to skip this step. Your game is directly connected to pulsoid server, nothing will be forwarded.
-
-## OSC as the heart data source
-
-Use your favorite heart rate OSC senders, send to the port 9000 for your quest device.**If your sender program is not supported by this mod, please [let me know](https://github.com/frto027/HeartBeatLanClientBSQuest/issues).**
-
-After you change the data source to OSC in the setthings menu, the port will be show in the menu, and can edit manually via config file if you need. 
 
 # Default UI and DIY
 
