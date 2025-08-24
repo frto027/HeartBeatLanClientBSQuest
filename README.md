@@ -16,6 +16,9 @@ Please notice that the settings menu for each data source is on a **DIFFERENT** 
 
 It will automatically record your heart rate to beatleader's replay file if the beatleader-qmod is detected. You can disable this feature inside the mod setthings.
 
+> [!TIP]
+> If you have any suggestions about this mod, you are welcome to open an issue.
+
 # Data sources
 
 > [!TIP]
@@ -36,7 +39,7 @@ This mod can access Bluetooth directly. To use this, follow this instruction.
 2. In your quest bluetooth setthings, pair your heart rate BLE device with your quest.
 3. Open the game, scan and select your device at the device list menu.
 
-> [!INFO]
+
 > More accurately, mbf is not required, the mod requires the game has the following permission
 >
 >
@@ -85,6 +88,11 @@ If you can't or don't want to patch your game with bluetooth permission, you can
 </details>
 
 # Default UI and DIY
+
+> [!TIP]
+> **License**  
+> In this Project, the files in the `UnityUI` folder, and **only** this files are licenced under [CC0](https://creativecommons.org/public-domain/cc0/).  
+> This means you can create your own UI and distribute it for free or for a fee, and you can also add a CC-BY license to your UI project.
 
 The color bar under the number indicates your heart zone.
 
