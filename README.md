@@ -2,9 +2,12 @@
 
 [![QMOD BUILD](https://github.com/frto027/HeartBeatLanClientBSQuest/actions/workflows/qmod_build.yml/badge.svg)](https://github.com/frto027/HeartBeatLanClientBSQuest/actions/workflows/qmod_build.yml) ![GitHub Release](https://img.shields.io/github/v/release/Frto027/HeartBeatLanClientBSQuest?include_prereleases)
 
-[中文说明](README.cn.md)
+> [!TIP]
+> This mod is for quest platform. In PC platform you should use [HRCounter](https://github.com/qe201020335/HRCounter).
 
-view your heart rate inside the BeatSaber quest game
+[中文简要说明](README.cn.md)
+
+view your heart rate inside the BeatSaber quest game.  
 
 # Usage
 
