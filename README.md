@@ -12,16 +12,21 @@ view your heart rate inside the BeatSaber quest game
 
 After you patch the mod(e.g. with [mbf](https://mbf.bsquest.xyz/), with or without `bluetooth` permission), you can configure it inside the game via a button on your left side. Change the data source and restart the game, and it works.
 
-Please notice that the settings menu for each data source is on a **DIFFERENT** menu.
+> [!NOTE]
+> **DATA SOURCE CONFIG**  
+> Please notice that the settings menu for each data source is on a **DIFFERENT** menu.
 
-It will automatically record your heart rate to beatleader's replay file if the beatleader-qmod is detected. You can disable this feature inside the mod setthings.
+> [!NOTE]
+> **HEART RATE RECORD**  
+> It will automatically record your heart rate to beatleader's replay file if the beatleader-qmod is detected. You can disable this feature inside the mod setthings.
 
 > [!TIP]
+> **MOD ROADMAP**  
 > If you have any suggestions about this mod, you are welcome to open an issue.
 
 # Data sources
 
-> [!TIP]
+> [!NOTE]
 > The data sources on this page are sorted alphabetically and are not recommendations. Each data source has its own advantages, so you can try them all.
 
 Currently, there are 4 data sources can be used for this mod.  Brief Introduction:
@@ -39,16 +44,18 @@ This mod can access Bluetooth directly. To use this, follow this instruction.
 2. In your quest bluetooth setthings, pair your heart rate BLE device with your quest.
 3. Open the game, scan and select your device at the device list menu.
 
+The Bluetooth data source has minimum data latency, but may be less compatibility because it uses a generic BLE protocol to access Bluetooth devices. Your device should support heart rate broadcast via BLE protocol.
 
+> [!NOTE]
+> **PERMISSION REQUIRED**  
 > More accurately, mbf is not required, the mod requires the game has the following permission
 >
 >
 >        android.permission.BLUETOOTH
 >        android.permission.BLUETOOTH_CONNECT
 
-The Bluetooth data source has minimum data latency, but may be less compatibility because it uses a generic BLE protocol to access Bluetooth devices. Your device should support heart rate broadcast via BLE protocol.
 
-> [!TIP]
+> [!NOTE]
 > Bluetooth permission is not required if you don't use this data source.
 
 ## HypeRate as the heart data source
@@ -56,6 +63,7 @@ The Bluetooth data source has minimum data latency, but may be less compatibilit
 This mod supports the [HypeRate](https://www.hyperate.io/) as the data source. Just install the mod and change the data source to HypeRate in the setthings menu, then restart the game. Input your hyperate ID in the HYPERATE menu and it will works. (Special thanks to HypeRate for providing API support)
 
 > [!NOTE]
+> **ONLINE DATA COLLECTION**  
 > This is an online service, which means I need collect some game information to make sure the service has no problem, such as [the version number](https://github.com/frto027/HeartBeatLanClientBSQuest/blob/4243eadcc4062ee619a6606da65a1ba4d50d91c8/src/HBHeartBeatHypeRateDataSource.cpp#L327). This data is only used to check for service errors and is usually automatically deleted within 3 days. If you don't want send these data to server, you can use other data sources. If you have trouble, please make sure your quest device is able to access [this website](https://heart.0xf7.top/).
 >
 > This mod use Cloudflare as the super cool and fast backend.
@@ -65,6 +73,7 @@ This mod supports the [HypeRate](https://www.hyperate.io/) as the data source. J
 This mod supports the [Pulsoid](https://pulsoid.net/) as the data source. In the mod config menu select Pulsoid as data source, then restart the game. Follow the guide inside the PULSOID menu, click Open and then connect to pulsoid inside your quest's webbrowser. Then click Done button.
 
 > [!NOTE]
+> **PULSOID WITHOUT ONLINE SERVER**  
 > You can also edit your mod config file directly to skip this step. Your game is directly connected to pulsoid server, nothing will be forwarded.
 
 ## OSC as the heart data source
@@ -72,11 +81,6 @@ This mod supports the [Pulsoid](https://pulsoid.net/) as the data source. In the
 Use your favorite heart rate OSC senders, send to the port 9000 for your quest device.**If your sender program is not supported by this mod, please [let me know](https://github.com/frto027/HeartBeatLanClientBSQuest/issues).**
 
 After you change the data source to OSC in the setthings menu, the port will be show at the menu, and can edit manually via config file if you need. 
-
-> [!TIP]
->You can also use [this android apk](https://github.com/frto027/HeartbeatLanServer/releases/latest) to send osc data from your android phone, or install it on your quest device directly and send to `127.0.0.1:9000`. 
->
-> This apk does not extend the device compatability, because it read bluetooth data just like what the mod does in game with bluetooth data source. If your heart monitor device is not supported, you may need some other program to convert their data to OSC protocol, or try to enable something like bluetooth broadcast in your monitor device.
 
 ## (Deprecated, do not use)UDP data source
 <details>
@@ -90,7 +94,7 @@ If you can't or don't want to patch your game with bluetooth permission, you can
 # Default UI and DIY
 
 > [!TIP]
-> **License**  
+> **LICENSE**  
 > In this Project, the files in the `UnityUI` folder, and **only** this files are licenced under [CC0](https://creativecommons.org/public-domain/cc0/).  
 > This means you can create your own UI and distribute it for free or for a fee, and you can also add a CC-BY license to your UI project.
 
@@ -112,7 +116,10 @@ as a refer, here I lists what these color bar means.
 
 This mod supports DIY Interface via Unity asset bundle, please refer to [UnityUI/Readme.md](UnityUI/Readme.md)
 
-If you have any ideas about the UI, please open a issue. More customization capabilities can be added in the future, if someone needs it, such as binding the UI to the saber.
+> [!NOTE]
+> **FELL FREE TO REQUEST UI FEATURE**  
+> If you are creating a super cool UI but can't do it with current mod, fell free to open an issue.  
+> If you have any ideas about the UI, also welcome to open an issue. More customization capabilities can be added in the future if someone wants it.
 
 # Development information
 
