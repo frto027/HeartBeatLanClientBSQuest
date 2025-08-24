@@ -32,9 +32,9 @@ After you patch the mod(e.g. with [mbf](https://mbf.bsquest.xyz/), with or witho
 
 Currently, there are 4 data sources can be used for this mod.  Brief Introduction:
 
-- Bluletooth[*](#bluetooth-device-as-the-data-source), pair your heart device with your quest directly. maybe less compatable.
-- HypeRate[*](#hyperate-as-the-heart-data-source) and Pulsoid[*](#pulsoid-as-the-heart-data-source), you need install their app somewhere to get the heart rate and send it to game. Internet required.
-- OSC[*](#osc-as-the-heart-data-source), receive the heart data from `OSC protocol`.
+- [Bluletooth](#bluetooth-device-as-the-data-source), pair your heart device with your quest directly. maybe less compatable.
+- [HypeRate](#hyperate-as-the-heart-data-source) and [Pulsoid](#pulsoid-as-the-heart-data-source), you need install their app somewhere to get the heart rate and send it to game. Internet required.
+- [OSC](#osc-as-the-heart-data-source), receive the heart data from `OSC protocol`.
 
 ## Bluetooth device as the data source
 
