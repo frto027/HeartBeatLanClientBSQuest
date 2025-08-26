@@ -87,7 +87,7 @@ This mod supports the [Pulsoid](https://pulsoid.net/) as the data source. In the
 
 > [!TIP]
 > **LICENSE**  
-> In this Project, the files in the `UnityUI` folder, and **only** this files are licenced under [CC0](https://creativecommons.org/public-domain/cc0/).  
+> In this Project, the files in the `UnityUI` folder except `UnityUI/Assets/TextMesh Pro`, and **only** these files are licenced under [CC0](https://creativecommons.org/public-domain/cc0/).  
 > This means you can create your own UI and distribute it for free or for a fee, and you can also add a CC-BY license to your UI project.
 
 The color bar under the number indicates your heart zone.
