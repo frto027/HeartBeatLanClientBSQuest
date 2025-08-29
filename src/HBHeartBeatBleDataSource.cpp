@@ -8,6 +8,7 @@
 #include "main.hpp"
 #include "scotland2/shared/modloader.h"
 #include "BeatLeaderRecorder.hpp"
+#include <sys/stat.h>
 
 #define DEX_PATH "/sdcard/ModData/com.beatgames.beatsaber/Mods/HeartBeatQuest/HeartBeatBLEReader.dex"
 
@@ -172,7 +173,20 @@ void LoadJavaLibrary(std::string path){
 
 HeartBeat::HeartBeatBleDataSource::HeartBeatBleDataSource(){
     bleDataSource = this;
+    
+    bool need_restore_mode = false;
+    struct stat _stat;
+    
+    if(0 == stat(DEX_PATH, &_stat)){
+        need_restore_mode = true;
+        chmod(DEX_PATH, S_IRUSR|S_IRGRP|S_IROTH);
+    }
+
     LoadJavaLibrary(DEX_PATH);
+
+    if(need_restore_mode){
+        chmod(DEX_PATH, _stat.st_mode);
+    }
 }
 
 void HeartBeat::HeartBeatBleDataSource::SetSelectedBleMac(const std::string mac){ 
