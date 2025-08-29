@@ -112,19 +112,20 @@ void RecordCallback(std::string name, int* length, void** data){
 }
 
 // ReplayCallback(HeartBeatQuest) -> ReplayCallback(HRCounter) -> SinglePlayerInstallBindings(ReplayCallbackShouldCleanData=true) -> Play the replay in game play
-bool ReplayCallbackShouldCleanData = true;
+// bool ReplayCallbackShouldCleanData = true;
 
 //this callback is called by replay mod
+template<const char* SourceName>
 void ReplayCallback(const char * buff, size_t length){
     recordStarted = false;// just make sure we have no bugs, it's already true here.
 
-    if(ReplayCallbackShouldCleanData){
-        ReplayCallbackShouldCleanData = false;
-        replayStarted = false;
+    // if(ReplayCallbackShouldCleanData){
+    //     ReplayCallbackShouldCleanData = false;
+        // replayStarted = false;
         recordData.clear();
-    }else{
-        ReplayCallbackShouldCleanData = true;
-    }
+    // }else{
+    //     ReplayCallbackShouldCleanData = true;
+    // }
 
     if(buff == nullptr || length == 0){
         getLogger().info("no replay data detected, or length is zero.");
@@ -166,10 +167,10 @@ void ReplayCallback(const char * buff, size_t length){
     unsigned int ver;
     if(!GetUInt32(ver))
         return;
-    getLogger().info("replay data detected, version {}.", ver);
+    getLogger().info("{}: replay data detected, version {}.", SourceName, ver);
 
     if(ver != 1){
-        getLogger().info("the replay data version is not supported.");
+        getLogger().info("{}: the replay data version is not supported.", SourceName);
         return;
     }
     unsigned int recordCount;
@@ -188,7 +189,7 @@ void ReplayCallback(const char * buff, size_t length){
         // getLogger().info("timestamp {}, data {}", timestamp, heartrate);
         recordData.emplace_back(timestamp, heartrate);
     }
-    getLogger().info("{} heart rate data loaded.", recordData.size());
+    getLogger().info("{}: {} heart rate data loaded.", SourceName, recordData.size());
 
 
     //actually we don't care about it
@@ -206,7 +207,7 @@ MAKE_HOOK_MATCH(ScoreControllerStart, &GlobalNamespace::ScoreController::Start, 
 MAKE_HOOK_MATCH(SinglePlayerInstallBindings, &GlobalNamespace::GameplayCoreInstaller::InstallBindings, void, GlobalNamespace::GameplayCoreInstaller* self) {
     SinglePlayerInstallBindings(self);
 
-    ReplayCallbackShouldCleanData = true;
+    // ReplayCallbackShouldCleanData = true;
 
     auto DisableRecord = [](){
         recordStarted = false;
@@ -282,8 +283,9 @@ void Init(){
     if(AddReplayCustomDataCallback.has_value()){
         getLogger().info("Replay mod is detected, enable replay support");
         needReplay = true;
-        AddReplayCustomDataCallback.value()("HeartBeatQuest", ReplayCallback);
-        AddReplayCustomDataCallback.value()("HRCounter", ReplayCallback);
+        AddReplayCustomDataCallback.value()("HeartBeatQuest", ReplayCallback<"HeartBeatQuest">);
+        // currently, compat with HRCounter is not considered because it doesn't support record
+        // AddReplayCustomDataCallback.value()("HRCounter", ReplayCallback<"HRCounter">);
     }
     #endif
     IsInReplay = CondDeps::FindUnsafe<bool>("replay", "IsInReplay");
