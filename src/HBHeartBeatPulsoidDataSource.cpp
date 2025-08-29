@@ -77,8 +77,11 @@ void HeartBeatPulsoidDataSource::CreateSocket(){
 
     endpoint.set_access_channels(websocketpp::log::alevel::all);
     endpoint.set_error_channels(websocketpp::log::elevel::all);
-    
-    endpoint.set_user_agent("HeartBeatQuest/" VERSION " BeatSaber/" GAME_VERSION);
+    {
+        char buff[1024] = "";
+        sprintf(buff, "%s %s", "HeartBeatQuest/" VERSION " BeatSaber/" GAME_VERSION, getQuestDeviceName());
+        endpoint.set_user_agent(buff);
+    }
 
     // Initialize ASIO
     endpoint.init_asio();

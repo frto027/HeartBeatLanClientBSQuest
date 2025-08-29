@@ -35,6 +35,7 @@
 #include <websocketpp/connection.hpp>
 #include <websocketpp/frame.hpp>
 
+#include <sys/system_properties.h>
 /*
 
 You know you won't copy these code to get heart rate in other project
@@ -108,12 +109,24 @@ std::string CheckHypeRateWebSocketIdentity(){
     return ret;
 }
 
+const char * getQuestDeviceName(){
+    static char model_string[PROP_VALUE_MAX+1] = "unk";
+    __system_property_get("ro.product.model", model_string);
+    return model_string;
+}
+
 static std::function<void(std::error_code)> timer_impl;
 static int current_retry_time_already = 0;
 void HeartBeatHypeRateDataSource::CreateSocket(){
 
     endpoint.set_access_channels(websocketpp::log::alevel::all);
     endpoint.set_error_channels(websocketpp::log::elevel::all);
+    {
+        char ua_buff[1024];
+        std::string identity = CheckHypeRateWebSocketIdentity();
+        sprintf(ua_buff, "%s %s %s", "HeartBeatQuest/" VERSION " BeatSaber/" GAME_VERSION, identity.c_str(), getQuestDeviceName());
+        endpoint.set_user_agent(ua_buff);
+    }
 
     // Initialize ASIO
     endpoint.init_asio();

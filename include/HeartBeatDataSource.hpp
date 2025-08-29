@@ -254,4 +254,5 @@ public:
 };
 
 std::string CheckHypeRateWebSocketIdentity();
+const char * getQuestDeviceName();
 };//namespace HeartBeat
