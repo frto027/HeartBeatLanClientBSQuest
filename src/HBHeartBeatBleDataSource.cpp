@@ -132,14 +132,17 @@ void LoadJavaLibrary(std::string path){
     {
         std::vector<jbyte> file_content;
         FILE * f = fopen(path.c_str(), "rb");
-        while(!feof(f)){
-            char buff[1024];
-            int c = fread(buff, 1,1024, f);
-            if(c > 0){
-                size_t cur_size = file_content.size();
-                file_content.resize(cur_size + c);
-                memcpy(&file_content[cur_size], buff, c);
+        if(f){
+            while(!feof(f)){
+                char buff[1024];
+                int c = fread(buff, 1,1024, f);
+                if(c > 0){
+                    size_t cur_size = file_content.size();
+                    file_content.resize(cur_size + c);
+                    memcpy(&file_content[cur_size], buff, c);
+                }
             }
+            fclose(f);
         }
 
         auto ByteBufferClass = env->FindClass("java/nio/ByteBuffer");
