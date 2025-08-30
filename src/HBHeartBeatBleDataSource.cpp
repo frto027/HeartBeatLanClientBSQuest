@@ -4,6 +4,8 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <cstdio>
+#include <cstring>
 #include "beatsaber-hook/shared/utils/il2cpp-utils.hpp"
 #include "main.hpp"
 #include "scotland2/shared/modloader.h"
@@ -89,14 +91,25 @@ void LoadJavaLibrary(std::string path){
     }
     env->ExceptionClear();
 
+#define CHECK_EXCEPTION()  \
+    do{if(env->ExceptionCheck()){\
+        getLogger().debug("Exception occurred (line {})", __LINE__);\
+        env->ExceptionDescribe();\
+        return;\
+    }}while(0)
+
+
     /*
     Good, will load my java class
 
-        new dalvik.system.PathClassLoader({path}, {env->FindClass("com/unity3d/player/UnityPlayer")}.getClassLoader())
+        buffobj = ByteBuffer.allocateDirect(xxx);
+        buffobj.put(xxx);
+
+        new dalvik.system.InMemoryDexClassLoader(buffobj, {env->FindClass("com/unity3d/player/UnityPlayer")}.getClassLoader())
             .loadClass("top.zxff.nativeblereader.BleReader")
             
     */
-    auto path_str = env->NewStringUTF(path.c_str());
+    //auto path_str = env->NewStringUTF(path.c_str());
 
     auto unityPlayerClass = env->FindClass("com/unity3d/player/UnityPlayer");
     if(unityPlayerClass == nullptr){
@@ -113,28 +126,54 @@ void LoadJavaLibrary(std::string path){
     }
     auto ClassLoader = env->CallObjectMethod(unityPlayerClass, ClassClass_getClassLoader);
     
-    auto PathClassLoaderClass = env->FindClass("dalvik/system/PathClassLoader");
-    if(PathClassLoaderClass == nullptr){
-        getLogger().error("can't find dalvik.system.PathClassLoader");
+    jobject buffobj;
+    {
+        std::vector<jbyte> file_content;
+        FILE * f = fopen(path.c_str(), "rb");
+        while(!feof(f)){
+            char buff[1024];
+            int c = fread(buff, 1,1024, f);
+            if(c > 0){
+                size_t cur_size = file_content.size();
+                file_content.resize(cur_size + c);
+                memcpy(&file_content[cur_size], buff, c);
+            }
+        }
+
+        auto ByteBufferClass = env->FindClass("java/nio/ByteBuffer");
+        auto ByteBufferClass_allocateDirect = env->GetStaticMethodID(ByteBufferClass, "allocateDirect", "(I)Ljava/nio/ByteBuffer;")；
+        buffobj = env->CallStaticObjectMethod(ByteBufferClass, ByteBufferClass_allocateDirect, file_content.size());
+        
+        CHECK_EXCEPTION();
+        
+        auto arr = env->NewByteArray(file_content.size());
+        env->SetByteArrayRegion(arr, 0, file_content.size(), file_content.data());
+
+        auto ByteBufferClass_put = env->GetMethodID(ByteBufferClass, "put", "([B)Ljava/nio/ByteBuffer;");
+        env->CallObjectMethod(buffobj, ByteBufferClass_put, arr);
+        env->DeleteLocalRef(arr);
+        CHECK_EXCEPTION();
+    }
+
+    auto SomeClassLoaderClass = env->FindClass("dalvik/system/InMemoryDexClassLoader");
+    if(SomeClassLoaderClass == nullptr){
+        getLogger().error("can't find dalvik.system.InMemoryDexClassLoader");
         return;
     }
-    auto PathClassLoaderInit = env->GetMethodID(PathClassLoaderClass, "<init>", "(Ljava/lang/String;Ljava/lang/ClassLoader;)V");
-    if(PathClassLoaderInit == nullptr){
+    auto SomeClassLoaderInit = env->GetMethodID(SomeClassLoaderClass, "<init>", "(LLjava/nio/ByteBuffer;Ljava/lang/ClassLoader;)V");
+    if(SomeClassLoaderInit == nullptr){
         getLogger().debug("Enpty LoaderInit");
         return;
     }
-    auto PathClassLoader = env->NewObject(PathClassLoaderClass, PathClassLoaderInit, path_str, ClassLoader);
+    auto SomeClassLoader = env->NewObject(SomeClassLoaderClass, SomeClassLoaderInit, buffobj, ClassLoader);
 
-    auto LoadClassMethod = env->GetMethodID(PathClassLoaderClass, "loadClass", "(Ljava/lang/String;)Ljava/lang/Class;");
-    auto return_value_of_loadClass = env->CallObjectMethod(PathClassLoader, LoadClassMethod, env->NewStringUTF("top.zxff.nativeblereader.BleReader"));
-    if(env->ExceptionCheck()){
-        getLogger().debug("Exception occurred");
-        env->ExceptionDescribe();
-        return;
-    }
+    auto LoadClassMethod = env->GetMethodID(SomeClassLoaderClass, "loadClass", "(Ljava/lang/String;)Ljava/lang/Class;");
+    auto return_value_of_loadClass = env->CallObjectMethod(SomeClassLoader, LoadClassMethod, env->NewStringUTF("top.zxff.nativeblereader.BleReader"));
+    
+    CHECK_EXCEPTION();
 
     // We can't use env->FindClass("top.zxff.nativeblereader.BleReader") to find our class
-    // Because we use a different class loader, which is a PathClassLoader,
+    // Because we use a different class loader, which is a InMemoryDexClassLoader,
     //      and FindClass uses the classloader that ralated to the top of call stack
     auto bleReaderClass = static_cast<jclass>(return_value_of_loadClass);
     if(bleReaderClass == nullptr){
@@ -161,11 +200,7 @@ void LoadJavaLibrary(std::string path){
     auto bleReaderCtor = env->GetMethodID(bleReaderClass, "<init>", "()V");
     bleReader = env->NewGlobalRef(env->NewObject(bleReaderClass, bleReaderCtor));
 
-    if(env->ExceptionCheck()){
-        getLogger().debug("Exception occurred");
-        env->ExceptionDescribe();
-        return;
-    }
+    CHECK_EXCEPTION();
 
     getLogger().debug("Java module loaded {} {} {}", (void*)bleReader_BleStart, (void*)bleReader_BleToggle, (void*)bleReader_IdDeviceSelected);
 }
