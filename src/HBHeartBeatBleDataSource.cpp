@@ -86,15 +86,16 @@ void LoadJavaLibrary(std::string path){
     auto ret = modloader_jvm->GetEnv((void**)&env, JNI_VERSION_1_6);
     
     if(env == nullptr){
-        getLogger().debug("JNI Env is nullptr");
+        getLogger().error("JNI Env is nullptr");
         return;
     }
     env->ExceptionClear();
 
 #define CHECK_EXCEPTION()  \
     do{if(env->ExceptionCheck()){\
-        getLogger().debug("Exception occurred (line {})", __LINE__);\
+        getLogger().error("JNI Exception at (line {})", __LINE__);\
         env->ExceptionDescribe();\
+        env->ExceptionClear();\
         return;\
     }}while(0)
 
@@ -125,7 +126,8 @@ void LoadJavaLibrary(std::string path){
         return;
     }
     auto ClassLoader = env->CallObjectMethod(unityPlayerClass, ClassClass_getClassLoader);
-    
+    CHECK_EXCEPTION();
+
     jobject buffobj;
     {
         std::vector<jbyte> file_content;
@@ -141,7 +143,7 @@ void LoadJavaLibrary(std::string path){
         }
 
         auto ByteBufferClass = env->FindClass("java/nio/ByteBuffer");
-        auto ByteBufferClass_allocateDirect = env->GetStaticMethodID(ByteBufferClass, "allocateDirect", "(I)Ljava/nio/ByteBuffer;")；
+        auto ByteBufferClass_allocateDirect = env->GetStaticMethodID(ByteBufferClass, "allocateDirect", "(I)Ljava/nio/ByteBuffer;");
         buffobj = env->CallStaticObjectMethod(ByteBufferClass, ByteBufferClass_allocateDirect, file_content.size());
         
         CHECK_EXCEPTION();
@@ -151,7 +153,6 @@ void LoadJavaLibrary(std::string path){
 
         auto ByteBufferClass_put = env->GetMethodID(ByteBufferClass, "put", "([B)Ljava/nio/ByteBuffer;");
         env->CallObjectMethod(buffobj, ByteBufferClass_put, arr);
-        env->DeleteLocalRef(arr);
         CHECK_EXCEPTION();
     }
 
@@ -160,12 +161,13 @@ void LoadJavaLibrary(std::string path){
         getLogger().error("can't find dalvik.system.InMemoryDexClassLoader");
         return;
     }
-    auto SomeClassLoaderInit = env->GetMethodID(SomeClassLoaderClass, "<init>", "(LLjava/nio/ByteBuffer;Ljava/lang/ClassLoader;)V");
+    auto SomeClassLoaderInit = env->GetMethodID(SomeClassLoaderClass, "<init>", "(Ljava/nio/ByteBuffer;Ljava/lang/ClassLoader;)V");
     if(SomeClassLoaderInit == nullptr){
         getLogger().debug("Enpty LoaderInit");
         return;
     }
     auto SomeClassLoader = env->NewObject(SomeClassLoaderClass, SomeClassLoaderInit, buffobj, ClassLoader);
+    CHECK_EXCEPTION();
 
     auto LoadClassMethod = env->GetMethodID(SomeClassLoaderClass, "loadClass", "(Ljava/lang/String;)Ljava/lang/Class;");
     auto return_value_of_loadClass = env->CallObjectMethod(SomeClassLoader, LoadClassMethod, env->NewStringUTF("top.zxff.nativeblereader.BleReader"));
@@ -202,26 +204,14 @@ void LoadJavaLibrary(std::string path){
 
     CHECK_EXCEPTION();
 
-    getLogger().debug("Java module loaded {} {} {}", (void*)bleReader_BleStart, (void*)bleReader_BleToggle, (void*)bleReader_IdDeviceSelected);
+    getLogger().info("Java module loaded {} {} {}", (void*)bleReader_BleStart, (void*)bleReader_BleToggle, (void*)bleReader_IdDeviceSelected);
 }
 
 
 HeartBeat::HeartBeatBleDataSource::HeartBeatBleDataSource(){
     bleDataSource = this;
     
-    bool need_restore_mode = false;
-    struct stat _stat;
-    
-    if(0 == stat(DEX_PATH, &_stat)){
-        need_restore_mode = true;
-        chmod(DEX_PATH, S_IRUSR|S_IRGRP|S_IROTH);
-    }
-
     LoadJavaLibrary(DEX_PATH);
-
-    if(need_restore_mode){
-        chmod(DEX_PATH, _stat.st_mode);
-    }
 }
 
 void HeartBeat::HeartBeatBleDataSource::SetSelectedBleMac(const std::string mac){ 
@@ -276,7 +266,7 @@ void HeartBeat::HeartBeatBleDataSource::InformNativeDevice(const std::string& ma
 void HeartBeat::HeartBeatBleDataSource::OnDataCome(const std::string& macAddr, int heartRate, long energy){
     this->heartbeat = heartRate;
     this->has_new_data = true;
-    this->energy.store(energy);
+    this->energy.store(energy); //energy is not work, idk how to read the data from java code. just forget it.
 }
 void HeartBeat::HeartBeatBleDataSource::OnEnergyReset(){
     this->persistent_energy.fetch_add(this->energy.load());
