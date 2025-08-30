@@ -195,7 +195,7 @@ The latest not tested version can be found at the [github action](https://github
 
  Mod Version |Compat Game Version | Developer Tested Game Version | Comment
 ---|---|---|---
-`0.3.4`|`1.35.0` - `1.40.8` | `1.40.8`
+`0.3.4` `0.3.5`|`1.35.0` - `1.40.8` | `1.40.8`
 `0.3.3`| `1.35.0` -  `1.40.8` |  `1.35.0` `1.37.0` `1.40.6` `1.40.7` `1.40.8`
 `0.3.2`| `1.40.6` | `1.40.6`
 `0.3.0`| `1.40.4`|`1.40.4`
@@ -207,6 +207,7 @@ The latest not tested version can be found at the [github action](https://github
 
 Feature | Supported Version
 --|--
+Replay support | `0.3.5` or higher version, with replay mod v0.5.0(for game 1.40.8)
 Pulsoid data source | `0.3.4` or higher version
 HypeRate data source | `0.2.6` or higher version
 Beatleader record | `0.2.5` or higher version, with beatleader 0.8.63(for game 1.37.0) or higher version
