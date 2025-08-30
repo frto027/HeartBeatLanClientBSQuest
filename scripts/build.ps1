@@ -27,6 +27,5 @@ if (($clean.IsPresent) -or (-not (Test-Path -Path "build"))) {
     new-item -Path build -ItemType Directory
 } 
 
-& cmake -G "Ninja" -DCMAKE_BUILD_TYPE="RelWithDebInfo" -B build
-# & cmake -G "Ninja" -DCMAKE_BUILD_TYPE="RelWithDebInfo" -DWITH_REPLAY=ON -B build
+& cmake -G "Ninja" -DCMAKE_BUILD_TYPE="RelWithDebInfo" -DWITH_REPLAY=ON -B build
 & cmake --build ./build

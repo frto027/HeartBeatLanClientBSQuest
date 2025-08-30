@@ -115,8 +115,7 @@ void RecordCallback(std::string name, int* length, void** data){
 // bool ReplayCallbackShouldCleanData = true;
 
 //this callback is called by replay mod
-template<const char* SourceName>
-void ReplayCallback(const char * buff, size_t length){
+void ReplayCallback(const char * buff, size_t length, std::string sourceName){
     recordStarted = false;// just make sure we have no bugs, it's already true here.
 
     // if(ReplayCallbackShouldCleanData){
@@ -167,10 +166,10 @@ void ReplayCallback(const char * buff, size_t length){
     unsigned int ver;
     if(!GetUInt32(ver))
         return;
-    getLogger().info("{}: replay data detected, version {}.", SourceName, ver);
+    getLogger().info("{}: replay data detected, version {}.", sourceName, ver);
 
     if(ver != 1){
-        getLogger().info("{}: the replay data version is not supported.", SourceName);
+        getLogger().info("{}: the replay data version is not supported.", sourceName);
         return;
     }
     unsigned int recordCount;
@@ -189,7 +188,7 @@ void ReplayCallback(const char * buff, size_t length){
         // getLogger().info("timestamp {}, data {}", timestamp, heartrate);
         recordData.emplace_back(timestamp, heartrate);
     }
-    getLogger().info("{}: {} heart rate data loaded.", SourceName, recordData.size());
+    getLogger().info("{}: {} heart rate data loaded.", sourceName, recordData.size());
 
 
     //actually we don't care about it
@@ -283,9 +282,13 @@ void Init(){
     if(AddReplayCustomDataCallback.has_value()){
         getLogger().info("Replay mod is detected, enable replay support");
         needReplay = true;
-        AddReplayCustomDataCallback.value()("HeartBeatQuest", ReplayCallback<"HeartBeatQuest">);
+        AddReplayCustomDataCallback.value()("HeartBeatQuest", [](const char *buff, size_t length){
+            ReplayCallback(buff, length, "HeartBeatQuest");
+        });
         // currently, compat with HRCounter is not considered because it doesn't support record
-        // AddReplayCustomDataCallback.value()("HRCounter", ReplayCallback<"HRCounter">);
+        // AddReplayCustomDataCallback.value()("HeartBeatQuest", [](const char *buff, size_t length){
+        //     ReplayCallback(buff, length, "HRCounter");
+        // });
     }
     #endif
     IsInReplay = CondDeps::FindUnsafe<bool>("replay", "IsInReplay");
@@ -334,7 +337,7 @@ bool ReplayGetData(int &heartrate){
         }
 
         //this only happens when player changes the replay progress
-        getLogger().info("search from {} datas", recordData.size());
+        // getLogger().debug("search from {} datas", recordData.size());
         for(int i=0;i<recordData.size();i++){
             //we don't need a binary search  
             if(isInSection(i)){
