@@ -12,11 +12,11 @@
 #include "BeatLeaderRecorder.hpp"
 #include <sys/stat.h>
 
-#define DEX_PATH "/sdcard/ModData/com.beatgames.beatsaber/Mods/HeartBeatQuest/HeartBeatBLEReader.dex"
-
 namespace HeartBeat{
     DECLARE_DATA_SOURCE(HeartBeatBleDataSource)
 }
+
+#include "HeartBeatBLEDex.inl"
 
 HeartBeat::HeartBeatBleDataSource * bleDataSource;
 
@@ -54,7 +54,7 @@ void ScanDevices(){
     //also check permissions
     env->CallVoidMethod(bleReader, bleReader_BleStart);
     if(env->ExceptionCheck()){
-        getLogger().debug("Exception occurred");
+        getLogger().error("Exception occurred in JNI");
         env->ExceptionDescribe();
         return;
     }
@@ -63,7 +63,7 @@ void ScanDevices(){
 bool ToggleDevice(std::string macAddr, jboolean selected){
     auto ret = env->CallBooleanMethod(bleReader, bleReader_BleToggle, env->NewStringUTF(macAddr.c_str()),selected);
     if(env->ExceptionCheck()){
-        getLogger().debug("Exception occurred");
+        getLogger().error("Exception occurred in JNI");
         env->ExceptionDescribe();
         return false;
     }    
@@ -73,14 +73,14 @@ bool ToggleDevice(std::string macAddr, jboolean selected){
 bool IsDeviceSelected(std::string macAddr){
     auto ret = env->CallBooleanMethod(bleReader, bleReader_IdDeviceSelected, env->NewStringUTF(macAddr.c_str()));
         if(env->ExceptionCheck()){
-        getLogger().debug("Exception occurred");
+        getLogger().error("Exception occurred in JNI");
         env->ExceptionDescribe();
         return false;
     }
     return ret;
 }
 
-void LoadJavaLibrary(std::string path){
+void LoadJavaLibrary(){
     // use jni to load a java library to access bluetooth devices
 
     auto ret = modloader_jvm->GetEnv((void**)&env, JNI_VERSION_1_6);
@@ -129,34 +129,15 @@ void LoadJavaLibrary(std::string path){
     CHECK_EXCEPTION();
 
     jobject buffobj;
-    {
-        std::vector<jbyte> file_content;
-        FILE * f = fopen(path.c_str(), "rb");
-        if(f){
-            while(!feof(f)){
-                char buff[1024];
-                int c = fread(buff, 1,1024, f);
-                if(c > 0){
-                    size_t cur_size = file_content.size();
-                    file_content.resize(cur_size + c);
-                    memcpy(&file_content[cur_size], buff, c);
-                }
-            }
-            fclose(f);
-        }
+    {        
+        auto arr = env->NewByteArray(sizeof(ble_dex));
+        env->SetByteArrayRegion(arr, 0, sizeof(ble_dex), (const jbyte*)&*ble_dex);
+        
+        CHECK_EXCEPTION();
 
         auto ByteBufferClass = env->FindClass("java/nio/ByteBuffer");
-        auto ByteBufferClass_allocateDirect = env->GetStaticMethodID(ByteBufferClass, "allocateDirect", "(I)Ljava/nio/ByteBuffer;");
-        buffobj = env->CallStaticObjectMethod(ByteBufferClass, ByteBufferClass_allocateDirect, file_content.size());
-        
-        CHECK_EXCEPTION();
-        
-        auto arr = env->NewByteArray(file_content.size());
-        env->SetByteArrayRegion(arr, 0, file_content.size(), file_content.data());
-
-        auto ByteBufferClass_put = env->GetMethodID(ByteBufferClass, "put", "([B)Ljava/nio/ByteBuffer;");
-        env->CallObjectMethod(buffobj, ByteBufferClass_put, arr);
-        CHECK_EXCEPTION();
+        auto ByteBufferClass_wrap = env->GetStaticMethodID(ByteBufferClass, "wrap", "([B)Ljava/nio/ByteBuffer;");
+        buffobj = env->CallStaticObjectMethod(ByteBufferClass, ByteBufferClass_wrap, arr);
     }
 
     auto SomeClassLoaderClass = env->FindClass("dalvik/system/InMemoryDexClassLoader");
@@ -169,9 +150,10 @@ void LoadJavaLibrary(std::string path){
         getLogger().debug("Enpty LoaderInit");
         return;
     }
+    getLogger().debug("newObject");
     auto SomeClassLoader = env->NewObject(SomeClassLoaderClass, SomeClassLoaderInit, buffobj, ClassLoader);
     CHECK_EXCEPTION();
-
+    getLogger().debug("will loadClass()");
     auto LoadClassMethod = env->GetMethodID(SomeClassLoaderClass, "loadClass", "(Ljava/lang/String;)Ljava/lang/Class;");
     auto return_value_of_loadClass = env->CallObjectMethod(SomeClassLoader, LoadClassMethod, env->NewStringUTF("top.zxff.nativeblereader.BleReader"));
     
@@ -214,7 +196,7 @@ void LoadJavaLibrary(std::string path){
 HeartBeat::HeartBeatBleDataSource::HeartBeatBleDataSource(){
     bleDataSource = this;
     
-    LoadJavaLibrary(DEX_PATH);
+    LoadJavaLibrary();
 }
 
 void HeartBeat::HeartBeatBleDataSource::SetSelectedBleMac(const std::string mac){ 
