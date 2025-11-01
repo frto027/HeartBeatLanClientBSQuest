@@ -184,7 +184,7 @@ dataCount               - int, how many data we will have later
   heartRate             - int, heart rate data
 }
 
-bluetoothDeviceName     - string, a utf-8 format byte array directly from from Java VM
+bluetoothDeviceName     - string(4b-length int, follows length-bytes content), a utf-8 format byte array directly from from Java VM
 ```
 
 ## Game Version Support Matrix
