@@ -17,6 +17,11 @@
 # HypeRate数据源
 
 此方式无需bluetooth权限。心率设备连接手机配置好[HypeRate](https://www.hyperate.io/)，在游戏左侧菜单选择HypeRate作为数据源后重启游戏，然后在HypeRate菜单中输入你的HypeRateID即可使用。
+此数据源通过cloudflare服务器进行数据转发。
+
+# Pulsoid数据源
+
+同HypeRate，你需要在手机上安装[Pulsoid](https://pulsoid.net/)的APP，然后在游戏中选择Pulsoid数据源，重启游戏后在数据源菜单中登录账号。由于此数据源是直连方式，可能网络状况不佳。
 
 # OSC数据源
 
