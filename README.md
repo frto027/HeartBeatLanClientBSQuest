@@ -79,9 +79,12 @@ After you change the data source to OSC in the setthings menu, the port will be 
 
 This mod supports the [Pulsoid](https://pulsoid.net/) as the data source. In the mod config menu select Pulsoid as data source, then restart the game. Follow the guide inside the PULSOID menu, click Open and then connect to pulsoid inside your quest's webbrowser. Then click Done button.
 
+You can input your token, or sign in your pulsoid account directly.(Special thanks to Pulsoid for providing API support)
+
 > [!NOTE]
-> **PULSOID WITH PULSOID SERVER ONLY**  
-> You can also edit your mod config file directly to skip this step. Your game is directly connected to pulsoid server, nothing will be forwarded.
+> **PULSOID WITHOUT HEARTBEATQUEST SERVER FORWARD**  
+> All your heart rate data is obtained directly from pulsoid server. But your token is forwarded from HeartBeatQuest's server when first connect.
+> You can also edit your mod config file directly to skip the token forward. Your game is directly connected to pulsoid server, nothing will be forwarded.
 
 # Default UI and DIY
 
@@ -226,4 +229,5 @@ And thanks to everyone who has directly or indirectly supported this mod.
 * [Lauriethefish](https://github.com/Lauriethefish), [danrouse](https://github.com/danrouse) and [Bobby Shmurner](https://github.com/BobbyShmurner) for [this template](https://github.com/Lauriethefish/quest-mod-template)
 * NSGolova - [beatleader](https://github.com/BeatLeader/beatleader-qmod) for record  and webreplay support
 * And other developers is BSMG Discord channel.
-* [Hyperate](https://www.hyperate.io) provide api support. 
+* [Hyperate](https://www.hyperate.io) provide api support.
+* [Pulsoid](https://pulsoid.net/) provide api support. 
