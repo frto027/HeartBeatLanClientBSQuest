@@ -171,59 +171,9 @@ void Update(){
 }
 ```
 
+# Other Information
 
-## Replay Structure
-
-The mod records hearts data to replay file with mod ID `HeartBeatQuest`.
-
-little endian, 4 byte int, 4 byte float, string(length+bytes), which follows [BSOR](https://github.com/BeatLeader/BS-Open-Replay) format
-
-```
-version                 - int, the value is always 1
-dataCount               - int, how many {time, heartRate} data we will have later
-
-{                       - heart rate datas, repeat dataCount times
-  time                  - float, timestamp, the mod read it from 'audioTimeSyncController->songTime'
-  heartRate             - int, heart rate data
-}
-
-heartRateDeviceName     - string(4b-length int, follows length-bytes content), a utf-8 format byte array directly from from Java VM
-
-- The remaining data may not exist in the replay file, check the replay custom data length before read them.
-
-hrAgent                 - string, just like 'user agent' in webbrowser, describe what the heart rate mod is. e.g. the mod name and mod version
-
-- For future compatability, you should assume that there may be more data in the replay file.
-
-```
-
-## Game Version Support Matrix
-
-If you have trouble with the latest version, you can download the developer tested mod of your game version, or report it at issue.
-
-The latest not tested version can be found at the [github action](https://github.com/frto027/HeartBeatLanClientBSQuest/actions/workflows/qmod_build.yml) page, or [pull request](https://github.com/frto027/HeartBeatLanClientBSQuest/pulls) page for the latest game version by an auto bump robot if avaliable.
-
- Mod Version |Compat Game Version | Developer Tested Game Version | Comment
----|---|---|---
-`0.3.4` `0.3.5`|`1.35.0` - `1.40.8` | `1.40.8`
-`0.3.3`| `1.35.0` -  `1.40.8` |  `1.35.0` `1.37.0` `1.40.6` `1.40.7` `1.40.8`
-`0.3.2`| `1.40.6` | `1.40.6`
-`0.3.0`| `1.40.4`|`1.40.4`
-`0.2.3` - `0.2.6`| `1.37.0` | `1.37.0`
-`0.2.0` - `0.2.2`| `1.35.0`|`1.35.0`
-`0.1.0` - `0.1.1`| `1.28.0`|`1.28.0`| Very early version, hard to use, don't use it
-
-## Key Features
-
-Feature | Supported Version
---|--
-Replay support | `0.3.5` or higher version, with replay mod v0.5.0(for game 1.40.8)
-Pulsoid data source | `0.3.4` or higher version
-HypeRate data source | `0.2.6` or higher version
-Beatleader record | `0.2.5` or higher version, with beatleader 0.8.63(for game 1.37.0) or higher version
-OSC data source | `0.2.2` or higher version
-Bluetooth inside the game|`0.2.1`
-
+For mod version unrelated information, like Replay data format and supported game information, please refer to [wiki](https://github.com/frto027/HeartBeatLanClientBSQuest/wiki)
 
 # Credits
 
