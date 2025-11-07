@@ -187,10 +187,15 @@ dataCount               - int, how many data we will have later
   heartRate             - int, heart rate data
 }
 
-bluetoothDeviceName     - string(4b-length int, follows length-bytes content), a utf-8 format byte array directly from from Java VM
-```
+heartRateDeviceName     - string(4b-length int, follows length-bytes content), a utf-8 format byte array directly from from Java VM
 
-If the total data length in the record file is longer than expected, please ignore them. The data format may add new field in the future. This is for both forward compatibility and scalability.
+- The remaining data may not exist in the replay file, check the replay custom data length before read them.
+
+hrAgent                 - string, just like 'user agent' in webbrowser, describe what the heart rate mod is. e.g. the mod name and mod version
+
+- For future compatability, you should assume that there may be more data in the replay file.
+
+```
 
 ## Game Version Support Matrix
 
