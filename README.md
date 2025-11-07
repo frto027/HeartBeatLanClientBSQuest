@@ -190,6 +190,8 @@ dataCount               - int, how many data we will have later
 bluetoothDeviceName     - string(4b-length int, follows length-bytes content), a utf-8 format byte array directly from from Java VM
 ```
 
+If the total data length in the record file is longer than expected, please ignore them. The data format may add new field in the future. This is for both forward compatibility and scalability.
+
 ## Game Version Support Matrix
 
 If you have trouble with the latest version, you can download the developer tested mod of your game version, or report it at issue.
