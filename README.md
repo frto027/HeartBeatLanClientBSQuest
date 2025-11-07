@@ -180,10 +180,10 @@ little endian, 4 byte int, 4 byte float, string(length+bytes), which follows [BS
 
 ```
 version                 - int, the value is always 1
-dataCount               - int, how many data we will have later
+dataCount               - int, how many {time, heartRate} data we will have later
 
 {                       - heart rate datas, repeat dataCount times
-  time                  - float, timestamp
+  time                  - float, timestamp, the mod read it from 'audioTimeSyncController->songTime'
   heartRate             - int, heart rate data
 }
 
