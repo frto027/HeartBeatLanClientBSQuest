@@ -111,6 +111,11 @@ void RecordCallback(std::string name, int* length, void** data){
         PushStr(HEART_DEV_NAME_HIDE);
     }
     
+    // v_bs is build variant, not the actual game version.
+    const char * hrAgent = "HeartBeatQuest/" VERSION " (bs_" GAME_VERSION ")";
+
+    PushStr(hrAgent);
+
     *length = datas.size();
     *data = datas.data();
 
