@@ -86,7 +86,13 @@ void RecordCallback(std::string name, int* length, void** data){
             datas.push_back(str[i]);
         }
     };
-    
+    auto PushCppStr = [&](const std::string& str){
+        size_t len = str.size();
+        PushUInt32(len);
+        for(int i=0;i<len;i++){
+            datas.push_back(str[i]);
+        }
+    };    
     size_t recordCount = recordData.size();
 
     getLogger().info("encoding {} heart record to replay.", recordCount);
@@ -100,7 +106,7 @@ void RecordCallback(std::string name, int* length, void** data){
     }
 
     if(getModConfig().EnableRecord.GetValue() && getModConfig().RecordDevName.GetValue()){
-        PushStr(heartDeviceName.c_str());
+        PushCppStr(heartDeviceName);
     }else{
         PushStr(HEART_DEV_NAME_HIDE);
     }

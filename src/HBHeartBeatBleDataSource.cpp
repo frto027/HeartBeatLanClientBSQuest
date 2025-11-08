@@ -35,14 +35,18 @@ Java_top_zxff_nativeblereader_BleReader_OnDeviceData
     env->ReleaseStringUTFChars(macAddr, chars);
 }
 JNIEXPORT void JNICALL
-Java_top_zxff_nativeblereader_BleReader_InformNativeDevice(JNIEnv *env, jobject thiz, jstring macAddr, jstring name){
+Java_top_zxff_nativeblereader_BleReader_InformNativeDevice(JNIEnv *env, jobject thiz, jstring macAddr, jbyteArray name){
     //Add the ui or do something...
     //bleReader_BleStart call this function in java code
     auto macChar = env->GetStringUTFChars(macAddr, NULL);
-    auto nameChar = env->GetStringUTFChars(name, NULL);
-    bleDataSource->InformNativeDevice(macChar, nameChar);
+    
+    jbyte *name_buff = env->GetByteArrayElements(name, NULL);
+    jsize name_len = env->GetArrayLength(name);
+    std::string name_str((char*)name_buff, (size_t)name_len);
+
+    bleDataSource->InformNativeDevice(macChar, name_str);
     env->ReleaseStringUTFChars(macAddr, macChar);
-    env->ReleaseStringUTFChars(name, nameChar);
+    env->ReleaseByteArrayElements(name, name_buff, 0);
 }
 JNIEXPORT void JNICALL
 Java_top_zxff_nativeblereader_BleReader_OnEnergyReset

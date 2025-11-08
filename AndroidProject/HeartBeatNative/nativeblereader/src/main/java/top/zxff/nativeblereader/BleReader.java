@@ -21,6 +21,8 @@ import androidx.core.app.ActivityCompat;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.UUID;
@@ -36,7 +38,7 @@ public class BleReader {
             .loadClass("top.zxff.nativeblereader.BleReader");
     }
 
-    public native void InformNativeDevice(String macAddr, String deviceName);
+    public native void InformNativeDevice(String macAddr, byte[] deviceName);
     public native void OnDeviceData(String macAddr, int heartRate, long energy);
     public native void OnEnergyReset();
     public boolean IsDeviceSelected(String macAddr){
@@ -209,7 +211,7 @@ public class BleReader {
                 BleDevices.put(bluetoothDevice.getAddress(),
                         new DeviceStatus(bluetoothDevice));
             }
-            InformNativeDevice(bluetoothDevice.getAddress(), bluetoothDevice.getName());
+            InformNativeDevice(bluetoothDevice.getAddress(), bluetoothDevice.getName().getBytes(StandardCharsets.UTF_8));
         }
     }
 
