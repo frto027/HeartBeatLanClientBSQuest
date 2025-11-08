@@ -178,7 +178,7 @@ void LoadJavaLibrary(){
 
     static const JNINativeMethod methods[] = {
         {"OnDeviceData", "(Ljava/lang/String;IJ)V", reinterpret_cast<void*>(Java_top_zxff_nativeblereader_BleReader_OnDeviceData)},
-        {"InformNativeDevice", "(Ljava/lang/String;Ljava/lang/String;)V", reinterpret_cast<void*>(Java_top_zxff_nativeblereader_BleReader_InformNativeDevice)},
+        {"InformNativeDevice", "(Ljava/lang/String;[B)V", reinterpret_cast<void*>(Java_top_zxff_nativeblereader_BleReader_InformNativeDevice)},
         {"OnEnergyReset","()V",reinterpret_cast<void*>(Java_top_zxff_nativeblereader_BleReader_OnEnergyReset)},
     };
     int rc = env->RegisterNatives(bleReaderClass, methods, sizeof(methods)/sizeof(JNINativeMethod));
