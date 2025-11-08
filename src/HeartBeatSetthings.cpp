@@ -765,12 +765,12 @@ namespace SetthingUI{
     }
 
     void Setup(){
-        BSML::Register::RegisterMainMenuViewControllerMethod("HeartBeatLan", LANG->heart_config, "<3", SetthingUI::DidSetthingsActivate);
+        BSML::Register::RegisterMainMenuViewControllerMethod("HeartBeatQuest Main Config", LANG->heart_config, "<3", SetthingUI::DidSetthingsActivate);
         if(ModEnabled == false)
             return;
         if(HeartBeat::dataSourceType == HeartBeat::DS_BLE){
             BSML::Register::RegisterMainMenuViewControllerMethod(
-                "HeartBeatLan", LANG->heart_devices,"<3", 
+                "Bluetooth Device", LANG->heart_devices,"<3", 
                 SetthingUI::BleDataSource::DidDevicesActivate);
             HeartBeat::DataSource::getInstance<HeartBeat::HeartBeatBleDataSource>()->ScanDevice();
         }
@@ -784,18 +784,18 @@ namespace SetthingUI{
         }
         if(HeartBeat::dataSourceType == HeartBeat::DS_OSC){
             BSML::Register::RegisterMainMenuViewControllerMethod(
-                "HeartBeatLan", LANG->heart_osc_senders, "<3",
+                "OSC Source", LANG->heart_osc_senders, "<3",
                 SetthingUI::OscDataSource::DidDevicesActivate);
         }
         if(HeartBeat::dataSourceType == HeartBeat::DS_HypeRate){
             BSML::Register::RegisterMainMenuViewControllerMethod(
-                "HeartBeatLan", LANG->hyperate, "<3",
+                "HypeRate Connect", LANG->hyperate, "<3",
                 SetthingUI::HypeRateSource::DidDevicesActivate);
 
         }
         if(HeartBeat::dataSourceType == HeartBeat::DS_Pulsoid){
             BSML::Register::RegisterMainMenuViewControllerMethod(
-                "HeartBeatLan", LANG->pulsoid, "<3",
+                "Pulsoid Connect", LANG->pulsoid, "<3",
                 SetthingUI::PulsoidSource::DidDevicesActivate);
 
         }
