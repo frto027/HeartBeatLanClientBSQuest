@@ -41,14 +41,16 @@ struct HeartBeatApi{
         argument:
             Updater: a function pointer that act as the GetData function
 
-        provide your own data updater to heart mod.
+        Provide your own data updater to heart mod.
 
-        if the Updater is not nullptr, it will replace the internal GetData function.
-        then the heart mod will display heart rate provided by this Updater, instead of
-        data from physical sensors or network data sources. the result of GetData is 
+        Recorder will ignore the data provided by ALternateDataUpdater.
+
+        If the Updater is not nullptr, it will replace the internal GetData function.
+        Then the heart mod will display heart rate provided by this Updater, instead of
+        data from physical sensors or network data sources. The result of GetData is 
         also affected. The updater will be called once per frame if someone calls Update.
 
-        if the Updater is nullptr, the physical data will be used.
+        If the Updater is nullptr, the physical data will be used.
     */
     void (*SetAlternateDataUpdater)(int (*Updater)(int* heart_output));
 
