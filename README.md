@@ -1,6 +1,6 @@
 # HeartBeatQuest (BeatSaber mod)
 
-[![QMOD BUILD](https://github.com/frto027/HeartBeatLanClientBSQuest/actions/workflows/qmod_build.yml/badge.svg)](https://github.com/frto027/HeartBeatLanClientBSQuest/actions/workflows/qmod_build.yml) ![GitHub Release](https://img.shields.io/github/v/release/Frto027/HeartBeatLanClientBSQuest?include_prereleases)
+[![QMOD BUILD](https://github.com/frto027/HeartBeatQuest/actions/workflows/qmod_build.yml/badge.svg)](https://github.com/frto027/HeartBeatQuest/actions/workflows/qmod_build.yml) ![GitHub Release](https://img.shields.io/github/v/release/Frto027/HeartBeatQuest?include_prereleases)
 
 > [!TIP]
 > This mod is for the quest platform. For PC platform you should use [HRCounter](https://github.com/qe201020335/HRCounter).
@@ -65,13 +65,13 @@ This mod supports the [HypeRate](https://www.hyperate.io/) as the data source. J
 
 > [!NOTE]
 > **ONLINE DATA COLLECTION**  
-> This is an online service, which means I need collect some game information to make sure the service has no problem, such as [the version number](https://github.com/frto027/HeartBeatLanClientBSQuest/blob/4243eadcc4062ee619a6606da65a1ba4d50d91c8/src/HBHeartBeatHypeRateDataSource.cpp#L327). This data is only used to check for service errors and is usually automatically deleted within 3 days. If you don't want send these data to server, you can use other data sources. If you have trouble, please make sure your quest device is able to access [this website](https://heart.0xf7.top/).
+> This is an online service, which means I need collect some game information to make sure the service has no problem, such as [the version number](https://github.com/frto027/HeartBeatQuest/blob/4243eadcc4062ee619a6606da65a1ba4d50d91c8/src/HBHeartBeatHypeRateDataSource.cpp#L327). This data is only used to check for service errors and is usually automatically deleted within 3 days. If you don't want send these data to server, you can use other data sources. If you have trouble, please make sure your quest device is able to access [this website](https://heart.0xf7.top/).
 >
 > This mod use Cloudflare as the super cool and fast backend.
 
 ## OSC as the heart data source
 
-Use your favorite heart rate OSC senders, send to the port 9000 for your quest device.**If your sender program is not supported by this mod, please [let me know](https://github.com/frto027/HeartBeatLanClientBSQuest/issues).**
+Use your favorite heart rate OSC senders, send to the port 9000 for your quest device.**If your sender program is not supported by this mod, please [let me know](https://github.com/frto027/HeartBeatQuest/issues).**
 
 After you change the data source to OSC in the setthings menu, the port will be show in the menu, and can edit manually via config file if you need. 
 
@@ -128,7 +128,7 @@ The Bluetooth access code at `AndroidProject/HeartBeatNative` can be compiled wi
 
 **make sure you have cloned the submodules.**
 ```sh
-git clone --recursive git@github.com:frto027/HeartBeatLanClientBSQuest.git
+git clone --recursive git@github.com:frto027/HeartBeatQuest.git
 ```
 
 You need an environment variable `ANDROID_NDK_HOME` with proper value. Do NOT use `ndkpath.txt`.
@@ -173,7 +173,7 @@ void Update(){
 
 # Other Information
 
-For mod version unrelated information, like Replay data format and supported game information, please refer to [wiki](https://github.com/frto027/HeartBeatLanClientBSQuest/wiki)
+For mod version unrelated information, like Replay data format and supported game information, please refer to [wiki](https://github.com/frto027/HeartBeatQuest/wiki)
 
 # Credits
 
