@@ -1,6 +1,6 @@
 # HeartBeatQuest (BeatSaber mod)
 
-[![QMOD BUILD](https://github.com/frto027/HeartBeatQuest/actions/workflows/qmod_build.yml/badge.svg)](https://github.com/frto027/HeartBeatQuest/actions/workflows/qmod_build.yml) ![GitHub Release](https://img.shields.io/github/v/release/Frto027/HeartBeatQuest?include_prereleases)
+[![QMOD BUILD](https://github.com/frto027/HeartBeatQuest/actions/workflows/qmod_build.yml/badge.svg)](https://github.com/frto027/HeartBeatQuest/actions/workflows/qmod_build.yml) ![GitHub Release](https://img.shields.io/github/v/release/frto027/HeartBeatQuest?include_prereleases)
 
 > [!TIP]
 > This mod is for the quest platform. For PC platform you should use [HRCounter](https://github.com/qe201020335/HRCounter).
