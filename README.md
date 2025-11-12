@@ -143,7 +143,7 @@ See [multibuild](./multibuild) directory to build for old game version.
 
 ### Basic API Usage
 
-Copy `shared/HeartBeatApi.h` file to your mod
+Copy `shared/HeartBeatApi.h` file to your mod. It is header-only, so you don't need a hard dependency.
 
 The file is clean, and only depends on `scotland2` mod loader.
 
