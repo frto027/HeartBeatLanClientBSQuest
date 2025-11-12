@@ -171,6 +171,10 @@ void Update(){
 }
 ```
 
+### API ChangeLog
+
+- `0.3.6` The mod id will be changed to `HeartBeatQuest` for game version larger than `v1.40.8`(not included). Add support for the new mod id.
+
 # Other Information
 
 For mod version unrelated information, like Replay data format and supported game information, please refer to [wiki](https://github.com/frto027/HeartBeatQuest/wiki)
